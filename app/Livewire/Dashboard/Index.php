@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Livewire\Dashboard;
 
 use App\Models\Empresa;
-use App\Models\Usuario;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Route;
 use Livewire\Component;
 
 /**
@@ -32,7 +32,7 @@ class Index extends Component
     public function mount(): void
     {
         // ✅ Tenant context já definido pelo middleware SetTenantContext
-        $empresa = app('current.company');
+        $empresa = $this->currentCompany();
 
         if (! $empresa) {
             abort(403, 'Usuário não está associado a nenhuma empresa');
@@ -49,7 +49,7 @@ class Index extends Component
      */
     public function carregarDados(): void
     {
-        $empresa = app('current.company');
+        $empresa = $this->currentCompany();
 
         if (! $empresa) {
             $this->estatisticas = $this->estatisticasVazias();
@@ -174,7 +174,7 @@ class Index extends Component
                 'icone' => 'information-circle',
                 'acao' => [
                     'label' => 'Cadastrar Filial',
-                    'url' => route('filiais.create'),
+                    'url' => Route::has('filiais.create') ? route('filiais.create') : route('empresas.ui'),
                 ],
             ];
         }
@@ -242,7 +242,7 @@ class Index extends Component
      */
     public function atualizar(): void
     {
-        $empresa = app('current.company');
+        $empresa = $this->currentCompany();
 
         if (! $empresa) {
             $this->dispatch('notify', [
@@ -273,5 +273,16 @@ class Index extends Component
     public function render()
     {
         return view('livewire.dashboard.index');
+    }
+
+    private function currentCompany(): ?Empresa
+    {
+        if (! app()->bound('current.company')) {
+            return null;
+        }
+
+        $empresa = app('current.company');
+
+        return $empresa instanceof Empresa ? $empresa : null;
     }
 }

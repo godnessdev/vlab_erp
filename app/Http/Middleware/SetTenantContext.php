@@ -10,13 +10,9 @@ use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Middleware de Tenant Context
+ * Middleware de Tenant Context.
  *
- * Define o contexto da empresa (tenant) atual para o usuário logado
- *
- * ✅ Multitenancy: Isola dados por empresa
- * ✅ Security: Verifica se usuário tem acesso à empresa
- * ✅ Performance: Cache do tenant context na sessão
+ * Define o contexto da empresa (tenant) atual para o usuario logado.
  */
 class SetTenantContext
 {
@@ -25,38 +21,32 @@ class SetTenantContext
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Se não estiver autenticado, pular
         if (! Auth::check()) {
             return $next($request);
         }
 
         $user = Auth::user();
-
-        // Buscar empresa do contexto (sessão ou primeira empresa do usuário)
         $empresaId = session('current_company_id');
+        $empresa = null;
 
         if ($empresaId) {
-            // Verificar se usuário tem acesso a esta empresa
             $empresa = $user->empresas()
                 ->where('empresas.id', $empresaId)
                 ->first();
-        } else {
-            // Buscar primeira empresa do usuário
+        }
+
+        if (! $empresa) {
             $empresa = $user->empresas()->first();
 
-            // Salvar na sessão
             if ($empresa) {
                 session(['current_company_id' => $empresa->id]);
+            } else {
+                session()->forget('current_company_id');
             }
         }
 
-        // Definir empresa no container
-        if ($empresa) {
-            app()->instance('current.company', $empresa);
-
-            // Também disponibilizar via helper
-            app()->instance('tenant', $empresa);
-        }
+        app()->instance('current.company', $empresa);
+        app()->instance('tenant', $empresa);
 
         return $next($request);
     }

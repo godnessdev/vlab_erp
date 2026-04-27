@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Layout;
 
+use Illuminate\Support\Facades\Route;
 use Livewire\Component;
 
 class SidebarMenuItem extends Component
@@ -30,6 +31,15 @@ class SidebarMenuItem extends Component
         if (isset($this->item['children'])) {
             $this->expanded = ! $this->expanded;
         }
+    }
+
+    public function itemUrl(array $item): string
+    {
+        if (isset($item['route'])) {
+            return Route::has($item['route']) ? route($item['route']) : '#';
+        }
+
+        return $item['url'] ?? '#';
     }
 
     public function render()

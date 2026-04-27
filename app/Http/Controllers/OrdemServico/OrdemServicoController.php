@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\OrdemServico;
 
 use App\Http\Controllers\Controller;
-use App\Models\OrdemServico\OrdemServico;
-use App\Services\OrdemServico\OrdemServicoService;
+use App\Domain\OrdemServico\Enums\StatusOrdemServico;
+use App\Domain\OrdemServico\Models\OrdemServico;
+use App\Domain\OrdemServico\Services\OrdemServicoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -24,17 +25,11 @@ class OrdemServicoController extends Controller
         $status = $request->get('status');
         $clienteId = $request->get('cliente_id');
 
-        $query = OrdemServico::with(['cliente', 'servico', 'responsavel', 'equipe', 'itens.servico']);
-
-        if ($status) {
-            $query->where('status', $status);
-        }
-
-        if ($clienteId) {
-            $query->where('cliente_id', $clienteId);
-        }
-
-        $ordens = $query->orderBy('created_at', 'desc')->paginate($perPage);
+        $ordens = $this->ordemServicoService->buscar(array_filter([
+            'status' => $status,
+            'cliente_id' => $clienteId,
+            'empresa_id' => tenant_id(),
+        ]), (int) $perPage);
 
         return response()->json($ordens);
     }
@@ -61,13 +56,11 @@ class OrdemServicoController extends Controller
             'itens.*.descricao' => 'nullable|string',
         ]);
 
-        $ordem = $this->ordemServicoService->criarOrdem($validated);
+        $validated['empresa_id'] = tenant_id();
+        $ordem = $this->ordemServicoService->criar($validated, $request->user());
 
         return response()->json($ordem->load([
             'cliente',
-            'servico',
-            'responsavel',
-            'equipe',
             'itens.servico',
         ]), Response::HTTP_CREATED);
     }
@@ -79,9 +72,6 @@ class OrdemServicoController extends Controller
     {
         return response()->json($ordem->load([
             'cliente',
-            'servico',
-            'responsavel',
-            'equipe',
             'itens.servico',
         ]));
     }
@@ -108,9 +98,6 @@ class OrdemServicoController extends Controller
 
         return response()->json($ordem->load([
             'cliente',
-            'servico',
-            'responsavel',
-            'equipe',
             'itens.servico',
         ]));
     }
@@ -141,13 +128,15 @@ class OrdemServicoController extends Controller
             'observacoes' => 'nullable|string',
         ]);
 
-        $ordem = $this->ordemServicoService->atualizarStatus($ordem, $validated['status'], $validated['observacoes'] ?? null);
+        $this->ordemServicoService->alterarStatus(
+            $ordem,
+            StatusOrdemServico::from($validated['status']),
+            $request->user(),
+            $validated['observacoes'] ?? null
+        );
 
         return response()->json($ordem->load([
             'cliente',
-            'servico',
-            'responsavel',
-            'equipe',
             'itens.servico',
         ]));
     }
@@ -163,13 +152,7 @@ class OrdemServicoController extends Controller
 
         $ordem->update(['equipe_id' => $validated['equipe_id']]);
 
-        return response()->json($ordem->load([
-            'cliente',
-            'servico',
-            'responsavel',
-            'equipe',
-            'itens.servico',
-        ]));
+        return response()->json($ordem->load(['cliente', 'itens.servico']));
     }
 
     /**
@@ -179,8 +162,9 @@ class OrdemServicoController extends Controller
     {
         $perPage = $request->get('per_page', 15);
 
-        $ordens = OrdemServico::with(['cliente', 'servico', 'responsavel', 'equipe', 'itens.servico'])
+        $ordens = OrdemServico::with(['cliente', 'itens.servico'])
             ->where('status', $status)
+            ->when(tenant_id(), fn ($query, $empresaId) => $query->where('empresa_id', $empresaId))
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
 

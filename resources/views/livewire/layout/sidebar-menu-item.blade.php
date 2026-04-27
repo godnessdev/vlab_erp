@@ -88,7 +88,7 @@
                 aria-label="Submenu {{ $item['label'] }}">
                 @foreach($item['children'] as $child)
                     <li role="none">
-                        <a href="{{ isset($child['route']) ? route($child['route']) : $child['url'] }}"
+                        <a href="{{ $this->itemUrl($child) }}"
                            class="block rounded-lg p-2 text-sm text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 transition-colors"
                            :class="{ 'bg-blue-50 text-blue-600 dark:bg-blue-900 dark:text-blue-300': {{ $child['active'] ? 'true' : 'false' }} }"
                            role="menuitem">
@@ -116,7 +116,7 @@
     @else
         <!-- Menu simples (sem submenu) -->
         <div x-data="{ showTooltip: false }" class="relative">
-            <a href="{{ isset($item['route']) ? route($item['route']) : $item['url'] }}"
+            <a href="{{ $this->itemUrl($item) }}"
                @mouseenter="if ($wire.collapsed) showTooltip = true"
                @mouseleave="showTooltip = false"
                class="flex items-center gap-3 rounded-lg p-2 text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors"

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\OrdemServico;
 
 use App\Http\Controllers\Controller;
-use App\Models\OrdemServico\ItemOrdemServico;
-use App\Models\OrdemServico\OrdemServico;
+use App\Domain\OrdemServico\Models\ItemOrdemServico;
+use App\Domain\OrdemServico\Models\OrdemServico;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
