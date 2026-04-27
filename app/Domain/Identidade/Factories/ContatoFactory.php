@@ -108,7 +108,7 @@ class ContatoFactory extends Factory
     {
         $ddd = $this->faker->numberBetween(11, 99);
         $numero = $this->faker->numberBetween(20000000, 99999999);
-        
+
         return sprintf('%02d%08d', $ddd, $numero);
     }
 
@@ -116,7 +116,7 @@ class ContatoFactory extends Factory
     {
         $ddd = $this->faker->numberBetween(11, 99);
         $numero = $this->faker->numberBetween(900000000, 999999999);
-        
+
         return sprintf('%02d%09d', $ddd, $numero);
     }
 }

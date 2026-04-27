@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Fiscal;
 
 use App\Domain\Fiscal\LogIntegracaoFiscal;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 
 class LogIntegracaoFiscalController extends Controller
 {
@@ -28,6 +28,7 @@ class LogIntegracaoFiscalController extends Controller
             'status_http' => 'required|integer',
         ]);
         $log = LogIntegracaoFiscal::create($data);
+
         return response()->json($log, 201);
     }
 
@@ -36,6 +37,7 @@ class LogIntegracaoFiscalController extends Controller
         $log = LogIntegracaoFiscal::findOrFail($id);
         $data = $request->all();
         $log->update($data);
+
         return $log;
     }
 
@@ -43,6 +45,7 @@ class LogIntegracaoFiscalController extends Controller
     {
         $log = LogIntegracaoFiscal::findOrFail($id);
         $log->delete();
+
         return response()->noContent();
     }
 }

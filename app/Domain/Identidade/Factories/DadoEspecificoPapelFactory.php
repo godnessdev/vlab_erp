@@ -120,7 +120,7 @@ class DadoEspecificoPapelFactory extends Factory
                 'chave' => 'lista_especialidades',
                 'valor' => $this->faker->randomElements([
                     'FISCAL', 'TRABALHISTA', 'SOCIETARIO', 'TRIBUTARIO',
-                    'CONTABIL', 'FINANCEIRO', 'AUDITORIA'
+                    'CONTABIL', 'FINANCEIRO', 'AUDITORIA',
                 ], $this->faker->numberBetween(1, 4)),
             ];
         });

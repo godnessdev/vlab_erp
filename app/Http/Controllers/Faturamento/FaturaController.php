@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Faturamento;
 
-use App\Http\Controllers\Controller;
-use App\Domain\Faturamento\Services\FaturaService;
-use App\Domain\Faturamento\Models\Fatura;
 use App\Domain\Faturamento\Enums\StatusFatura;
 use App\Domain\Faturamento\Enums\TipoParcelamento;
+use App\Domain\Faturamento\Models\Fatura;
+use App\Domain\Faturamento\Services\FaturaService;
 use App\Domain\OrdemServico\Models\OrdemServico;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class FaturaController extends Controller
@@ -27,7 +27,7 @@ class FaturaController extends Controller
     public function index(Request $request): JsonResponse
     {
         $empresaId = $request->user()->empresa_id;
-        
+
         $query = Fatura::where('empresa_id', $empresaId)->with(['cliente', 'parcelas']);
 
         // Aplicar filtros
@@ -42,7 +42,7 @@ class FaturaController extends Controller
         if ($request->has('data_inicio') && $request->has('data_fim')) {
             $query->whereBetween('data_emissao', [
                 $request->data_inicio,
-                $request->data_fim
+                $request->data_fim,
             ]);
         }
 
@@ -59,8 +59,8 @@ class FaturaController extends Controller
             'data' => $faturas,
             'meta' => [
                 'total_valor' => $faturas->sum('valor_liquido'),
-                'total_pago' => $faturas->sum(fn($f) => $f->getValorPago()),
-            ]
+                'total_pago' => $faturas->sum(fn ($f) => $f->getValorPago()),
+            ],
         ]);
     }
 
@@ -82,8 +82,8 @@ class FaturaController extends Controller
                     'percentual_pago' => $fatura->getPercentualPago(),
                     'dias_atraso' => $fatura->getDiasAtraso(),
                     'parcelas_vencidas' => $fatura->getParcelasVencidas(),
-                ]
-            ]
+                ],
+            ],
         ]);
     }
 
@@ -110,13 +110,13 @@ class FaturaController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Dados inválidos',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
         try {
             $empresaId = $request->user()->empresa_id;
-            
+
             // Buscar ordens de serviço
             $ordensServico = OrdemServico::whereIn('id', $request->ordens_servico)
                 ->where('empresa_id', $empresaId)
@@ -140,13 +140,13 @@ class FaturaController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Fatura criada com sucesso',
-                'data' => $fatura
+                'data' => $fatura,
             ], 201);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 400);
         }
     }
@@ -168,7 +168,7 @@ class FaturaController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Dados inválidos',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -178,13 +178,13 @@ class FaturaController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Fatura atualizada com sucesso',
-                'data' => $fatura
+                'data' => $fatura,
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 400);
         }
     }
@@ -200,13 +200,13 @@ class FaturaController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Fatura enviada com sucesso',
-                'data' => $fatura
+                'data' => $fatura,
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 400);
         }
     }
@@ -226,7 +226,7 @@ class FaturaController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Dados inválidos',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -236,13 +236,13 @@ class FaturaController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Fatura marcada como paga',
-                'data' => $fatura
+                'data' => $fatura,
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 400);
         }
     }
@@ -260,7 +260,7 @@ class FaturaController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Motivo é obrigatório',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -270,13 +270,13 @@ class FaturaController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Fatura cancelada com sucesso',
-                'data' => $fatura
+                'data' => $fatura,
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 400);
         }
     }
@@ -295,7 +295,7 @@ class FaturaController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Período inválido',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -308,7 +308,7 @@ class FaturaController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $resumo
+            'data' => $resumo,
         ]);
     }
 
@@ -326,7 +326,7 @@ class FaturaController extends Controller
             'meta' => [
                 'total_faturas' => $faturas->count(),
                 'total_valor_vencido' => $faturas->sum('valor_liquido'),
-            ]
+            ],
         ]);
     }
 
@@ -340,7 +340,7 @@ class FaturaController extends Controller
             'data' => [
                 'status_fatura' => StatusFatura::getOptions(),
                 'tipos_parcelamento' => TipoParcelamento::getOptions(),
-            ]
+            ],
         ]);
     }
 }

@@ -1,15 +1,21 @@
 <?php
 
+use App\Domain\Faturamento\Models\Fatura;
+use App\Domain\Fiscal\Services\RpsService;
+use App\Models\Empresa;
+use App\Models\Usuario;
+use Database\Factories\NfseFactory;
+
 test('emite NFS-e via service e endpoint', function () {
-    $empresa = \App\Models\Empresa::factory()->create();
-    $usuario = \App\Models\Usuario::factory()->create();
-    $fatura = \App\Domain\Faturamento\Models\Fatura::factory()->create([
+    $empresa = Empresa::factory()->create();
+    $usuario = Usuario::factory()->create();
+    $fatura = Fatura::factory()->create([
         'empresa_id' => $empresa->id,
         'cliente_id' => $usuario->id,
         'status' => 'ENVIADA',
         'valor_servicos' => 1000,
     ]);
-    $rps = app(\App\Domain\Fiscal\Services\RpsService::class)->gerarRps($fatura->id);
+    $rps = app(RpsService::class)->gerarRps($fatura->id);
 
     // Mock integração ACBrLib e dependências se necessário
     $response = $this->postJson('/fiscal/nfse', [
@@ -25,7 +31,7 @@ test('emite NFS-e via service e endpoint', function () {
 });
 
 test('cancela NFS-e via endpoint', function () {
-    $nfse = \Database\Factories\NfseFactory::new()->create([
+    $nfse = NfseFactory::new()->create([
         'status' => 'AUTORIZADA',
         'data_autorizacao' => now(),
     ]);

@@ -4,6 +4,8 @@ namespace App\Domain\OrdemServico\Models;
 
 use App\Domain\OrdemServico\Enums\TipoEventoHistorico;
 use App\Models\Usuario;
+use Carbon\Carbon;
+use Database\Factories\HistoricoOrdemFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,17 +13,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Histórico de mudanças da Ordem de Serviço
- * 
+ *
  * @property string $id
  * @property string $ordem_servico_id
  * @property string $usuario_id
- * @property \Carbon\Carbon $data_evento
+ * @property Carbon $data_evento
  * @property TipoEventoHistorico $tipo_evento
  * @property string $descricao
  * @property array $campos_alterados
  * @property array $valores_anteriores
  * @property array $valores_novos
- * 
  * @property-read OrdemServico $ordemServico
  * @property-read Usuario $usuario
  */
@@ -60,7 +61,7 @@ class HistoricoOrdem extends Model
      */
     protected static function newFactory()
     {
-        return \Database\Factories\HistoricoOrdemFactory::new();
+        return HistoricoOrdemFactory::new();
     }
 
     /**
@@ -127,7 +128,7 @@ class HistoricoOrdem extends Model
     {
         return $query->whereBetween('data_evento', [
             now()->startOfWeek(),
-            now()->endOfWeek()
+            now()->endOfWeek(),
         ]);
     }
 
@@ -135,7 +136,7 @@ class HistoricoOrdem extends Model
     {
         return $query->whereBetween('data_evento', [
             now()->startOfMonth(),
-            now()->endOfMonth()
+            now()->endOfMonth(),
         ]);
     }
 
@@ -189,7 +190,7 @@ class HistoricoOrdem extends Model
             'ordem_servico_id' => $ordem->id,
             'usuario_id' => $usuario->id,
             'tipo_evento' => TipoEventoHistorico::EDICAO,
-            'descricao' => 'Dados da ordem alterados: ' . implode(', ', $campos),
+            'descricao' => 'Dados da ordem alterados: '.implode(', ', $campos),
             'campos_alterados' => $campos,
             'valores_anteriores' => $valoresAnteriores,
             'valores_novos' => $valoresNovos,
@@ -250,13 +251,13 @@ class HistoricoOrdem extends Model
     public static function registrarCancelamento(
         OrdemServico $ordem,
         Usuario $usuario,
-        string $motivo = null
+        ?string $motivo = null
     ): self {
         return static::create([
             'ordem_servico_id' => $ordem->id,
             'usuario_id' => $usuario->id,
             'tipo_evento' => TipoEventoHistorico::CANCELAMENTO,
-            'descricao' => 'Ordem de serviço cancelada' . ($motivo ? ": {$motivo}" : ''),
+            'descricao' => 'Ordem de serviço cancelada'.($motivo ? ": {$motivo}" : ''),
             'valores_novos' => [
                 'motivo_cancelamento' => $motivo,
             ],
@@ -286,7 +287,7 @@ class HistoricoOrdem extends Model
     {
         return in_array($this->tipo_evento, [
             TipoEventoHistorico::CANCELAMENTO,
-            TipoEventoHistorico::MUDANCA_STATUS
+            TipoEventoHistorico::MUDANCA_STATUS,
         ]);
     }
 

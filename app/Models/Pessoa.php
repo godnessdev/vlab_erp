@@ -2,17 +2,21 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Pessoa extends Model
 {
     use HasFactory;
 
     protected $table = 'pessoas';
+
     protected $keyType = 'string';
+
     public $incrementing = false;
+
     public $timestamps = false;
+
     protected $fillable = [
         'id',
         'tipo',

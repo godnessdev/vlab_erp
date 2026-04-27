@@ -1,12 +1,12 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Financeiro\ContaReceberController;
-use App\Http\Controllers\Financeiro\ContaPagarController;
-use App\Http\Controllers\Financeiro\RecebimentoController;
-use App\Http\Controllers\Financeiro\PagamentoController;
 use App\Http\Controllers\Financeiro\ConciliacaoFiscalFinanceiroController;
+use App\Http\Controllers\Financeiro\ContaPagarController;
+use App\Http\Controllers\Financeiro\ContaReceberController;
 use App\Http\Controllers\Financeiro\FluxoCaixaController;
+use App\Http\Controllers\Financeiro\PagamentoController;
+use App\Http\Controllers\Financeiro\RecebimentoController;
+use Illuminate\Support\Facades\Route;
 
 Route::prefix('financeiro')->group(function () {
     // Conta a Receber

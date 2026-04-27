@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Financeiro;
 
 use App\Domain\Financeiro\ContaReceber;
 use App\Domain\Financeiro\FinanceiroService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class ContaReceberController
@@ -16,6 +16,7 @@ class ContaReceberController
             ->with(['cliente'])
             ->orderBy('data_vencimento', 'desc')
             ->paginate($request->get('per_page', 15));
+
         return response()->json($contas);
     }
 
@@ -33,6 +34,7 @@ class ContaReceberController
             'forma_cobranca' => 'required|string',
         ]);
         $conta = $service->criarContaReceber($validated);
+
         return response()->json($conta, Response::HTTP_CREATED);
     }
 
@@ -44,12 +46,14 @@ class ContaReceberController
     public function update(Request $request, ContaReceber $conta): JsonResponse
     {
         $conta->update($request->all());
+
         return response()->json($conta);
     }
 
     public function destroy(ContaReceber $conta): JsonResponse
     {
         $conta->delete();
+
         return response()->json(['message' => 'Conta a receber excluída.']);
     }
 
@@ -61,6 +65,7 @@ class ContaReceberController
         $contas = ContaReceber::where('empresa_id', $empresaId)
             ->whereBetween('data_vencimento', [$dataInicio, $dataFim])
             ->get();
+
         return response()->json($contas);
     }
 }

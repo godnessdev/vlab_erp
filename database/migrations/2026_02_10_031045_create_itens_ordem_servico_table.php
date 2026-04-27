@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -45,7 +45,7 @@ return new class extends Migration
         // Adicionar coluna enum apenas para PostgreSQL
         if (DB::connection()->getDriverName() === 'pgsql') {
             DB::statement('ALTER TABLE itens_ordem_servico ADD COLUMN status status_item_ordem DEFAULT \'PENDENTE\'');
-            
+
             // Criar índice para a coluna enum
             DB::statement('CREATE INDEX idx_item_status ON itens_ordem_servico (status)');
         } else {
@@ -67,7 +67,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('itens_ordem_servico');
-        
+
         // Remover enum apenas para PostgreSQL
         if (DB::connection()->getDriverName() === 'pgsql') {
             DB::statement('DROP TYPE IF EXISTS status_item_ordem');

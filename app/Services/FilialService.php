@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\Filial;
 use App\Models\Empresa;
+use App\Models\Filial;
 use App\Models\StatusFilialEnum;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -23,7 +23,7 @@ class FilialService
         if (isset($filtros['busca'])) {
             $query->where(function ($q) use ($filtros) {
                 $q->where('nome', 'ILIKE', "%{$filtros['busca']}%")
-                  ->orWhere('cnpj_filial', 'LIKE', "%{$filtros['busca']}%");
+                    ->orWhere('cnpj_filial', 'LIKE', "%{$filtros['busca']}%");
             });
         }
 
@@ -38,11 +38,11 @@ class FilialService
     public function criarFilial(string $empresaId, array $dados): Filial
     {
         DB::beginTransaction();
-        
+
         try {
             // Verificar se empresa existe e está ativa
             $empresa = Empresa::findOrFail($empresaId);
-            if (!$empresa->isAtiva()) {
+            if (! $empresa->isAtiva()) {
                 throw new ValidationException('Não é possível criar filial para empresa inativa.');
             }
 
@@ -66,8 +66,9 @@ class FilialService
             ]);
 
             DB::commit();
+
             return $filial->load(['empresa', 'endereco']);
-            
+
         } catch (\Exception $e) {
             DB::rollback();
             throw $e;
@@ -77,7 +78,7 @@ class FilialService
     public function atualizarFilial(string $id, array $dados): Filial
     {
         $filial = Filial::findOrFail($id);
-        
+
         // Validar CNPJ se foi alterado
         if (isset($dados['cnpj_filial']) && $dados['cnpj_filial'] !== $filial->cnpj_filial) {
             $this->validarCnpjFilial($dados['cnpj_filial'], $id);
@@ -93,7 +94,7 @@ class FilialService
         }
 
         $filial->update($dados);
-        
+
         return $filial->load(['empresa', 'endereco']);
     }
 
@@ -101,26 +102,28 @@ class FilialService
     {
         $filial = Filial::findOrFail($id);
         $filial->update(['status' => StatusFilialEnum::ATIVO]);
+
         return $filial;
     }
 
     public function inativarFilial(string $id): Filial
     {
         $filial = Filial::findOrFail($id);
-        
+
         if ($filial->isMatriz()) {
             throw new ValidationException('Não é possível inativar a filial matriz.');
         }
-        
+
         $filial->update(['status' => StatusFilialEnum::INATIVO]);
+
         return $filial;
     }
 
     public function excluirFilial(string $id): bool
     {
         $filial = Filial::findOrFail($id);
-        
-        if (!$filial->podeSerExcluida()) {
+
+        if (! $filial->podeSerExcluida()) {
             throw new ValidationException('Filial não pode ser excluída.');
         }
 
@@ -150,14 +153,14 @@ class FilialService
     private function validarCnpjFilial(string $cnpj, ?string $filialIdIgnorar = null): void
     {
         $cnpjLimpo = preg_replace('/\D/', '', $cnpj);
-        
+
         // Validação matemática do CNPJ (reutilizar do EmpresaService)
-        $empresaService = new EmpresaService();
+        $empresaService = new EmpresaService;
         $reflection = new \ReflectionClass($empresaService);
         $method = $reflection->getMethod('validarCnpjMatematico');
         $method->setAccessible(true);
-        
-        if (!$method->invoke($empresaService, $cnpjLimpo)) {
+
+        if (! $method->invoke($empresaService, $cnpjLimpo)) {
             throw new ValidationException('CNPJ da filial inválido.');
         }
 

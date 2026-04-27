@@ -39,6 +39,6 @@ enum TipoPapel: string
 
     public function isExterno(): bool
     {
-        return !$this->isInterno();
+        return ! $this->isInterno();
     }
 }

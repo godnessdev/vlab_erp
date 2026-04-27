@@ -4,15 +4,16 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::create('fluxo_caixa', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('empresa_id');
             $table->date('data_referencia');
-            $table->enum('tipo_movimento', ['ENTRADA','SAIDA']);
-            $table->enum('categoria', ['RECEBIMENTO','PAGAMENTO','TRANSFERENCIA']);
+            $table->enum('tipo_movimento', ['ENTRADA', 'SAIDA']);
+            $table->enum('categoria', ['RECEBIMENTO', 'PAGAMENTO', 'TRANSFERENCIA']);
             $table->decimal('valor', 15, 2);
             $table->string('descricao', 255);
             $table->uuid('conta_receber_id')->nullable();

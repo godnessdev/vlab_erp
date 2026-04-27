@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ParametroOperacional extends Model
 {
@@ -58,7 +58,7 @@ class ParametroOperacional extends Model
      */
     public function getValorTipado()
     {
-        return match($this->tipo_valor) {
+        return match ($this->tipo_valor) {
             TipoParametroEnum::STRING => (string) $this->valor,
             TipoParametroEnum::INTEGER => (int) $this->valor,
             TipoParametroEnum::DECIMAL => (float) $this->valor,
@@ -71,7 +71,7 @@ class ParametroOperacional extends Model
 
     public function setValorTipado($valor): void
     {
-        $this->valor = match($this->tipo_valor) {
+        $this->valor = match ($this->tipo_valor) {
             TipoParametroEnum::JSON, TipoParametroEnum::ARRAY => is_string($valor) ? $valor : json_encode($valor),
             default => $valor,
         };

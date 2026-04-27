@@ -2,11 +2,14 @@
 
 namespace App\Domain\OrdemServico\Services;
 
+use App\Domain\OrdemServico\Enums\PrioridadeOrdem;
+use App\Domain\OrdemServico\Enums\StatusItemOrdem;
 use App\Domain\OrdemServico\Enums\StatusOrdemServico;
 use App\Domain\OrdemServico\Enums\TipoEventoHistorico;
 use App\Domain\OrdemServico\Models\HistoricoOrdem;
 use App\Domain\OrdemServico\Models\OrdemServico;
 use App\Models\Usuario;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -29,7 +32,7 @@ class OrdemServicoService
                 'descricao' => $dados['descricao'] ?? null,
                 'data_prevista_inicio' => $dados['data_prevista_inicio'] ?? null,
                 'data_prevista_conclusao' => $dados['data_prevista_conclusao'] ?? null,
-                'prioridade' => $dados['prioridade'] ?? \App\Domain\OrdemServico\Enums\PrioridadeOrdem::NORMAL,
+                'prioridade' => $dados['prioridade'] ?? PrioridadeOrdem::NORMAL,
                 'status' => StatusOrdemServico::ABERTA,
                 'observacoes' => $dados['observacoes'] ?? null,
             ]);
@@ -59,22 +62,22 @@ class OrdemServicoService
 
             // Campos que podem ser alterados
             $camposPermitidos = [
-                'titulo', 'descricao', 'data_prevista_inicio', 
-                'data_prevista_conclusao', 'prioridade', 'observacoes'
+                'titulo', 'descricao', 'data_prevista_inicio',
+                'data_prevista_conclusao', 'prioridade', 'observacoes',
             ];
 
             foreach ($camposPermitidos as $campo) {
                 if (isset($dados[$campo]) && $dados[$campo] !== $dadosOriginais[$campo]) {
                     $camposAlterados[$campo] = [
                         'old' => $dadosOriginais[$campo],
-                        'new' => $dados[$campo]
+                        'new' => $dados[$campo],
                     ];
                 }
             }
 
-            if (!empty($camposAlterados)) {
+            if (! empty($camposAlterados)) {
                 $ordem->update(array_intersect_key($dados, array_flip($camposPermitidos)));
-                
+
                 HistoricoOrdem::registrarEdicao($ordem, $usuario, $camposAlterados);
             }
 
@@ -113,7 +116,7 @@ class OrdemServicoService
     {
         DB::transaction(function () use ($ordem, $itemId, $usuario) {
             $item = $ordem->itens()->findOrFail($itemId);
-            
+
             // Não permitir remoção se há apontamentos aprovados
             if ($item->apontamentos()->where('aprovado', true)->exists()) {
                 throw new \InvalidArgumentException('Não é possível remover item com apontamentos aprovados');
@@ -139,9 +142,9 @@ class OrdemServicoService
         OrdemServico $ordem,
         StatusOrdemServico $novoStatus,
         Usuario $usuario,
-        string $observacao = null
+        ?string $observacao = null
     ): bool {
-        if (!$ordem->podeTransicionarPara($novoStatus)) {
+        if (! $ordem->podeTransicionarPara($novoStatus)) {
             throw new \InvalidArgumentException("Não é possível alterar status de {$ordem->status->getLabel()} para {$novoStatus->getLabel()}");
         }
 
@@ -184,15 +187,15 @@ class OrdemServicoService
             ->orderBy('created_at', 'desc');
 
         // Aplicar filtros
-        if (!empty($filtros['empresa_id'])) {
+        if (! empty($filtros['empresa_id'])) {
             $query->where('empresa_id', $filtros['empresa_id']);
         }
 
-        if (!empty($filtros['cliente_id'])) {
+        if (! empty($filtros['cliente_id'])) {
             $query->where('cliente_id', $filtros['cliente_id']);
         }
 
-        if (!empty($filtros['status'])) {
+        if (! empty($filtros['status'])) {
             if (is_array($filtros['status'])) {
                 $query->whereIn('status', $filtros['status']);
             } else {
@@ -200,19 +203,19 @@ class OrdemServicoService
             }
         }
 
-        if (!empty($filtros['prioridade'])) {
+        if (! empty($filtros['prioridade'])) {
             $query->where('prioridade', $filtros['prioridade']);
         }
 
-        if (!empty($filtros['numero_ordem'])) {
+        if (! empty($filtros['numero_ordem'])) {
             $query->where('numero_ordem', 'LIKE', "%{$filtros['numero_ordem']}%");
         }
 
-        if (!empty($filtros['titulo'])) {
+        if (! empty($filtros['titulo'])) {
             $query->where('titulo', 'LIKE', "%{$filtros['titulo']}%");
         }
 
-        if (!empty($filtros['data_inicio']) && !empty($filtros['data_fim'])) {
+        if (! empty($filtros['data_inicio']) && ! empty($filtros['data_fim'])) {
             $query->whereBetween('data_abertura', [$filtros['data_inicio'], $filtros['data_fim']]);
         }
 
@@ -235,7 +238,7 @@ class OrdemServicoService
         $query = OrdemServico::where('empresa_id', $empresaId);
 
         // Aplicar filtro de período se fornecido
-        if (!empty($filtros['periodo_inicio']) && !empty($filtros['periodo_fim'])) {
+        if (! empty($filtros['periodo_inicio']) && ! empty($filtros['periodo_fim'])) {
             $query->whereBetween('created_at', [$filtros['periodo_inicio'], $filtros['periodo_fim']]);
         }
 
@@ -260,9 +263,9 @@ class OrdemServicoService
 
         // Ordens por mês (últimos 12 meses)
         $estatisticas['por_mes'] = $query->select(
-                DB::raw('DATE_FORMAT(created_at, "%Y-%m") as mes'),
-                DB::raw('count(*) as total')
-            )
+            DB::raw('DATE_FORMAT(created_at, "%Y-%m") as mes'),
+            DB::raw('count(*) as total')
+        )
             ->where('created_at', '>=', now()->subYear())
             ->groupBy('mes')
             ->orderBy('mes')
@@ -279,16 +282,16 @@ class OrdemServicoService
     {
         return DB::transaction(function () use ($ordemOriginal, $novosDados, $usuario) {
             $dadosOrdem = $ordemOriginal->toArray();
-            
+
             // Remover campos que não devem ser duplicados
-            unset($dadosOrdem['id'], $dadosOrdem['numero_ordem'], $dadosOrdem['created_at'], 
-                  $dadosOrdem['updated_at'], $dadosOrdem['deleted_at'], $dadosOrdem['data_inicio_real'],
-                  $dadosOrdem['data_conclusao_real'], $dadosOrdem['valor_total_executado']);
+            unset($dadosOrdem['id'], $dadosOrdem['numero_ordem'], $dadosOrdem['created_at'],
+                $dadosOrdem['updated_at'], $dadosOrdem['deleted_at'], $dadosOrdem['data_inicio_real'],
+                $dadosOrdem['data_conclusao_real'], $dadosOrdem['valor_total_executado']);
 
             // Aplicar novos dados
             $dadosOrdem = array_merge($dadosOrdem, $novosDados);
             $dadosOrdem['status'] = StatusOrdemServico::ABERTA;
-            $dadosOrdem['titulo'] = '[CÓPIA] ' . $dadosOrdem['titulo'];
+            $dadosOrdem['titulo'] = '[CÓPIA] '.$dadosOrdem['titulo'];
 
             $novaOrdem = OrdemServico::create($dadosOrdem);
 
@@ -296,10 +299,10 @@ class OrdemServicoService
             foreach ($ordemOriginal->itens as $itemOriginal) {
                 $dadosItem = $itemOriginal->toArray();
                 unset($dadosItem['id'], $dadosItem['ordem_servico_id'], $dadosItem['created_at'],
-                      $dadosItem['updated_at'], $dadosItem['deleted_at'], $dadosItem['quantidade_executada'],
-                      $dadosItem['data_inicio'], $dadosItem['data_conclusao']);
+                    $dadosItem['updated_at'], $dadosItem['deleted_at'], $dadosItem['quantidade_executada'],
+                    $dadosItem['data_inicio'], $dadosItem['data_conclusao']);
 
-                $dadosItem['status'] = \App\Domain\OrdemServico\Enums\StatusItemOrdem::PENDENTE;
+                $dadosItem['status'] = StatusItemOrdem::PENDENTE;
                 $novaOrdem->itens()->create($dadosItem);
             }
 
@@ -332,7 +335,7 @@ class OrdemServicoService
     /**
      * Relatório de produtividade
      */
-    public function relatorioProdutividade(string $empresaId, \Carbon\Carbon $inicio, \Carbon\Carbon $fim): array
+    public function relatorioProdutividade(string $empresaId, Carbon $inicio, Carbon $fim): array
     {
         $ordens = OrdemServico::where('empresa_id', $empresaId)
             ->whereBetween('created_at', [$inicio, $fim])
@@ -347,7 +350,7 @@ class OrdemServicoService
             'resumo' => [
                 'total_ordens' => $ordens->count(),
                 'ordens_concluidas' => $ordens->where('status', StatusOrdemServico::CONCLUIDA)->count(),
-                'total_horas' => $ordens->sum(fn($ordem) => $ordem->calcularHorasTrabalhadas()),
+                'total_horas' => $ordens->sum(fn ($ordem) => $ordem->calcularHorasTrabalhadas()),
                 'valor_faturado' => $ordens->whereIn('status', [StatusOrdemServico::FATURADA])->sum('valor_total_executado'),
             ],
             'por_usuario' => [],
@@ -359,7 +362,7 @@ class OrdemServicoService
                 $usuarioId = $apontamento->usuario_id;
                 $nomeUsuario = $apontamento->usuario->nome ?? 'Usuário não encontrado';
 
-                if (!isset($relatorio['por_usuario'][$usuarioId])) {
+                if (! isset($relatorio['por_usuario'][$usuarioId])) {
                     $relatorio['por_usuario'][$usuarioId] = [
                         'nome' => $nomeUsuario,
                         'horas_trabalhadas' => 0,
@@ -370,8 +373,8 @@ class OrdemServicoService
 
                 $relatorio['por_usuario'][$usuarioId]['horas_trabalhadas'] += $apontamento->horas_trabalhadas;
                 $relatorio['por_usuario'][$usuarioId]['apontamentos']++;
-                
-                if (!in_array($ordem->id, $relatorio['por_usuario'][$usuarioId]['ordens_trabalhadas'])) {
+
+                if (! in_array($ordem->id, $relatorio['por_usuario'][$usuarioId]['ordens_trabalhadas'])) {
                     $relatorio['por_usuario'][$usuarioId]['ordens_trabalhadas'][] = $ordem->id;
                 }
             }

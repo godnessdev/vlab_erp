@@ -7,8 +7,8 @@ use App\Domain\Identidade\Validators\DocumentoValidator;
 
 test('pode criar documento com dados válidos', function () {
     $pessoa = Pessoa::factory()->fisica()->create();
-    $validator = new DocumentoValidator();
-    
+    $validator = new DocumentoValidator;
+
     $documento = Documento::factory()->create([
         'pessoa_id' => $pessoa->id,
         'tipo' => TipoDocumento::CPF,
@@ -24,47 +24,47 @@ test('pode criar documento com dados válidos', function () {
 });
 
 test('documento CPF é formatado corretamente', function () {
-    $validator = new DocumentoValidator();
+    $validator = new DocumentoValidator;
     $cpf = $validator->gerarCpfValido();
-    
+
     $documento = Documento::factory()->create([
         'tipo' => TipoDocumento::CPF,
         'valor' => $cpf,
     ]);
 
     $formatado = $documento->valor_formatado;
-    
+
     expect($formatado)
         ->toMatch('/^\d{3}\.\d{3}\.\d{3}-\d{2}$/')
         ->toHaveLength(14);
 });
 
 test('documento CNPJ é formatado corretamente', function () {
-    $validator = new DocumentoValidator();
+    $validator = new DocumentoValidator;
     $cnpj = $validator->gerarCnpjValido();
-    
+
     $documento = Documento::factory()->create([
         'tipo' => TipoDocumento::CNPJ,
         'valor' => $cnpj,
     ]);
 
     $formatado = $documento->valor_formatado;
-    
+
     expect($formatado)
         ->toMatch('/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/')
         ->toHaveLength(18);
 });
 
 test('documento é mascarado para segurança', function () {
-    $validator = new DocumentoValidator();
-    
+    $validator = new DocumentoValidator;
+
     $documento = Documento::factory()->create([
         'tipo' => TipoDocumento::CPF,
         'valor' => $validator->gerarCpfValido(),
     ]);
 
     $mascarado = $documento->valor_mascarado;
-    
+
     expect($mascarado)
         ->toContain('***')
         ->not->toBe($documento->valor);
@@ -73,9 +73,9 @@ test('documento é mascarado para segurança', function () {
 test('scope válidos funciona corretamente', function () {
     $documentoValido = Documento::factory()->valido()->create();
     $documentoInvalido = Documento::factory()->invalido()->create();
-    
+
     $documentosValidos = Documento::validos()->get();
-    
+
     expect($documentosValidos->pluck('id'))
         ->toContain($documentoValido->id)
         ->not->toContain($documentoInvalido->id);
@@ -85,9 +85,9 @@ test('scope principais funciona corretamente', function () {
     $cpf = Documento::factory()->cpf()->create();
     $cnpj = Documento::factory()->cnpj()->create();
     $rg = Documento::factory()->rg()->create();
-    
+
     $principais = Documento::principais()->get();
-    
+
     expect($principais->pluck('id'))
         ->toContain($cpf->id)
         ->toContain($cnpj->id)
@@ -95,9 +95,9 @@ test('scope principais funciona corretamente', function () {
 });
 
 test('validação de documento funciona', function () {
-    $validator = new DocumentoValidator();
+    $validator = new DocumentoValidator;
     $cpfValido = $validator->gerarCpfValido();
-    
+
     $documento = Documento::factory()->create([
         'tipo' => TipoDocumento::CPF,
         'valor' => $cpfValido,
@@ -105,7 +105,7 @@ test('validação de documento funciona', function () {
     ]);
 
     $resultado = $documento->validar();
-    
+
     expect($resultado)->toBeTrue();
     expect($documento->fresh()->valido)->toBeTrue();
 });
@@ -131,7 +131,7 @@ test('CPF não tem vencimento', function () {
 test('relacionamento com pessoa funciona', function () {
     $pessoa = Pessoa::factory()->create();
     $documento = Documento::factory()->create(['pessoa_id' => $pessoa->id]);
-    
+
     expect($documento->pessoa->id)->toBe($pessoa->id);
     expect($pessoa->documentos->pluck('id'))->toContain($documento->id);
 });
@@ -141,8 +141,8 @@ test('valor do documento é limpo na criação', function () {
         'tipo' => TipoDocumento::CPF,
         'valor' => '123.456.789-00', // Com formatação
     ]);
-    
+
     $documento->save();
-    
+
     expect($documento->valor)->toBe('12345678900'); // Sem formatação
 });

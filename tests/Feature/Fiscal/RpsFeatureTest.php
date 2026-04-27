@@ -1,7 +1,9 @@
 <?php
 
+use App\Domain\Financeiro\Fatura;
+
 test('cria RPS via service e endpoint', function () {
-    $fatura = \App\Domain\Financeiro\Fatura::factory()->create([
+    $fatura = Fatura::factory()->create([
         'status' => 'ABERTA',
         'valor_servicos' => 1000,
     ]);

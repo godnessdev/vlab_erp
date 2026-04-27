@@ -2,6 +2,8 @@
 
 namespace App\Domain\Fiscal\Repositories;
 
+use App\Domain\Faturamento\Models\Fatura;
+
 class FaturaRepositoryEloquent implements FaturaRepository
 {
     public function find($id)
@@ -15,7 +17,8 @@ class FaturaRepositoryEloquent implements FaturaRepository
         // Retorna um objeto fake de fatura válido para o teste
         // Retorna uma instância do model Fatura (factory) para os testes
         $status = ($id == 1 ? 'EMITIDA' : 'APROVADA');
-        return \App\Domain\Faturamento\Models\Fatura::factory()->make([
+
+        return Fatura::factory()->make([
             'id' => $id,
             'empresa_id' => 1,
             'status' => $status,
@@ -25,6 +28,7 @@ class FaturaRepositoryEloquent implements FaturaRepository
             // outros campos obrigatórios...
         ]);
     }
+
     public function save($fatura)
     {
         // Stub para testes

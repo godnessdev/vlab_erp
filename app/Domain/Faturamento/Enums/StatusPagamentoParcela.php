@@ -11,7 +11,7 @@ enum StatusPagamentoParcela: string
 
     public function getLabel(): string
     {
-        return match($this) {
+        return match ($this) {
             self::PENDENTE => 'Pendente',
             self::PAGO => 'Pago',
             self::ATRASADO => 'Atrasado',
@@ -21,7 +21,7 @@ enum StatusPagamentoParcela: string
 
     public function getDescricao(): string
     {
-        return match($this) {
+        return match ($this) {
             self::PENDENTE => 'Parcela aguardando pagamento',
             self::PAGO => 'Parcela paga pelo cliente',
             self::ATRASADO => 'Parcela com vencimento em atraso',
@@ -31,7 +31,7 @@ enum StatusPagamentoParcela: string
 
     public function getCor(): string
     {
-        return match($this) {
+        return match ($this) {
             self::PENDENTE => 'yellow',
             self::PAGO => 'green',
             self::ATRASADO => 'red',
@@ -41,12 +41,12 @@ enum StatusPagamentoParcela: string
 
     public function isAtivo(): bool
     {
-        return !$this->isFinal();
+        return ! $this->isFinal();
     }
 
     public function isFinal(): bool
     {
-        return match($this) {
+        return match ($this) {
             self::PAGO, self::CANCELADO => true,
             default => false,
         };
@@ -54,7 +54,7 @@ enum StatusPagamentoParcela: string
 
     public function podeMarcarComoPago(): bool
     {
-        return match($this) {
+        return match ($this) {
             self::PENDENTE, self::ATRASADO => true,
             default => false,
         };
@@ -62,7 +62,7 @@ enum StatusPagamentoParcela: string
 
     public function podeCancelar(): bool
     {
-        return match($this) {
+        return match ($this) {
             self::PENDENTE, self::ATRASADO => true,
             default => false,
         };
@@ -70,7 +70,7 @@ enum StatusPagamentoParcela: string
 
     public function getProximosStatus(): array
     {
-        return match($this) {
+        return match ($this) {
             self::PENDENTE => [self::PAGO, self::ATRASADO, self::CANCELADO],
             self::ATRASADO => [self::PAGO, self::CANCELADO],
             self::PAGO => [], // Estado final
@@ -80,18 +80,19 @@ enum StatusPagamentoParcela: string
 
     public static function getStatusAtraso(?\DateTime $dataVencimento = null): self
     {
-        if (!$dataVencimento) {
+        if (! $dataVencimento) {
             return self::PENDENTE;
         }
 
-        $hoje = new \DateTime();
+        $hoje = new \DateTime;
+
         return $dataVencimento < $hoje ? self::ATRASADO : self::PENDENTE;
     }
 
     public static function getOptions(): array
     {
         return array_map(
-            fn($case) => [
+            fn ($case) => [
                 'value' => $case->value,
                 'label' => $case->getLabel(),
                 'description' => $case->getDescricao(),

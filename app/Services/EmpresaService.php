@@ -6,6 +6,7 @@ use App\Models\Empresa;
 use App\Models\Filial;
 use App\Models\RegimeTributarioEnum;
 use App\Models\StatusEmpresaEnum;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -13,6 +14,20 @@ use Illuminate\Validation\ValidationException;
 class EmpresaService
 {
     public function listarEmpresas(array $filtros = []): Collection
+    {
+        return $this->queryEmpresas($filtros)
+            ->orderBy('nome')
+            ->get();
+    }
+
+    public function listarEmpresasPaginadas(array $filtros = [], int $perPage = 15): LengthAwarePaginator
+    {
+        return $this->queryEmpresas($filtros)
+            ->orderBy('nome')
+            ->paginate($perPage);
+    }
+
+    private function queryEmpresas(array $filtros = [])
     {
         $query = Empresa::with(['filiais', 'parametrosOperacionais']);
 
@@ -27,11 +42,11 @@ class EmpresaService
         if (isset($filtros['busca'])) {
             $query->where(function ($q) use ($filtros) {
                 $q->where('nome', 'ILIKE', "%{$filtros['busca']}%")
-                  ->orWhere('cnpj', 'LIKE', "%{$filtros['busca']}%");
+                    ->orWhere('cnpj', 'LIKE', "%{$filtros['busca']}%");
             });
         }
 
-        return $query->orderBy('nome')->get();
+        return $query;
     }
 
     public function buscarEmpresaPorId(string $id): ?Empresa
@@ -42,17 +57,18 @@ class EmpresaService
     public function buscarEmpresaPorCnpj(string $cnpj): ?Empresa
     {
         $cnpjLimpo = preg_replace('/\D/', '', $cnpj);
+
         return Empresa::where('cnpj', $cnpjLimpo)->first();
     }
 
     public function criarEmpresa(array $dados): Empresa
     {
         DB::beginTransaction();
-        
+
         try {
             // Validar CNPJ
             $this->validarCnpj($dados['cnpj']);
-            
+
             // Criar empresa
             $empresa = Empresa::create([
                 'nome' => $dados['nome'],
@@ -73,8 +89,9 @@ class EmpresaService
             $this->criarParametrosPadrao($empresa);
 
             DB::commit();
+
             return $empresa->load(['filiais', 'parametrosOperacionais']);
-            
+
         } catch (\Exception $e) {
             DB::rollback();
             throw $e;
@@ -84,14 +101,14 @@ class EmpresaService
     public function atualizarEmpresa(string $id, array $dados): Empresa
     {
         $empresa = Empresa::findOrFail($id);
-        
+
         // Validar CNPJ se foi alterado
         if (isset($dados['cnpj']) && $dados['cnpj'] !== $empresa->cnpj) {
             $this->validarCnpj($dados['cnpj'], $id);
         }
 
         $empresa->update($dados);
-        
+
         return $empresa->load(['filiais', 'parametrosOperacionais']);
     }
 
@@ -99,27 +116,29 @@ class EmpresaService
     {
         $empresa = Empresa::findOrFail($id);
         $empresa->update(['status' => StatusEmpresaEnum::ATIVO]);
+
         return $empresa;
     }
 
     public function inativarEmpresa(string $id): Empresa
     {
         $empresa = Empresa::findOrFail($id);
-        
+
         // Verificar se pode ser inativada
         if ($empresa->usuarios()->where('status', 'ATIVO')->exists()) {
             throw new ValidationException('Não é possível inativar empresa com usuários ativos.');
         }
 
         $empresa->update(['status' => StatusEmpresaEnum::INATIVO]);
+
         return $empresa;
     }
 
     public function excluirEmpresa(string $id): bool
     {
         $empresa = Empresa::findOrFail($id);
-        
-        if (!$empresa->podeSerExcluida()) {
+
+        if (! $empresa->podeSerExcluida()) {
             throw new ValidationException('Empresa não pode ser excluída pois possui dependências.');
         }
 
@@ -144,9 +163,9 @@ class EmpresaService
     private function validarCnpj(string $cnpj, ?string $empresaIdIgnorar = null): void
     {
         $cnpjLimpo = preg_replace('/\D/', '', $cnpj);
-        
+
         // Validação matemática do CNPJ
-        if (!$this->validarCnpjMatematico($cnpjLimpo)) {
+        if (! $this->validarCnpjMatematico($cnpjLimpo)) {
             throw new ValidationException('CNPJ inválido.');
         }
 
@@ -192,7 +211,7 @@ class EmpresaService
         $resto = $soma % 11;
         $dv2 = ($resto < 2) ? 0 : 11 - $resto;
 
-        return ($cnpj[12] == $dv1 && $cnpj[13] == $dv2);
+        return $cnpj[12] == $dv1 && $cnpj[13] == $dv2;
     }
 
     private function criarFilialMatriz(Empresa $empresa, array $dados): Filial

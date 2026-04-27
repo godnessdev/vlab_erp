@@ -1,13 +1,16 @@
 <?php
 
+use App\Domain\Identidade\Models\Pessoa;
+use App\Models\Empresa;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 
 uses(RefreshDatabase::class);
 
 it('cria conta a receber via endpoint', function () {
-    $empresa = \App\Models\Empresa::factory()->create();
-    $faturaId = \Illuminate\Support\Str::uuid()->toString();
-    $cliente = \App\Domain\Identidade\Models\Pessoa::factory()->create();
+    $empresa = Empresa::factory()->create();
+    $faturaId = Str::uuid()->toString();
+    $cliente = Pessoa::factory()->create();
     $response = $this->postJson('/financeiro/contas-receber', [
         'empresa_id' => $empresa->id,
         'fatura_id' => $faturaId,

@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Domain\Fiscal\Repositories\FaturaRepository;
+use App\Domain\Fiscal\Repositories\FaturaRepositoryEloquent;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -16,8 +18,8 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(
-            \App\Domain\Fiscal\Repositories\FaturaRepository::class,
-            \App\Domain\Fiscal\Repositories\FaturaRepositoryEloquent::class
+            FaturaRepository::class,
+            FaturaRepositoryEloquent::class
         );
     }
 

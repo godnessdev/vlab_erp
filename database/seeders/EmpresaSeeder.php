@@ -2,13 +2,13 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Empresa;
 use App\Models\Filial;
 use App\Models\ParametroOperacional;
+use App\Models\RegimeTributarioEnum;
 use App\Models\StatusEmpresaEnum;
 use App\Models\TipoFilialEnum;
-use App\Models\RegimeTributarioEnum;
+use Illuminate\Database\Seeder;
 
 class EmpresaSeeder extends Seeder
 {
@@ -18,10 +18,10 @@ class EmpresaSeeder extends Seeder
         ParametroOperacional::truncate();
         Filial::truncate();
         Empresa::truncate();
-        
+
         // Criar empresa de exemplo
         $this->criarEmpresaExemplo();
-        
+
         // Criar empresa de demonstração
         $this->criarEmpresaDemonstracao();
     }

@@ -2,6 +2,7 @@
 
 namespace App\Domain\Servicos\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,15 +10,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Códigos e alíquotas específicas por município
- * 
+ *
  * @property string $id
  * @property string $servico_id
  * @property string $codigo_municipio_ibge
  * @property string $codigo_servico
  * @property string|null $descricao_municipal
  * @property float $aliquota_iss
- * @property \Carbon\Carbon $data_vigencia_inicio
- * @property \Carbon\Carbon|null $data_vigencia_fim
+ * @property Carbon $data_vigencia_inicio
+ * @property Carbon|null $data_vigencia_fim
  * @property \DateTime $created_at
  * @property \DateTime $updated_at
  * @property-read Servico $servico
@@ -58,12 +59,12 @@ class CodigoServicoMunicipal extends Model
     public function scopeVigentes($query, ?string $data = null)
     {
         $data = $data ?: now()->toDateString();
-        
+
         return $query->where('data_vigencia_inicio', '<=', $data)
-                     ->where(function ($q) use ($data) {
-                         $q->whereNull('data_vigencia_fim')
-                           ->orWhere('data_vigencia_fim', '>=', $data);
-                     });
+            ->where(function ($q) use ($data) {
+                $q->whereNull('data_vigencia_fim')
+                    ->orWhere('data_vigencia_fim', '>=', $data);
+            });
     }
 
     public function scopePorMunicipio($query, string $codigoMunicipio)
@@ -77,22 +78,22 @@ class CodigoServicoMunicipal extends Model
     public function estaVigente(?string $data = null): bool
     {
         $data = $data ?: now()->toDateString();
-        
+
         if ($this->data_vigencia_inicio > $data) {
             return false;
         }
-        
+
         if ($this->data_vigencia_fim && $this->data_vigencia_fim < $data) {
             return false;
         }
-        
+
         return true;
     }
 
     public function encerrarVigencia(?string $dataFim = null): void
     {
         $this->update([
-            'data_vigencia_fim' => $dataFim ?: now()->toDateString()
+            'data_vigencia_fim' => $dataFim ?: now()->toDateString(),
         ]);
     }
 

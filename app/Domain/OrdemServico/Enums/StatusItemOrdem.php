@@ -11,7 +11,7 @@ enum StatusItemOrdem: string
 
     public function getLabel(): string
     {
-        return match($this) {
+        return match ($this) {
             self::PENDENTE => 'Pendente',
             self::EM_EXECUCAO => 'Em Execução',
             self::CONCLUIDO => 'Concluído',
@@ -21,7 +21,7 @@ enum StatusItemOrdem: string
 
     public function getDescricao(): string
     {
-        return match($this) {
+        return match ($this) {
             self::PENDENTE => 'Item aguardando início da execução',
             self::EM_EXECUCAO => 'Item sendo executado',
             self::CONCLUIDO => 'Item totalmente executado',
@@ -31,7 +31,7 @@ enum StatusItemOrdem: string
 
     public function getCor(): string
     {
-        return match($this) {
+        return match ($this) {
             self::PENDENTE => 'gray',
             self::EM_EXECUCAO => 'blue',
             self::CONCLUIDO => 'green',
@@ -41,7 +41,7 @@ enum StatusItemOrdem: string
 
     public function podeTransicionarPara(StatusItemOrdem $novoStatus): bool
     {
-        return match($this) {
+        return match ($this) {
             self::PENDENTE => in_array($novoStatus, [self::EM_EXECUCAO, self::CANCELADO]),
             self::EM_EXECUCAO => in_array($novoStatus, [self::CONCLUIDO, self::CANCELADO]),
             self::CONCLUIDO => false, // Estado final
@@ -62,7 +62,7 @@ enum StatusItemOrdem: string
     public static function getOptions(): array
     {
         return array_map(
-            fn($case) => [
+            fn ($case) => [
                 'value' => $case->value,
                 'label' => $case->getLabel(),
                 'description' => $case->getDescricao(),

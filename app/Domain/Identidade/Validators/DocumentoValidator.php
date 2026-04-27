@@ -114,7 +114,7 @@ class DocumentoValidator
         }
 
         // Verifica se não é uma sequência de números iguais
-        if (preg_match('/(\d)\1{' . ($length - 1) . '}/', $rg)) {
+        if (preg_match('/(\d)\1{'.($length - 1).'}/', $rg)) {
             return false;
         }
 
@@ -179,7 +179,7 @@ class DocumentoValidator
             $tipo = TipoDocumento::from($documento['tipo']);
             $valor = $documento['valor'];
 
-            if (!$this->validar($tipo, $valor)) {
+            if (! $this->validar($tipo, $valor)) {
                 $erros[] = "Documento {$tipo->label()} inválido: {$valor}";
             }
         }
@@ -245,8 +245,8 @@ class DocumentoValidator
 
         // Formatar com pontos a cada 3 dígitos da direita para esquerda
         $numeroFormatado = strrev(implode('.', str_split(strrev($numero), 3)));
-        
-        return $numeroFormatado . '-' . $digitoVerificador;
+
+        return $numeroFormatado.'-'.$digitoVerificador;
     }
 
     private function limpar(string $documento): string

@@ -2,18 +2,19 @@
 
 namespace Database\Factories;
 
-
+use App\Models\Pessoa;
+use Faker\Provider\pt_BR\Person;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
-use Faker\Provider\pt_BR\Person;
 
 class PessoaFactory extends Factory
 {
-    protected $model = \App\Models\Pessoa::class;
+    protected $model = Pessoa::class;
 
     public function definition()
     {
         $this->faker->addProvider(new Person($this->faker));
+
         return [
             'id' => (string) Str::uuid(),
             'tipo' => $this->faker->randomElement(['FISICA', 'JURIDICA']),

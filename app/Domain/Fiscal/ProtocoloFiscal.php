@@ -2,11 +2,11 @@
 
 namespace App\Domain\Fiscal;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Domain\Fiscal\Enums\StatusRespostaProtocoloEnum;
+use App\Domain\Fiscal\Enums\TipoOperacaoProtocoloEnum;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Domain\Fiscal\Enums\TipoOperacaoProtocoloEnum;
-use App\Domain\Fiscal\Enums\StatusRespostaProtocoloEnum;
+use Illuminate\Database\Eloquent\Model;
 
 class ProtocoloFiscal extends Model
 {

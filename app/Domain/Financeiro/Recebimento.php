@@ -2,10 +2,11 @@
 
 namespace App\Domain\Financeiro;
 
-use Illuminate\Database\Eloquent\Model;
+use Database\Factories\RecebimentoFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Recebimento extends Model
 {
@@ -14,7 +15,7 @@ class Recebimento extends Model
 
     public static function newFactory()
     {
-        return \Database\Factories\RecebimentoFactory::new();
+        return RecebimentoFactory::new();
     }
 
     protected $table = 'recebimentos';

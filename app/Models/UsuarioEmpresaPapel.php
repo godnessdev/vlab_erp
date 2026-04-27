@@ -3,11 +3,11 @@
 namespace App\Models;
 
 use App\Domain\Identidade\Models\DadosEspecificosPapel;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class UsuarioEmpresaPapel extends Model
 {
@@ -17,7 +17,7 @@ class UsuarioEmpresaPapel extends Model
 
     protected $fillable = [
         'usuario_id',
-        'empresa_id', 
+        'empresa_id',
         'papel_id',
         'data_inicio',
         'data_fim',
@@ -68,18 +68,20 @@ class UsuarioEmpresaPapel extends Model
     public function scopeVigente($query)
     {
         $hoje = now()->toDateString();
+
         return $query->where('data_inicio', '<=', $hoje)
-                    ->where(function($q) use ($hoje) {
-                        $q->whereNull('data_fim')
-                          ->orWhere('data_fim', '>=', $hoje);
-                    });
+            ->where(function ($q) use ($hoje) {
+                $q->whereNull('data_fim')
+                    ->orWhere('data_fim', '>=', $hoje);
+            });
     }
 
     public function scopeExpirados($query)
     {
         $hoje = now()->toDateString();
+
         return $query->whereNotNull('data_fim')
-                    ->where('data_fim', '<', $hoje);
+            ->where('data_fim', '<', $hoje);
     }
 
     /**
@@ -88,7 +90,7 @@ class UsuarioEmpresaPapel extends Model
     public function isVigente(): bool
     {
         $hoje = now()->toDate();
-        
+
         if ($this->data_inicio > $hoje) {
             return false; // Ainda não iniciou
         }
@@ -107,11 +109,12 @@ class UsuarioEmpresaPapel extends Model
 
     public function diasRestantes(): ?int
     {
-        if (!$this->data_fim) {
+        if (! $this->data_fim) {
             return null; // Indefinido
         }
 
         $dias = now()->diffInDays($this->data_fim, false);
+
         return $dias >= 0 ? $dias : 0;
     }
 
@@ -121,6 +124,7 @@ class UsuarioEmpresaPapel extends Model
     public function obterDado(string $chave): mixed
     {
         $dado = $this->dadosEspecificos()->where('chave', $chave)->first();
+
         return $dado ? $dado->valor_limpo : null;
     }
 

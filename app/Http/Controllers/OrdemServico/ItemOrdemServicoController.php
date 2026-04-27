@@ -49,7 +49,7 @@ class ItemOrdemServicoController extends Controller
         // Ensure the item belongs to the order
         if ($item->ordem_servico_id !== $ordem->id) {
             return response()->json([
-                'message' => 'Item não pertence a esta ordem de serviço.'
+                'message' => 'Item não pertence a esta ordem de serviço.',
             ], Response::HTTP_NOT_FOUND);
         }
 
@@ -64,7 +64,7 @@ class ItemOrdemServicoController extends Controller
         // Ensure the item belongs to the order
         if ($item->ordem_servico_id !== $ordem->id) {
             return response()->json([
-                'message' => 'Item não pertence a esta ordem de serviço.'
+                'message' => 'Item não pertence a esta ordem de serviço.',
             ], Response::HTTP_NOT_FOUND);
         }
 
@@ -95,14 +95,14 @@ class ItemOrdemServicoController extends Controller
         // Ensure the item belongs to the order
         if ($item->ordem_servico_id !== $ordem->id) {
             return response()->json([
-                'message' => 'Item não pertence a esta ordem de serviço.'
+                'message' => 'Item não pertence a esta ordem de serviço.',
             ], Response::HTTP_NOT_FOUND);
         }
 
         // Check if order allows item deletion
         if ($ordem->status === 'concluida' || $ordem->status === 'cancelada') {
             return response()->json([
-                'message' => 'Não é possível remover itens de uma ordem de serviço concluída ou cancelada.'
+                'message' => 'Não é possível remover itens de uma ordem de serviço concluída ou cancelada.',
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 

@@ -19,20 +19,20 @@ return new class extends Migration
             $table->boolean('principal')->default(false)->comment('Contato principal');
             $table->boolean('verificado')->default(false)->comment('Se foi verificado');
             $table->timestamp('data_criacao')->useCurrent();
-            
+
             // Foreign Keys
             $table->foreign('pessoa_id')->references('id')->on('pessoas')->onDelete('cascade');
-            
+
             // Constraints únicos
             $table->unique(['pessoa_id', 'tipo', 'valor'], 'uk_contato_pessoa_tipo_valor');
-            
+
             // Índices
             $table->index('pessoa_id', 'idx_contato_pessoa_id');
             $table->index('valor', 'idx_contato_valor');
             $table->index('tipo');
             $table->index('principal');
             $table->index('verificado');
-            
+
             $table->comment('Múltiplos contatos por pessoa com validação e verificação');
         });
     }

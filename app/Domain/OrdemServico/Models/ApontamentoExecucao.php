@@ -2,7 +2,10 @@
 
 namespace App\Domain\OrdemServico\Models;
 
+use App\Domain\OrdemServico\Enums\StatusItemOrdem;
 use App\Models\Usuario;
+use Carbon\Carbon;
+use Database\Factories\ApontamentoExecucaoFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,19 +13,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Apontamento de Execução
- * 
+ *
  * @property string $id
  * @property string $ordem_servico_id
  * @property string $item_ordem_id
  * @property string $usuario_id
- * @property \Carbon\Carbon $data_apontamento
+ * @property Carbon $data_apontamento
  * @property float $horas_trabalhadas
  * @property string $descricao_atividade
  * @property array $observacoes
  * @property bool $aprovado
  * @property string $aprovado_por
- * @property \Carbon\Carbon $data_aprovacao
- * 
+ * @property Carbon $data_aprovacao
  * @property-read OrdemServico $ordemServico
  * @property-read ItemOrdemServico $itemOrdem
  * @property-read Usuario $usuario
@@ -60,7 +62,7 @@ class ApontamentoExecucao extends Model
      */
     protected static function newFactory()
     {
-        return \Database\Factories\ApontamentoExecucaoFactory::new();
+        return ApontamentoExecucaoFactory::new();
     }
 
     /**
@@ -81,13 +83,13 @@ class ApontamentoExecucao extends Model
             if ($apontamento->aprovado && $apontamento->wasChanged('aprovado')) {
                 $item = $apontamento->itemOrdem;
                 $totalHoras = $item->apontamentos()->where('aprovado', true)->sum('horas_trabalhadas');
-                
+
                 // Converter horas para quantidade baseado no tipo de serviço
                 $novaQuantidade = min($totalHoras, $item->quantidade);
                 $item->update(['quantidade_executada' => $novaQuantidade]);
-                
+
                 // Auto-iniciar item se ainda estiver pendente
-                if ($item->status === \App\Domain\OrdemServico\Enums\StatusItemOrdem::PENDENTE) {
+                if ($item->status === StatusItemOrdem::PENDENTE) {
                     $item->iniciar();
                 }
             }
@@ -159,7 +161,7 @@ class ApontamentoExecucao extends Model
     {
         return $query->whereBetween('data_apontamento', [
             now()->startOfWeek(),
-            now()->endOfWeek()
+            now()->endOfWeek(),
         ]);
     }
 
@@ -167,7 +169,7 @@ class ApontamentoExecucao extends Model
     {
         return $query->whereBetween('data_apontamento', [
             now()->startOfMonth(),
-            now()->endOfMonth()
+            now()->endOfMonth(),
         ]);
     }
 
@@ -191,7 +193,7 @@ class ApontamentoExecucao extends Model
 
     public function reprovar(): bool
     {
-        if (!$this->aprovado) {
+        if (! $this->aprovado) {
             return false; // Já reprovado
         }
 
@@ -207,6 +209,7 @@ class ApontamentoExecucao extends Model
     public function calcularValor(): float
     {
         $precoHora = $this->itemOrdem->preco_unitario;
+
         return $this->horas_trabalhadas * $precoHora;
     }
 
@@ -279,7 +282,7 @@ class ApontamentoExecucao extends Model
     {
         $horas = floor($this->horas_trabalhadas);
         $minutos = ($this->horas_trabalhadas - $horas) * 60;
-        
+
         return sprintf('%02d:%02d', $horas, $minutos);
     }
 

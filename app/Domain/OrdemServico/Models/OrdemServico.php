@@ -6,7 +6,9 @@ use App\Domain\OrdemServico\Enums\PrioridadeOrdem;
 use App\Domain\OrdemServico\Enums\StatusOrdemServico;
 use App\Models\Empresa;
 use App\Models\Papel;
-use App\Models\Usuario;
+use Carbon\Carbon;
+use Database\Factories\OrdemServicoFactory;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,29 +19,28 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Ordem de Serviço com controle de workflow e estados
- * 
+ *
  * @property string $id
  * @property string $empresa_id
  * @property string $cliente_id
  * @property string $numero_ordem
  * @property string $titulo
  * @property string $descricao
- * @property \Carbon\Carbon $data_abertura
- * @property \Carbon\Carbon $data_prevista_inicio
- * @property \Carbon\Carbon $data_prevista_conclusao
- * @property \Carbon\Carbon $data_inicio_real
- * @property \Carbon\Carbon $data_conclusao_real
+ * @property Carbon $data_abertura
+ * @property Carbon $data_prevista_inicio
+ * @property Carbon $data_prevista_conclusao
+ * @property Carbon $data_inicio_real
+ * @property Carbon $data_conclusao_real
  * @property StatusOrdemServico $status
  * @property PrioridadeOrdem $prioridade
  * @property float $valor_total_estimado
  * @property float $valor_total_executado
  * @property string $observacoes
- * 
  * @property-read Empresa $empresa
  * @property-read Papel $cliente
- * @property-read \Illuminate\Database\Eloquent\Collection<ItemOrdemServico> $itens
- * @property-read \Illuminate\Database\Eloquent\Collection<ApontamentoExecucao> $apontamentos
- * @property-read \Illuminate\Database\Eloquent\Collection<HistoricoOrdem> $historico
+ * @property-read Collection<ItemOrdemServico> $itens
+ * @property-read Collection<ApontamentoExecucao> $apontamentos
+ * @property-read Collection<HistoricoOrdem> $historico
  */
 class OrdemServico extends Model
 {
@@ -82,7 +83,7 @@ class OrdemServico extends Model
      */
     protected static function newFactory()
     {
-        return \Database\Factories\OrdemServicoFactory::new();
+        return OrdemServicoFactory::new();
     }
 
     /**
@@ -96,7 +97,7 @@ class OrdemServico extends Model
             if (empty($ordem->numero_ordem)) {
                 $ordem->numero_ordem = static::gerarNumeroOrdem($ordem->empresa_id);
             }
-            
+
             if (empty($ordem->data_abertura)) {
                 $ordem->data_abertura = now();
             }
@@ -147,7 +148,7 @@ class OrdemServico extends Model
             StatusOrdemServico::ABERTA,
             StatusOrdemServico::EM_ANDAMENTO,
             StatusOrdemServico::PAUSADA,
-            StatusOrdemServico::CONCLUIDA
+            StatusOrdemServico::CONCLUIDA,
         ]);
     }
 
@@ -182,7 +183,7 @@ class OrdemServico extends Model
 
     public function iniciar(): bool
     {
-        if (!$this->podeTransicionarPara(StatusOrdemServico::EM_ANDAMENTO)) {
+        if (! $this->podeTransicionarPara(StatusOrdemServico::EM_ANDAMENTO)) {
             return false;
         }
 
@@ -201,27 +202,29 @@ class OrdemServico extends Model
 
     public function pausar(): bool
     {
-        if (!$this->podeTransicionarPara(StatusOrdemServico::PAUSADA)) {
+        if (! $this->podeTransicionarPara(StatusOrdemServico::PAUSADA)) {
             return false;
         }
 
         $this->update(['status' => StatusOrdemServico::PAUSADA]);
+
         return true;
     }
 
     public function retomar(): bool
     {
-        if (!$this->podeTransicionarPara(StatusOrdemServico::EM_ANDAMENTO)) {
+        if (! $this->podeTransicionarPara(StatusOrdemServico::EM_ANDAMENTO)) {
             return false;
         }
 
         $this->update(['status' => StatusOrdemServico::EM_ANDAMENTO]);
+
         return true;
     }
 
     public function concluir(): bool
     {
-        if (!$this->podeTransicionarPara(StatusOrdemServico::CONCLUIDA)) {
+        if (! $this->podeTransicionarPara(StatusOrdemServico::CONCLUIDA)) {
             return false;
         }
 
@@ -241,21 +244,23 @@ class OrdemServico extends Model
 
     public function cancelar(): bool
     {
-        if (!$this->podeTransicionarPara(StatusOrdemServico::CANCELADA)) {
+        if (! $this->podeTransicionarPara(StatusOrdemServico::CANCELADA)) {
             return false;
         }
 
         $this->update(['status' => StatusOrdemServico::CANCELADA]);
+
         return true;
     }
 
     public function faturar(): bool
     {
-        if (!$this->podeTransicionarPara(StatusOrdemServico::FATURADA)) {
+        if (! $this->podeTransicionarPara(StatusOrdemServico::FATURADA)) {
             return false;
         }
 
         $this->update(['status' => StatusOrdemServico::FATURADA]);
+
         return true;
     }
 
@@ -277,9 +282,12 @@ class OrdemServico extends Model
     public function calcularPercentualConclusao(): float
     {
         $totalItens = $this->itens->sum('quantidade');
-        if ($totalItens == 0) return 0;
+        if ($totalItens == 0) {
+            return 0;
+        }
 
         $totalExecutado = $this->itens->sum('quantidade_executada');
+
         return ($totalExecutado / $totalItens) * 100;
     }
 
@@ -297,8 +305,10 @@ class OrdemServico extends Model
 
     public function getDiasAtraso(): int
     {
-        if (!$this->isEmAtraso()) return 0;
-        
+        if (! $this->isEmAtraso()) {
+            return 0;
+        }
+
         return now()->diffInDays($this->data_prevista_conclusao);
     }
 
@@ -309,7 +319,7 @@ class OrdemServico extends Model
     {
         $ano = now()->format('Y');
         $mes = now()->format('m');
-        
+
         $ultimo = static::where('empresa_id', $empresaId)
             ->where('numero_ordem', 'LIKE', "OS-{$ano}-{$mes}-%")
             ->orderBy('numero_ordem', 'desc')

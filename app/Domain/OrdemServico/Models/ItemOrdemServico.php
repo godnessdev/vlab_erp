@@ -4,6 +4,9 @@ namespace App\Domain\OrdemServico\Models;
 
 use App\Domain\CatalogoServicos\Models\Servico;
 use App\Domain\OrdemServico\Enums\StatusItemOrdem;
+use Carbon\Carbon;
+use Database\Factories\ItemOrdemServicoFactory;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,7 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Item de Ordem de Serviço
- * 
+ *
  * @property string $id
  * @property string $ordem_servico_id
  * @property string $servico_id
@@ -24,13 +27,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property float $subtotal
  * @property float $quantidade_executada
  * @property StatusItemOrdem $status
- * @property \Carbon\Carbon $data_inicio
- * @property \Carbon\Carbon $data_conclusao
+ * @property Carbon $data_inicio
+ * @property Carbon $data_conclusao
  * @property string $observacoes
- * 
  * @property-read OrdemServico $ordemServico
  * @property-read Servico $servico
- * @property-read \Illuminate\Database\Eloquent\Collection<ApontamentoExecucao> $apontamentos
+ * @property-read Collection<ApontamentoExecucao> $apontamentos
  */
 class ItemOrdemServico extends Model
 {
@@ -69,7 +71,7 @@ class ItemOrdemServico extends Model
      */
     protected static function newFactory()
     {
-        return \Database\Factories\ItemOrdemServicoFactory::new();
+        return ItemOrdemServicoFactory::new();
     }
 
     /**
@@ -103,7 +105,7 @@ class ItemOrdemServico extends Model
         static::saved(function ($item) {
             // Atualizar totais da ordem quando item é alterado
             $item->ordemServico->update([
-                'valor_total_estimado' => $item->ordemServico->calcularValorEstimado()
+                'valor_total_estimado' => $item->ordemServico->calcularValorEstimado(),
             ]);
         });
     }
@@ -164,7 +166,7 @@ class ItemOrdemServico extends Model
 
     public function iniciar(): bool
     {
-        if (!$this->podeTransicionarPara(StatusItemOrdem::EM_ANDAMENTO)) {
+        if (! $this->podeTransicionarPara(StatusItemOrdem::EM_ANDAMENTO)) {
             return false;
         }
 
@@ -178,27 +180,29 @@ class ItemOrdemServico extends Model
 
     public function pausar(): bool
     {
-        if (!$this->podeTransicionarPara(StatusItemOrdem::PAUSADO)) {
+        if (! $this->podeTransicionarPara(StatusItemOrdem::PAUSADO)) {
             return false;
         }
 
         $this->update(['status' => StatusItemOrdem::PAUSADO]);
+
         return true;
     }
 
     public function retomar(): bool
     {
-        if (!$this->podeTransicionarPara(StatusItemOrdem::EM_ANDAMENTO)) {
+        if (! $this->podeTransicionarPara(StatusItemOrdem::EM_ANDAMENTO)) {
             return false;
         }
 
         $this->update(['status' => StatusItemOrdem::EM_ANDAMENTO]);
+
         return true;
     }
 
     public function concluir(): bool
     {
-        if (!$this->podeTransicionarPara(StatusItemOrdem::CONCLUIDO)) {
+        if (! $this->podeTransicionarPara(StatusItemOrdem::CONCLUIDO)) {
             return false;
         }
 
@@ -213,11 +217,12 @@ class ItemOrdemServico extends Model
 
     public function cancelar(): bool
     {
-        if (!$this->podeTransicionarPara(StatusItemOrdem::CANCELADO)) {
+        if (! $this->podeTransicionarPara(StatusItemOrdem::CANCELADO)) {
             return false;
         }
 
         $this->update(['status' => StatusItemOrdem::CANCELADO]);
+
         return true;
     }
 
@@ -233,13 +238,15 @@ class ItemOrdemServico extends Model
     {
         return $this->apontamentos()
             ->where('aprovado', true)
-            ->sum(\DB::raw('horas_trabalhadas * ' . $this->preco_unitario));
+            ->sum(\DB::raw('horas_trabalhadas * '.$this->preco_unitario));
     }
 
     public function calcularPercentualConclusao(): float
     {
-        if ($this->quantidade == 0) return 0;
-        
+        if ($this->quantidade == 0) {
+            return 0;
+        }
+
         return ($this->quantidade_executada / $this->quantidade) * 100;
     }
 
@@ -254,8 +261,8 @@ class ItemOrdemServico extends Model
     public function adicionarExecucao(float $quantidade): bool
     {
         $novaQuantidade = $this->quantidade_executada + $quantidade;
-        
-        if (!$this->validarQuantidadeExecutada($novaQuantidade)) {
+
+        if (! $this->validarQuantidadeExecutada($novaQuantidade)) {
             return false;
         }
 

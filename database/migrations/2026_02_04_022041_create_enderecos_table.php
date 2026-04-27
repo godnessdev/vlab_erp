@@ -26,16 +26,16 @@ return new class extends Migration
             $table->decimal('latitude', 10, 8)->nullable()->comment('Coordenada GPS');
             $table->decimal('longitude', 11, 8)->nullable()->comment('Coordenada GPS');
             $table->timestamp('data_criacao')->useCurrent();
-            
+
             // Foreign Keys
             $table->foreign('pessoa_id')->references('id')->on('pessoas')->onDelete('cascade');
-            
+
             // Índices
             $table->index('pessoa_id', 'idx_endereco_pessoa_id');
             $table->index('cep', 'idx_endereco_cep');
             $table->index(['cidade', 'estado'], 'idx_endereco_cidade_estado');
             $table->index('tipo');
-            
+
             $table->comment('Múltiplos endereços por pessoa com geolocalização');
         });
     }

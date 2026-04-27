@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Fiscal;
 
 use App\Domain\Fiscal\LoteRps;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 
 class LoteRpsController extends Controller
 {
@@ -30,6 +30,7 @@ class LoteRpsController extends Controller
             'cnpj' => 'required|string',
         ]);
         $lote = LoteRps::create($data);
+
         return response()->json($lote, 201);
     }
 
@@ -38,6 +39,7 @@ class LoteRpsController extends Controller
         $lote = LoteRps::findOrFail($id);
         $data = $request->all();
         $lote->update($data);
+
         return $lote;
     }
 
@@ -45,6 +47,7 @@ class LoteRpsController extends Controller
     {
         $lote = LoteRps::findOrFail($id);
         $lote->delete();
+
         return response()->noContent();
     }
 }

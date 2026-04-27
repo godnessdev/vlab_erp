@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::create('recebimentos', function (Blueprint $table) {
@@ -15,7 +16,7 @@ return new class extends Migration {
             $table->decimal('valor_juros_recebido', 15, 2)->default(0);
             $table->decimal('valor_multa_recebida', 15, 2)->default(0);
             $table->decimal('valor_desconto_concedido', 15, 2)->default(0);
-            $table->enum('forma_recebimento', ['DINHEIRO','BOLETO','PIX','CARTAO_CREDITO','CARTAO_DEBITO','TRANSFERENCIA']);
+            $table->enum('forma_recebimento', ['DINHEIRO', 'BOLETO', 'PIX', 'CARTAO_CREDITO', 'CARTAO_DEBITO', 'TRANSFERENCIA']);
             $table->string('numero_transacao', 100)->nullable();
             $table->string('banco_origem', 10)->nullable();
             $table->string('agencia_origem', 10)->nullable();

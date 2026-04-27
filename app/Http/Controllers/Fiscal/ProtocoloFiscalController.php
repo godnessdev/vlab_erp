@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Fiscal;
 
 use App\Domain\Fiscal\ProtocoloFiscal;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 
 class ProtocoloFiscalController extends Controller
 {
@@ -28,6 +28,7 @@ class ProtocoloFiscalController extends Controller
             'xml_envio' => 'required|string',
         ]);
         $proto = ProtocoloFiscal::create($data);
+
         return response()->json($proto, 201);
     }
 
@@ -36,6 +37,7 @@ class ProtocoloFiscalController extends Controller
         $proto = ProtocoloFiscal::findOrFail($id);
         $data = $request->all();
         $proto->update($data);
+
         return $proto;
     }
 
@@ -43,6 +45,7 @@ class ProtocoloFiscalController extends Controller
     {
         $proto = ProtocoloFiscal::findOrFail($id);
         $proto->delete();
+
         return response()->noContent();
     }
 }

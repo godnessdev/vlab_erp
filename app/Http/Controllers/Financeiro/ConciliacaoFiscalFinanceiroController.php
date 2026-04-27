@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Financeiro;
 
 use App\Domain\Financeiro\ConciliacaoFiscalFinanceiro;
 use App\Domain\Financeiro\FinanceiroService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class ConciliacaoFiscalFinanceiroController
@@ -15,6 +15,7 @@ class ConciliacaoFiscalFinanceiroController
         $conciliacoes = ConciliacaoFiscalFinanceiro::query()
             ->orderBy('data_conciliacao', 'desc')
             ->paginate($request->get('per_page', 15));
+
         return response()->json($conciliacoes);
     }
 
@@ -31,6 +32,7 @@ class ConciliacaoFiscalFinanceiroController
             'status_conciliacao' => 'required|string',
         ]);
         $conciliacao = $service->conciliarFiscalFinanceiro($validated);
+
         return response()->json($conciliacao, Response::HTTP_CREATED);
     }
 
@@ -42,12 +44,14 @@ class ConciliacaoFiscalFinanceiroController
     public function update(Request $request, ConciliacaoFiscalFinanceiro $conciliacao): JsonResponse
     {
         $conciliacao->update($request->all());
+
         return response()->json($conciliacao);
     }
 
     public function destroy(ConciliacaoFiscalFinanceiro $conciliacao): JsonResponse
     {
         $conciliacao->delete();
+
         return response()->json(['message' => 'Conciliação excluída.']);
     }
 }

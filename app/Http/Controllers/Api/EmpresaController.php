@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Services\EmpresaService;
 use App\Models\RegimeTributarioEnum;
 use App\Models\StatusEmpresaEnum;
-use Illuminate\Http\Request;
+use App\Services\EmpresaService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Enum;
 use Illuminate\Validation\ValidationException;
 
@@ -23,9 +23,9 @@ class EmpresaController extends Controller
     public function index(Request $request): JsonResponse
     {
         $filtros = $request->only(['status', 'regime_tributario', 'busca']);
-        
+
         $empresas = $this->empresaService->listarEmpresas($filtros);
-        
+
         return response()->json([
             'data' => $empresas->map(function ($empresa) {
                 return [
@@ -49,7 +49,7 @@ class EmpresaController extends Controller
             }),
             'meta' => [
                 'total' => $empresas->count(),
-            ]
+            ],
         ]);
     }
 
@@ -72,7 +72,7 @@ class EmpresaController extends Controller
 
         try {
             $empresa = $this->empresaService->criarEmpresa($validated);
-            
+
             return response()->json([
                 'message' => 'Empresa criada com sucesso.',
                 'data' => [
@@ -80,13 +80,13 @@ class EmpresaController extends Controller
                     'nome' => $empresa->nome,
                     'cnpj' => $empresa->formatarCnpj(),
                     'status' => $empresa->status->getLabel(),
-                ]
+                ],
             ], 201);
-            
+
         } catch (ValidationException $e) {
             return response()->json([
                 'message' => 'Dados inválidos.',
-                'errors' => $e->errors()
+                'errors' => $e->errors(),
             ], 422);
         }
     }
@@ -97,8 +97,8 @@ class EmpresaController extends Controller
     public function show(string $id): JsonResponse
     {
         $empresa = $this->empresaService->buscarEmpresaPorId($id);
-        
-        if (!$empresa) {
+
+        if (! $empresa) {
             return response()->json(['message' => 'Empresa não encontrada.'], 404);
         }
 
@@ -141,7 +141,7 @@ class EmpresaController extends Controller
                 }),
                 'created_at' => $empresa->created_at->format('d/m/Y H:i'),
                 'updated_at' => $empresa->updated_at->format('d/m/Y H:i'),
-            ]
+            ],
         ]);
     }
 
@@ -163,7 +163,7 @@ class EmpresaController extends Controller
 
         try {
             $empresa = $this->empresaService->atualizarEmpresa($id, $validated);
-            
+
             return response()->json([
                 'message' => 'Empresa atualizada com sucesso.',
                 'data' => [
@@ -171,13 +171,13 @@ class EmpresaController extends Controller
                     'nome' => $empresa->nome,
                     'cnpj' => $empresa->formatarCnpj(),
                     'status' => $empresa->status->getLabel(),
-                ]
+                ],
             ]);
-            
+
         } catch (ValidationException $e) {
             return response()->json([
                 'message' => 'Dados inválidos.',
-                'errors' => $e->errors()
+                'errors' => $e->errors(),
             ], 422);
         }
     }
@@ -189,14 +189,14 @@ class EmpresaController extends Controller
     {
         try {
             $this->empresaService->excluirEmpresa($id);
-            
+
             return response()->json([
-                'message' => 'Empresa excluída com sucesso.'
+                'message' => 'Empresa excluída com sucesso.',
             ]);
-            
+
         } catch (ValidationException $e) {
             return response()->json([
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 422);
         }
     }
@@ -207,13 +207,13 @@ class EmpresaController extends Controller
     public function ativar(string $id): JsonResponse
     {
         $empresa = $this->empresaService->ativarEmpresa($id);
-        
+
         return response()->json([
             'message' => 'Empresa ativada com sucesso.',
             'data' => [
                 'id' => $empresa->id,
                 'status' => $empresa->status->getLabel(),
-            ]
+            ],
         ]);
     }
 
@@ -224,18 +224,18 @@ class EmpresaController extends Controller
     {
         try {
             $empresa = $this->empresaService->inativarEmpresa($id);
-            
+
             return response()->json([
                 'message' => 'Empresa inativada com sucesso.',
                 'data' => [
                     'id' => $empresa->id,
                     'status' => $empresa->status->getLabel(),
-                ]
+                ],
             ]);
-            
+
         } catch (ValidationException $e) {
             return response()->json([
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 422);
         }
     }
@@ -246,12 +246,12 @@ class EmpresaController extends Controller
     public function buscarPorCnpj(Request $request): JsonResponse
     {
         $request->validate([
-            'cnpj' => 'required|string'
+            'cnpj' => 'required|string',
         ]);
 
         $empresa = $this->empresaService->buscarEmpresaPorCnpj($request->cnpj);
-        
-        if (!$empresa) {
+
+        if (! $empresa) {
             return response()->json(['message' => 'Empresa não encontrada.'], 404);
         }
 
@@ -261,7 +261,7 @@ class EmpresaController extends Controller
                 'nome' => $empresa->nome,
                 'cnpj' => $empresa->formatarCnpj(),
                 'status' => $empresa->status->getLabel(),
-            ]
+            ],
         ]);
     }
 
@@ -271,9 +271,9 @@ class EmpresaController extends Controller
     public function estatisticas(): JsonResponse
     {
         $stats = $this->empresaService->obterEstatisticas();
-        
+
         return response()->json([
-            'data' => $stats
+            'data' => $stats,
         ]);
     }
 
@@ -286,7 +286,7 @@ class EmpresaController extends Controller
             'data' => [
                 'regimes_tributarios' => RegimeTributarioEnum::getOptions(),
                 'status' => StatusEmpresaEnum::getOptions(),
-            ]
+            ],
         ]);
     }
 }

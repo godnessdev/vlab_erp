@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -20,12 +20,12 @@ return new class extends Migration
             $table->boolean('ativo')->default(true);
             $table->timestamps();
             $table->softDeletes();
-            
+
             // Índices
             $table->index('nome');
             $table->index(['ativo', 'nivel']);
             $table->index('nivel');
-            
+
             $table->comment('Papéis do sistema para controle de acesso (RBAC)');
         });
 
@@ -34,18 +34,18 @@ return new class extends Migration
             $table->uuid('papel_id');
             $table->uuid('permissao_id');
             $table->timestamps();
-            
+
             // Foreign keys
             $table->foreign('papel_id')->references('id')->on('papeis_sistema')->onDelete('cascade');
             $table->foreign('permissao_id')->references('id')->on('permissoes')->onDelete('cascade');
-            
+
             // Constraint unique - chave primária composta
             $table->primary(['papel_id', 'permissao_id']);
-            
+
             // Índices
             $table->index('papel_id');
             $table->index('permissao_id');
-            
+
             $table->comment('Relacionamento entre papéis e permissões');
         });
 
@@ -54,7 +54,7 @@ return new class extends Migration
             DB::statement("COMMENT ON TABLE papeis_sistema IS 'Papéis do sistema para controle de acesso (RBAC)'");
             DB::statement("COMMENT ON COLUMN papeis_sistema.nome IS 'Nome único do papel (ex: super_admin, admin_empresa)'");
             DB::statement("COMMENT ON COLUMN papeis_sistema.nivel IS 'Nível hierárquico do papel (1=mais alto)'");
-            
+
             DB::statement("COMMENT ON TABLE papel_permissoes IS 'Relacionamento entre papéis e permissões'");
         }
     }

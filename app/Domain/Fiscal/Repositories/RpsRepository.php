@@ -31,12 +31,14 @@ class RpsRepository
     public function update(string $id, array $data): bool
     {
         $rps = $this->findOrFail($id);
+
         return $rps->update($data);
     }
 
     public function atualizarCancelamento(string $id, array $data): bool
     {
         $rps = $this->findOrFail($id);
+
         return $rps->update($data);
     }
 }

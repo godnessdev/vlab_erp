@@ -2,22 +2,23 @@
 
 namespace App\Domain\Identidade\Services;
 
-use App\Domain\Identidade\Enums\TipoPessoa;
 use App\Domain\Identidade\Enums\StatusPessoa;
-use App\Domain\Identidade\Models\Pessoa;
+use App\Domain\Identidade\Enums\TipoDocumento;
+use App\Domain\Identidade\Enums\TipoPessoa;
 use App\Domain\Identidade\Models\Documento;
-use App\Domain\Identidade\Models\Endereco;
-use App\Domain\Identidade\Models\Contato;
+use App\Domain\Identidade\Models\Papel;
+use App\Domain\Identidade\Models\Pessoa;
 use App\Domain\Identidade\Validators\DocumentoValidator;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 class PessoaService
 {
     public function __construct(
         private DocumentoValidator $documentoValidator
-    ) {
-    }
+    ) {}
 
     /**
      * Criar uma nova pessoa com dados completos
@@ -67,9 +68,9 @@ class PessoaService
                 $this->validarDadosPessoa($dadosPessoa, $pessoa);
             } else {
                 // Validar apenas nome se tipo não fornecido
-                if (isset($dadosPessoa['nome_razao_social']) && 
+                if (isset($dadosPessoa['nome_razao_social']) &&
                     (empty($dadosPessoa['nome_razao_social']) || strlen($dadosPessoa['nome_razao_social']) < 2)) {
-                    $validator = \Illuminate\Support\Facades\Validator::make($dadosPessoa, []);
+                    $validator = Validator::make($dadosPessoa, []);
                     $validator->errors()->add('nome_razao_social', 'Nome/Razão Social deve ter pelo menos 2 caracteres');
                     throw new ValidationException($validator);
                 }
@@ -80,7 +81,7 @@ class PessoaService
                 'nome_razao_social' => $dadosPessoa['nome_razao_social'] ?? null,
                 'nome_fantasia' => $dadosPessoa['nome_fantasia'] ?? null,
                 'data_nascimento_constituicao' => $dadosPessoa['data_nascimento_constituicao'] ?? null,
-            ], fn($value) => !is_null($value));
+            ], fn ($value) => ! is_null($value));
 
             $pessoa->update($updateData);
 
@@ -109,7 +110,7 @@ class PessoaService
     public function buscarPorDocumento(string $documento): ?Pessoa
     {
         $documento = preg_replace('/[^0-9]/', '', $documento);
-        
+
         return Pessoa::whereHas('documentos', function ($query) use ($documento) {
             $query->where('valor', $documento);
         })->first();
@@ -118,14 +119,14 @@ class PessoaService
     /**
      * Buscar pessoas por nome
      */
-    public function buscarPorNome(string $nome): \Illuminate\Database\Eloquent\Collection
+    public function buscarPorNome(string $nome): Collection
     {
         return Pessoa::where(function ($query) use ($nome) {
-                        $query->where('nome_razao_social', 'like', "%{$nome}%")
-                              ->orWhere('nome_fantasia', 'like', "%{$nome}%");
-                    })
-                    ->where('status', StatusPessoa::ATIVO)
-                    ->get();
+            $query->where('nome_razao_social', 'like', "%{$nome}%")
+                ->orWhere('nome_fantasia', 'like', "%{$nome}%");
+        })
+            ->where('status', StatusPessoa::ATIVO)
+            ->get();
     }
 
     /**
@@ -153,6 +154,7 @@ class PessoaService
     public function ativar(Pessoa $pessoa): bool
     {
         $pessoa->ativar();
+
         return true;
     }
 
@@ -164,10 +166,10 @@ class PessoaService
         string $tipoPapel,
         string $empresaId,
         array $dadosEspecificos = []
-    ): \App\Domain\Identidade\Models\Papel {
+    ): Papel {
         // Verificar se já possui este papel na empresa
         if ($pessoa->possuiPapel($tipoPapel, $empresaId)) {
-            $validator = \Illuminate\Support\Facades\Validator::make([], []);
+            $validator = Validator::make([], []);
             $validator->errors()->add('papel', 'Pessoa já possui este papel nesta empresa');
             throw new ValidationException($validator);
         }
@@ -189,11 +191,12 @@ class PessoaService
             ->where('status', 'ATIVO')
             ->first();
 
-        if (!$papel) {
+        if (! $papel) {
             return false;
         }
 
         $papel->inativar();
+
         return true;
     }
 
@@ -203,7 +206,7 @@ class PessoaService
     private function validarDadosPessoa(array $dados, ?Pessoa $pessoa = null): void
     {
         // Para atualização, usar o tipo da pessoa existente se não fornecido
-        if ($pessoa && !isset($dados['tipo'])) {
+        if ($pessoa && ! isset($dados['tipo'])) {
             $tipo = $pessoa->tipo;
         } else {
             $tipo = TipoPessoa::from($dados['tipo']);
@@ -211,7 +214,7 @@ class PessoaService
 
         // Validar nome
         if (empty($dados['nome_razao_social']) || strlen($dados['nome_razao_social']) < 2) {
-            $validator = \Illuminate\Support\Facades\Validator::make($dados, []);
+            $validator = Validator::make($dados, []);
             $validator->errors()->add('nome_razao_social', 'Nome/Razão Social deve ter pelo menos 2 caracteres');
             throw new ValidationException($validator);
         }
@@ -221,8 +224,8 @@ class PessoaService
             // Para pessoa jurídica, pode ter nome fantasia
         } else {
             // Para pessoa física, não deve ter nome fantasia
-            if (isset($dados['nome_fantasia']) && !empty($dados['nome_fantasia'])) {
-                $validator = \Illuminate\Support\Facades\Validator::make($dados, []);
+            if (isset($dados['nome_fantasia']) && ! empty($dados['nome_fantasia'])) {
+                $validator = Validator::make($dados, []);
                 $validator->errors()->add('nome_fantasia', 'Pessoa física não pode ter nome fantasia');
                 throw new ValidationException($validator);
             }
@@ -241,23 +244,23 @@ class PessoaService
     {
         foreach ($documentos as $documento) {
             // Validar formato do documento
-            $tipoDocumento = \App\Domain\Identidade\Enums\TipoDocumento::from($documento['tipo']);
-            
-            if (!$this->documentoValidator->validar($tipoDocumento, $documento['valor'])) {
-                $validator = \Illuminate\Support\Facades\Validator::make($documento, []);
+            $tipoDocumento = TipoDocumento::from($documento['tipo']);
+
+            if (! $this->documentoValidator->validar($tipoDocumento, $documento['valor'])) {
+                $validator = Validator::make($documento, []);
                 $validator->errors()->add('documentos', "Documento {$tipoDocumento->label()} inválido");
                 throw new ValidationException($validator);
             }
 
             // Validar coerência tipo pessoa x tipo documento
             if ($tipoPessoa->isFisica() && $tipoDocumento->value === 'CNPJ') {
-                $validator = \Illuminate\Support\Facades\Validator::make([], []);
+                $validator = Validator::make([], []);
                 $validator->errors()->add('documentos', 'Pessoa física não pode ter CNPJ');
                 throw new ValidationException($validator);
             }
 
             if ($tipoPessoa->isJuridica() && $tipoDocumento->value === 'CPF') {
-                $validator = \Illuminate\Support\Facades\Validator::make([], []);
+                $validator = Validator::make([], []);
                 $validator->errors()->add('documentos', 'Pessoa jurídica não pode ter CPF');
                 throw new ValidationException($validator);
             }
@@ -270,18 +273,18 @@ class PessoaService
     /**
      * Verificar unicidade do documento
      */
-    private function verificarUnicidadeDocumento(string $valor, \App\Domain\Identidade\Enums\TipoDocumento $tipo, ?Pessoa $pessoa = null): void
+    private function verificarUnicidadeDocumento(string $valor, TipoDocumento $tipo, ?Pessoa $pessoa = null): void
     {
         $valor = preg_replace('/[^0-9]/', '', $valor);
-        
+
         $query = Documento::where('tipo', $tipo)->where('valor', $valor);
-        
+
         if ($pessoa) {
             $query->where('pessoa_id', '!=', $pessoa->id);
         }
 
         if ($query->exists()) {
-            $validator = \Illuminate\Support\Facades\Validator::make([], []);
+            $validator = Validator::make([], []);
             $validator->errors()->add('documento', "Documento {$tipo->label()} já está em uso");
             throw new ValidationException($validator);
         }
@@ -372,8 +375,8 @@ class PessoaService
      */
     public function excluir(Pessoa $pessoa): bool
     {
-        if (!$this->podeExcluir($pessoa)) {
-            $validator = \Illuminate\Support\Facades\Validator::make([], []);
+        if (! $this->podeExcluir($pessoa)) {
+            $validator = Validator::make([], []);
             $validator->errors()->add('exclusao', 'Não é possível excluir esta pessoa pois possui vínculos ativos');
             throw new ValidationException($validator);
         }

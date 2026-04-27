@@ -12,7 +12,7 @@ enum PrioridadeOrdem: string
 
     public function getLabel(): string
     {
-        return match($this) {
+        return match ($this) {
             self::MUITO_BAIXA => 'Muito Baixa',
             self::BAIXA => 'Baixa',
             self::NORMAL => 'Normal',
@@ -23,7 +23,7 @@ enum PrioridadeOrdem: string
 
     public function getDescricao(): string
     {
-        return match($this) {
+        return match ($this) {
             self::MUITO_BAIXA => 'Prioridade muito baixa - execução quando não houver outras demandas',
             self::BAIXA => 'Prioridade baixa - pode ser executada quando houver disponibilidade',
             self::NORMAL => 'Prioridade normal - execução dentro do prazo padrão',
@@ -34,7 +34,7 @@ enum PrioridadeOrdem: string
 
     public function getCor(): string
     {
-        return match($this) {
+        return match ($this) {
             self::MUITO_BAIXA => 'gray',
             self::BAIXA => 'blue',
             self::NORMAL => 'green',
@@ -45,7 +45,7 @@ enum PrioridadeOrdem: string
 
     public function getPeso(): int
     {
-        return match($this) {
+        return match ($this) {
             self::MUITO_BAIXA => 1,
             self::BAIXA => 2,
             self::NORMAL => 3,
@@ -57,7 +57,7 @@ enum PrioridadeOrdem: string
     public function getPrazoAjuste(): int
     {
         // Retorna dias de ajuste no prazo baseado na prioridade
-        return match($this) {
+        return match ($this) {
             self::MUITO_BAIXA => 3, // +3 dias
             self::BAIXA => 2, // +2 dias
             self::NORMAL => 0, // sem ajuste
@@ -68,7 +68,7 @@ enum PrioridadeOrdem: string
 
     public function isCritica(): bool
     {
-        return match($this) {
+        return match ($this) {
             self::ALTA, self::URGENTE => true,
             default => false,
         };
@@ -76,7 +76,7 @@ enum PrioridadeOrdem: string
 
     public function getAjusteCronograma(): float
     {
-        return match($this) {
+        return match ($this) {
             self::MUITO_BAIXA => 2.0, // aumenta tempo em 100%
             self::BAIXA => 1.5, // aumenta tempo em 50%
             self::NORMAL => 1.0, // tempo normal
@@ -88,7 +88,7 @@ enum PrioridadeOrdem: string
     public static function getOptions(): array
     {
         return array_map(
-            fn($case) => [
+            fn ($case) => [
                 'value' => $case->value,
                 'label' => $case->getLabel(),
                 'description' => $case->getDescricao(),
@@ -104,10 +104,10 @@ enum PrioridadeOrdem: string
         usort($itens, function ($a, $b) use ($campo) {
             $prioridadeA = self::from($a[$campo] ?? self::NORMAL->value);
             $prioridadeB = self::from($b[$campo] ?? self::NORMAL->value);
-            
+
             return $prioridadeB->getPeso() <=> $prioridadeA->getPeso();
         });
-        
+
         return $itens;
     }
 }

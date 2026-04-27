@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Papel;
 use App\Models\Permissao;
+use Illuminate\Database\Seeder;
 
 class PapeisSeeder extends Seeder
 {

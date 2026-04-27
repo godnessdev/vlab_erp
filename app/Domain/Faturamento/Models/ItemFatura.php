@@ -3,9 +3,9 @@
 namespace App\Domain\Faturamento\Models;
 
 use App\Domain\OrdemServico\Models\OrdemServico;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class ItemFatura extends Model
 {
@@ -43,7 +43,7 @@ class ItemFatura extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($item) {
             if (empty($item->sequencia)) {
                 $item->sequencia = static::proximaSequencia($item->fatura_id);
@@ -70,14 +70,14 @@ class ItemFatura extends Model
     public function calcularSubtotal(): void
     {
         $valorBruto = $this->quantidade * $this->preco_unitario;
-        
+
         $desconto = 0;
         if ($this->desconto_percentual > 0) {
             $desconto = $valorBruto * ($this->desconto_percentual / 100);
         } else {
             $desconto = $this->desconto_valor ?? 0;
         }
-        
+
         $this->subtotal = $valorBruto - $desconto;
     }
 
@@ -89,22 +89,22 @@ class ItemFatura extends Model
     public function getDescontoAplicado(): float
     {
         $valorBruto = $this->getValorBruto();
-        
+
         if ($this->desconto_percentual > 0) {
             return $valorBruto * ($this->desconto_percentual / 100);
         }
-        
+
         return $this->desconto_valor ?? 0;
     }
 
     public function getPercentualDesconto(): float
     {
         $valorBruto = $this->getValorBruto();
-        
+
         if ($valorBruto == 0) {
             return 0;
         }
-        
+
         return ($this->getDescontoAplicado() / $valorBruto) * 100;
     }
 
@@ -143,7 +143,7 @@ class ItemFatura extends Model
     {
         return $query->where(function ($q) {
             $q->where('desconto_percentual', '>', 0)
-              ->orWhere('desconto_valor', '>', 0);
+                ->orWhere('desconto_valor', '>', 0);
         });
     }
 
@@ -161,16 +161,16 @@ class ItemFatura extends Model
     // Accessors
     public function getValorUnitarioFormatadoAttribute(): string
     {
-        return 'R$ ' . number_format($this->preco_unitario, 2, ',', '.');
+        return 'R$ '.number_format($this->preco_unitario, 2, ',', '.');
     }
 
     public function getSubtotalFormatadoAttribute(): string
     {
-        return 'R$ ' . number_format($this->subtotal, 2, ',', '.');
+        return 'R$ '.number_format($this->subtotal, 2, ',', '.');
     }
 
     public function getQuantidadeFormatadaAttribute(): string
     {
-        return number_format($this->quantidade, 2, ',', '.') . ' ' . $this->unidade_medida;
+        return number_format($this->quantidade, 2, ',', '.').' '.$this->unidade_medida;
     }
 }

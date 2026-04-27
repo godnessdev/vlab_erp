@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::create('rps', function (Blueprint $table) {
@@ -32,7 +33,7 @@ return new class extends Migration {
             $table->string('codigo_servico', 20);
             $table->string('codigo_cnae', 10)->nullable();
             $table->string('item_lista_servico', 5);
-            $table->enum('situacao', ['GERADO','ENVIADO','CONVERTIDO','ERRO'])->default('GERADO');
+            $table->enum('situacao', ['GERADO', 'ENVIADO', 'CONVERTIDO', 'ERRO'])->default('GERADO');
             $table->boolean('usar_layout_nacional')->default(true);
             $table->timestamp('data_criacao');
             $table->unique(['empresa_id', 'serie', 'numero_rps'], 'uk_rps_empresa_serie_numero');

@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\OrdemServico\OrdemServicoController;
 use App\Http\Controllers\OrdemServico\ItemOrdemServicoController;
+use App\Http\Controllers\OrdemServico\OrdemServicoController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 // Rotas principais de Ordem de Serviço
 Route::prefix('ordens-servico')->name('ordens-servico.')->group(function () {
-    
+
     // CRUD básico
     Route::get('/', [OrdemServicoController::class, 'index'])->name('index');
     Route::post('/', [OrdemServicoController::class, 'store'])->name('store');

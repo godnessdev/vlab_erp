@@ -65,10 +65,10 @@ class OrdemServicoController extends Controller
 
         return response()->json($ordem->load([
             'cliente',
-            'servico', 
+            'servico',
             'responsavel',
             'equipe',
-            'itens.servico'
+            'itens.servico',
         ]), Response::HTTP_CREATED);
     }
 
@@ -80,9 +80,9 @@ class OrdemServicoController extends Controller
         return response()->json($ordem->load([
             'cliente',
             'servico',
-            'responsavel', 
+            'responsavel',
             'equipe',
-            'itens.servico'
+            'itens.servico',
         ]));
     }
 
@@ -111,7 +111,7 @@ class OrdemServicoController extends Controller
             'servico',
             'responsavel',
             'equipe',
-            'itens.servico'
+            'itens.servico',
         ]));
     }
 
@@ -122,7 +122,7 @@ class OrdemServicoController extends Controller
     {
         if ($ordem->status !== 'aberta') {
             return response()->json([
-                'message' => 'Apenas ordens de serviço em status "aberta" podem ser excluídas.'
+                'message' => 'Apenas ordens de serviço em status "aberta" podem ser excluídas.',
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
@@ -148,7 +148,7 @@ class OrdemServicoController extends Controller
             'servico',
             'responsavel',
             'equipe',
-            'itens.servico'
+            'itens.servico',
         ]));
     }
 
@@ -168,7 +168,7 @@ class OrdemServicoController extends Controller
             'servico',
             'responsavel',
             'equipe',
-            'itens.servico'
+            'itens.servico',
         ]));
     }
 

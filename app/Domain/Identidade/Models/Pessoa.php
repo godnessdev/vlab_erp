@@ -4,15 +4,15 @@ namespace App\Domain\Identidade\Models;
 
 use App\Domain\Identidade\Enums\StatusPessoa;
 use App\Domain\Identidade\Enums\TipoPessoa;
-use App\Domain\Identidade\Models\Papel;
+use App\Domain\Identidade\Factories\PessoaFactory;
 use App\Domain\Identidade\Observers\PessoaObserver;
-use App\Models\UsuarioEmpresaPapel;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[\Illuminate\Database\Eloquent\Attributes\ObservedBy([PessoaObserver::class])]
+#[ObservedBy([PessoaObserver::class])]
 class Pessoa extends Model
 {
     use HasFactory, HasUuids;
@@ -42,6 +42,7 @@ class Pessoa extends Model
     ];
 
     public const CREATED_AT = 'data_criacao';
+
     public const UPDATED_AT = 'data_atualizacao';
 
     /**
@@ -129,7 +130,7 @@ class Pessoa extends Model
 
     public function getIdadeAttribute(): ?int
     {
-        if (!$this->data_nascimento_constituicao || $this->tipo !== TipoPessoa::FISICA) {
+        if (! $this->data_nascimento_constituicao || $this->tipo !== TipoPessoa::FISICA) {
             return null;
         }
 
@@ -138,7 +139,7 @@ class Pessoa extends Model
 
     public function getTempoConstituicaoAttribute(): ?int
     {
-        if (!$this->data_nascimento_constituicao || $this->tipo !== TipoPessoa::JURIDICA) {
+        if (! $this->data_nascimento_constituicao || $this->tipo !== TipoPessoa::JURIDICA) {
             return null;
         }
 
@@ -226,7 +227,7 @@ class Pessoa extends Model
             'status' => 'ATIVO',
         ]);
 
-        if (!empty($dadosEspecificos)) {
+        if (! empty($dadosEspecificos)) {
             foreach ($dadosEspecificos as $chave => $valor) {
                 $papel->dadosEspecificos()->create([
                     'chave' => $chave,
@@ -243,6 +244,6 @@ class Pessoa extends Model
      */
     protected static function newFactory()
     {
-        return \App\Domain\Identidade\Factories\PessoaFactory::new();
+        return PessoaFactory::new();
     }
 }

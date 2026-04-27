@@ -13,7 +13,7 @@ enum TipoParametroEnum: string
 
     public function getLabel(): string
     {
-        return match($this) {
+        return match ($this) {
             self::STRING => 'Texto',
             self::INTEGER => 'Número Inteiro',
             self::DECIMAL => 'Número Decimal',
@@ -25,7 +25,7 @@ enum TipoParametroEnum: string
 
     public function getDescricao(): string
     {
-        return match($this) {
+        return match ($this) {
             self::STRING => 'Valor textual simples',
             self::INTEGER => 'Número inteiro sem casas decimais',
             self::DECIMAL => 'Número com casas decimais',
@@ -37,7 +37,7 @@ enum TipoParametroEnum: string
 
     public function getValidationRule(): string
     {
-        return match($this) {
+        return match ($this) {
             self::STRING => 'string',
             self::INTEGER => 'integer',
             self::DECIMAL => 'numeric',
@@ -50,7 +50,7 @@ enum TipoParametroEnum: string
     public static function getOptions(): array
     {
         return array_map(
-            fn($case) => ['value' => $case->value, 'label' => $case->getLabel(), 'validation' => $case->getValidationRule()],
+            fn ($case) => ['value' => $case->value, 'label' => $case->getLabel(), 'validation' => $case->getValidationRule()],
             self::cases()
         );
     }

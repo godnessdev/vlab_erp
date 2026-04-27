@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers\Domain\Identidade;
 
-use App\Http\Controllers\Controller;
 use App\Domain\Identidade\Models\Pessoa;
 use App\Domain\Identidade\Services\PessoaService;
-use App\Domain\Identidade\Enums\StatusPessoa;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
+use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 
 class PessoaController extends Controller
 {
@@ -24,17 +23,17 @@ class PessoaController extends Controller
     public function index(Request $request): View
     {
         $query = Pessoa::with(['documentos', 'enderecos', 'contatos'])
-                      ->orderBy('nome_razao_social');
+            ->orderBy('nome_razao_social');
 
         // Filtros
         if ($request->filled('busca')) {
             $busca = $request->get('busca');
             $query->where(function ($q) use ($busca) {
                 $q->where('nome_razao_social', 'like', "%{$busca}%")
-                  ->orWhere('nome_fantasia', 'like', "%{$busca}%")
-                  ->orWhereHas('documentos', function ($doc) use ($busca) {
-                      $doc->where('valor', 'like', "%{$busca}%");
-                  });
+                    ->orWhere('nome_fantasia', 'like', "%{$busca}%")
+                    ->orWhereHas('documentos', function ($doc) use ($busca) {
+                        $doc->where('valor', 'like', "%{$busca}%");
+                    });
             });
         }
 
@@ -85,10 +84,10 @@ class PessoaController extends Controller
     public function show(Pessoa $pessoa): View
     {
         $pessoa->load([
-            'documentos' => fn($query) => $query->orderBy('tipo'),
-            'enderecos' => fn($query) => $query->orderBy('tipo'),
-            'contatos' => fn($query) => $query->orderBy('tipo'),
-            'papeis.dadosEspecificos'
+            'documentos' => fn ($query) => $query->orderBy('tipo'),
+            'enderecos' => fn ($query) => $query->orderBy('tipo'),
+            'contatos' => fn ($query) => $query->orderBy('tipo'),
+            'papeis.dadosEspecificos',
         ]);
 
         return view('domain.identidade.pessoas.show', compact('pessoa'));
@@ -100,7 +99,7 @@ class PessoaController extends Controller
     public function edit(Pessoa $pessoa): View
     {
         $pessoa->load(['documentos', 'enderecos', 'contatos']);
-        
+
         return view('domain.identidade.pessoas.edit', compact('pessoa'));
     }
 
@@ -170,11 +169,11 @@ class PessoaController extends Controller
         $request->validate([
             'q' => 'required|string|min:2',
             'tipo' => 'sometimes|in:FISICA,JURIDICA',
-            'limit' => 'sometimes|integer|min:1|max:50'
+            'limit' => 'sometimes|integer|min:1|max:50',
         ]);
 
         $pessoas = $this->pessoaService->buscarPorNome($request->get('q'));
-        
+
         if ($request->filled('tipo')) {
             $pessoas = $pessoas->where('tipo', $request->get('tipo'));
         }
@@ -190,7 +189,7 @@ class PessoaController extends Controller
                     'tipo' => $pessoa->tipo->label(),
                     'documento_principal' => $pessoa->getDocumentoPrincipal()?->getFormatado(),
                 ];
-            })
+            }),
         ]);
     }
 
@@ -201,7 +200,7 @@ class PessoaController extends Controller
     {
         $pessoa = $this->pessoaService->buscarPorDocumento($documento);
 
-        if (!$pessoa) {
+        if (! $pessoa) {
             return response()->json(['message' => 'Pessoa não encontrada'], 404);
         }
 
@@ -213,7 +212,7 @@ class PessoaController extends Controller
                 'documento_principal' => $pessoa->getDocumentoPrincipal()?->getFormatado(),
                 'email_principal' => $pessoa->getEmailPrincipal(),
                 'telefone_principal' => $pessoa->getTelefonePrincipal(),
-            ]
+            ],
         ]);
     }
 

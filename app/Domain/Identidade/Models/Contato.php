@@ -3,6 +3,7 @@
 namespace App\Domain\Identidade\Models;
 
 use App\Domain\Identidade\Enums\TipoContato;
+use App\Domain\Identidade\Factories\ContatoFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -30,6 +31,7 @@ class Contato extends Model
     ];
 
     public const CREATED_AT = 'data_criacao';
+
     public const UPDATED_AT = null;
 
     /**
@@ -63,7 +65,7 @@ class Contato extends Model
         return $query->whereIn('tipo', [
             TipoContato::TELEFONE_FIXO,
             TipoContato::CELULAR,
-            TipoContato::WHATSAPP
+            TipoContato::WHATSAPP,
         ]);
     }
 
@@ -84,8 +86,8 @@ class Contato extends Model
     {
         return match ($this->tipo) {
             TipoContato::EMAIL => $this->valor,
-            TipoContato::TELEFONE_FIXO, 
-            TipoContato::CELULAR, 
+            TipoContato::TELEFONE_FIXO,
+            TipoContato::CELULAR,
             TipoContato::WHATSAPP => $this->formatarTelefone($this->valor),
             default => $this->valor,
         };
@@ -163,8 +165,8 @@ class Contato extends Model
     {
         return match ($this->tipo) {
             TipoContato::EMAIL => $this->validarEmail(),
-            TipoContato::TELEFONE_FIXO, 
-            TipoContato::CELULAR, 
+            TipoContato::TELEFONE_FIXO,
+            TipoContato::CELULAR,
             TipoContato::WHATSAPP => $this->validarTelefone(),
             default => true,
         };
@@ -195,7 +197,7 @@ class Contato extends Model
     private function validarTelefone(): bool
     {
         $telefone = $this->limparTelefone($this->valor);
-        
+
         // Validar formato brasileiro
         if ($this->tipo === TipoContato::TELEFONE_FIXO) {
             // (11) 1234-5678 = 10 dígitos
@@ -209,7 +211,7 @@ class Contato extends Model
     private function formatarTelefone(string $telefone): string
     {
         $telefone = $this->limparTelefone($telefone);
-        
+
         if (strlen($telefone) === 10) {
             // Telefone fixo: (11) 1234-5678
             return sprintf('(%s) %s-%s',
@@ -225,7 +227,7 @@ class Contato extends Model
                 substr($telefone, 7, 4)
             );
         }
-        
+
         return $telefone;
     }
 
@@ -239,6 +241,6 @@ class Contato extends Model
      */
     protected static function newFactory()
     {
-        return \App\Domain\Identidade\Factories\ContatoFactory::new();
+        return ContatoFactory::new();
     }
 }

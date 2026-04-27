@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -52,7 +52,7 @@ return new class extends Migration
 
         // Aplicar tipo ENUM e índices JSONB no PostgreSQL
         if (DB::connection()->getDriverName() === 'pgsql') {
-            DB::statement("ALTER TABLE regras_tributacao ALTER COLUMN regime_tributario TYPE regime_tributario_enum USING regime_tributario::regime_tributario_enum");
+            DB::statement('ALTER TABLE regras_tributacao ALTER COLUMN regime_tributario TYPE regime_tributario_enum USING regime_tributario::regime_tributario_enum');
             DB::statement('CREATE INDEX gin_regra_base_calculo ON regras_tributacao USING GIN (base_calculo_diferenciada)');
             DB::statement('CREATE INDEX gin_regra_adicionais ON regras_tributacao USING GIN (regras_adicionais)');
         }
@@ -67,7 +67,7 @@ return new class extends Migration
 
         // Remover ENUM se PostgreSQL
         if (DB::connection()->getDriverName() === 'pgsql') {
-            DB::statement("DROP TYPE IF EXISTS regime_tributario_enum CASCADE");
+            DB::statement('DROP TYPE IF EXISTS regime_tributario_enum CASCADE');
         }
     }
 };

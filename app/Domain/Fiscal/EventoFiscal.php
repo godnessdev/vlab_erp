@@ -2,10 +2,10 @@
 
 namespace App\Domain\Fiscal;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Domain\Fiscal\Enums\TipoEventoFiscalEnum;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Domain\Fiscal\Enums\TipoEventoFiscalEnum;
+use Illuminate\Database\Eloquent\Model;
 
 class EventoFiscal extends Model
 {

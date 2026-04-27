@@ -15,7 +15,7 @@ class DocumentoFactory extends Factory
     public function definition(): array
     {
         $tipo = $this->faker->randomElement(TipoDocumento::cases());
-        $validator = new DocumentoValidator();
+        $validator = new DocumentoValidator;
 
         return [
             'pessoa_id' => Pessoa::factory(),
@@ -30,8 +30,8 @@ class DocumentoFactory extends Factory
     public function cpf(): static
     {
         return $this->state(function (array $attributes) {
-            $validator = new DocumentoValidator();
-            
+            $validator = new DocumentoValidator;
+
             return [
                 'tipo' => TipoDocumento::CPF,
                 'valor' => $validator->gerarCpfValido(),
@@ -45,8 +45,8 @@ class DocumentoFactory extends Factory
     public function cnpj(): static
     {
         return $this->state(function (array $attributes) {
-            $validator = new DocumentoValidator();
-            
+            $validator = new DocumentoValidator;
+
             return [
                 'tipo' => TipoDocumento::CNPJ,
                 'valor' => $validator->gerarCnpjValido(),

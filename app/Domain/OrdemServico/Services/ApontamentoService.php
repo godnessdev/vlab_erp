@@ -2,6 +2,7 @@
 
 namespace App\Domain\OrdemServico\Services;
 
+use App\Domain\OrdemServico\Enums\StatusItemOrdem;
 use App\Domain\OrdemServico\Enums\TipoEventoHistorico;
 use App\Domain\OrdemServico\Models\ApontamentoExecucao;
 use App\Domain\OrdemServico\Models\HistoricoOrdem;
@@ -38,11 +39,11 @@ class ApontamentoService
             ]);
 
             // Validar regras de negócio após criação
-            if (!$apontamento->validarHoras()) {
+            if (! $apontamento->validarHoras()) {
                 throw new \InvalidArgumentException('Horas inválidas para o apontamento');
             }
 
-            if (!$apontamento->validarData()) {
+            if (! $apontamento->validarData()) {
                 throw new \InvalidArgumentException('Data inválida para o apontamento');
             }
 
@@ -66,7 +67,7 @@ class ApontamentoService
         Usuario $usuario
     ): ApontamentoExecucao {
         // Verificar se o usuário pode editar o apontamento
-        if ($apontamento->usuario_id !== $usuario->id && !$this->usuarioPodeGerenciar($usuario)) {
+        if ($apontamento->usuario_id !== $usuario->id && ! $this->usuarioPodeGerenciar($usuario)) {
             throw new \UnauthorizedException('Usuário não autorizado a editar este apontamento');
         }
 
@@ -88,11 +89,11 @@ class ApontamentoService
             ]);
 
             // Validar após atualização
-            if (!$apontamento->validarHoras()) {
+            if (! $apontamento->validarHoras()) {
                 throw new \InvalidArgumentException('Horas inválidas para o apontamento');
             }
 
-            if (!$apontamento->validarData()) {
+            if (! $apontamento->validarData()) {
                 throw new \InvalidArgumentException('Data inválida para o apontamento');
             }
 
@@ -102,12 +103,12 @@ class ApontamentoService
                 if ($dadosOriginais[$campo] !== $apontamento->$campo) {
                     $camposAlterados[$campo] = [
                         'old' => $dadosOriginais[$campo],
-                        'new' => $apontamento->$campo
+                        'new' => $apontamento->$campo,
                     ];
                 }
             }
 
-            if (!empty($camposAlterados)) {
+            if (! empty($camposAlterados)) {
                 HistoricoOrdem::create([
                     'ordem_servico_id' => $apontamento->ordem_servico_id,
                     'usuario_id' => $usuario->id,
@@ -128,7 +129,7 @@ class ApontamentoService
      */
     public function aprovar(ApontamentoExecucao $apontamento, Usuario $aprovador): bool
     {
-        if (!$this->usuarioPodeGerenciar($aprovador)) {
+        if (! $this->usuarioPodeGerenciar($aprovador)) {
             throw new \UnauthorizedException('Usuário não autorizado a aprovar apontamentos');
         }
 
@@ -149,7 +150,7 @@ class ApontamentoService
 
                 // Auto-iniciar item se necessário
                 $item = $apontamento->itemOrdem;
-                if ($item->status === \App\Domain\OrdemServico\Enums\StatusItemOrdem::PENDENTE) {
+                if ($item->status === StatusItemOrdem::PENDENTE) {
                     $item->iniciar();
                 }
             }
@@ -164,13 +165,13 @@ class ApontamentoService
     public function reprovar(
         ApontamentoExecucao $apontamento,
         Usuario $reprovador,
-        string $motivo = null
+        ?string $motivo = null
     ): bool {
-        if (!$this->usuarioPodeGerenciar($reprovador)) {
+        if (! $this->usuarioPodeGerenciar($reprovador)) {
             throw new \UnauthorizedException('Usuário não autorizado a reprovar apontamentos');
         }
 
-        if (!$apontamento->aprovado) {
+        if (! $apontamento->aprovado) {
             return true; // Já reprovado
         }
 
@@ -183,7 +184,7 @@ class ApontamentoService
                     'ordem_servico_id' => $apontamento->ordem_servico_id,
                     'usuario_id' => $reprovador->id,
                     'tipo_evento' => TipoEventoHistorico::APROVACAO,
-                    'descricao' => 'Apontamento reprovado' . ($motivo ? ": {$motivo}" : ''),
+                    'descricao' => 'Apontamento reprovado'.($motivo ? ": {$motivo}" : ''),
                     'valores_novos' => [
                         'apontamento_id' => $apontamento->id,
                         'reprovado_por' => $reprovador->nome,
@@ -204,7 +205,7 @@ class ApontamentoService
         $resultado = [
             'aprovados' => 0,
             'falhas' => 0,
-            'erros' => []
+            'erros' => [],
         ];
 
         foreach ($apontamentosIds as $id) {
@@ -230,15 +231,15 @@ class ApontamentoService
             ->orderBy('data_apontamento', 'desc');
 
         // Aplicar filtros
-        if (!empty($filtros['usuario_id'])) {
+        if (! empty($filtros['usuario_id'])) {
             $query->where('usuario_id', $filtros['usuario_id']);
         }
 
-        if (!empty($filtros['ordem_servico_id'])) {
+        if (! empty($filtros['ordem_servico_id'])) {
             $query->where('ordem_servico_id', $filtros['ordem_servico_id']);
         }
 
-        if (!empty($filtros['item_ordem_id'])) {
+        if (! empty($filtros['item_ordem_id'])) {
             $query->where('item_ordem_id', $filtros['item_ordem_id']);
         }
 
@@ -246,18 +247,18 @@ class ApontamentoService
             $query->where('aprovado', $filtros['aprovado']);
         }
 
-        if (!empty($filtros['data_inicio']) && !empty($filtros['data_fim'])) {
+        if (! empty($filtros['data_inicio']) && ! empty($filtros['data_fim'])) {
             $query->whereBetween('data_apontamento', [$filtros['data_inicio'], $filtros['data_fim']]);
         }
 
-        if (!empty($filtros['empresa_id'])) {
+        if (! empty($filtros['empresa_id'])) {
             $query->whereHas('ordemServico', function ($q) use ($filtros) {
                 $q->where('empresa_id', $filtros['empresa_id']);
             });
         }
 
         // Filtros de período predefinidos
-        if (!empty($filtros['periodo'])) {
+        if (! empty($filtros['periodo'])) {
             match ($filtros['periodo']) {
                 'hoje' => $query->hoje(),
                 'semana' => $query->essaSemana(),
@@ -292,17 +293,17 @@ class ApontamentoService
             ->aprovados();
 
         // Aplicar filtros
-        if (!empty($filtros['empresa_id'])) {
+        if (! empty($filtros['empresa_id'])) {
             $query->whereHas('ordemServico', function ($q) use ($filtros) {
                 $q->where('empresa_id', $filtros['empresa_id']);
             });
         }
 
-        if (!empty($filtros['usuario_id'])) {
+        if (! empty($filtros['usuario_id'])) {
             $query->where('usuario_id', $filtros['usuario_id']);
         }
 
-        if (!empty($filtros['data_inicio']) && !empty($filtros['data_fim'])) {
+        if (! empty($filtros['data_inicio']) && ! empty($filtros['data_fim'])) {
             $query->whereBetween('data_apontamento', [$filtros['data_inicio'], $filtros['data_fim']]);
         }
 
@@ -324,15 +325,15 @@ class ApontamentoService
 
         foreach ($apontamentos->groupBy('usuario_id') as $usuarioId => $apontamentosUsuario) {
             $usuario = $apontamentosUsuario->first()->usuario;
-            
+
             $relatorio['por_usuario'][$usuarioId] = [
                 'nome' => $usuario->nome ?? 'Usuário não encontrado',
                 'email' => $usuario->email ?? '',
                 'total_horas' => $apontamentosUsuario->sum('horas_trabalhadas'),
                 'total_apontamentos' => $apontamentosUsuario->count(),
-                'horas_por_dia' => $apontamentosUsuario->groupBy(function($item) {
+                'horas_por_dia' => $apontamentosUsuario->groupBy(function ($item) {
                     return $item->data_apontamento->format('Y-m-d');
-                })->map(function($grupo) {
+                })->map(function ($grupo) {
                     return $grupo->sum('horas_trabalhadas');
                 })->toArray(),
             ];
@@ -347,7 +348,7 @@ class ApontamentoService
     public function excluir(ApontamentoExecucao $apontamento, Usuario $usuario): bool
     {
         // Verificar permissões
-        if ($apontamento->usuario_id !== $usuario->id && !$this->usuarioPodeGerenciar($usuario)) {
+        if ($apontamento->usuario_id !== $usuario->id && ! $this->usuarioPodeGerenciar($usuario)) {
             throw new \UnauthorizedException('Usuário não autorizado a excluir este apontamento');
         }
 
@@ -397,12 +398,12 @@ class ApontamentoService
 
         // Validar se ordem e item existem e são compatíveis
         $ordem = OrdemServico::find($dados['ordem_servico_id']);
-        if (!$ordem) {
+        if (! $ordem) {
             throw new \InvalidArgumentException('Ordem de serviço não encontrada');
         }
 
         $item = ItemOrdemServico::find($dados['item_ordem_id']);
-        if (!$item || $item->ordem_servico_id !== $dados['ordem_servico_id']) {
+        if (! $item || $item->ordem_servico_id !== $dados['ordem_servico_id']) {
             throw new \InvalidArgumentException('Item não pertence à ordem de serviço informada');
         }
     }

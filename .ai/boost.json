@@ -1,0 +1,54 @@
+{
+    "guidelines": {
+        "path": ".ai/guidelines",
+        "priority": [
+            "erp-architecture.md",
+            "multitenant-patterns.md",
+            "fiscal-compliance.md",
+            "security-standards.md",
+            "testing-standards.md",
+            "performance-optimization.md",
+            "api-conventions.md",
+            "deployment-guide.md"
+        ]
+    },
+    "context": {
+        "project_type": "ERP Multitenant",
+        "domain": "Brazilian Tax Compliance",
+        "architecture": "DDD + Livewire + PostgreSQL RLS",
+        "ai_model": "claude-sonnet-4.5",
+        "compliance": ["LGPD", "NFS-e Nacional", "IBSCBS 2026"]
+    },
+    "code_generation": {
+        "enforce_guidelines": true,
+        "auto_testing": true,
+        "multitenancy_check": true,
+        "fiscal_validation": true
+    },
+    "validation": {
+        "security": {
+            "tenant_isolation": true,
+            "audit_trail": true,
+            "input_validation": true,
+            "authorization_check": true
+        },
+        "fiscal": {
+            "nfse_compliance": true,
+            "ibscbs_fields": true,
+            "tax_calculation": true,
+            "contingency_protocol": true
+        },
+        "performance": {
+            "response_time_ms": 200,
+            "query_optimization": true,
+            "cache_strategy": true,
+            "n_plus_one_prevention": true
+        },
+        "testing": {
+            "unit_coverage_min": 80,
+            "integration_tests": true,
+            "multitenancy_tests": true,
+            "fiscal_scenarios": true
+        }
+    }
+}

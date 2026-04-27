@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Faturamento;
 
-use App\Http\Controllers\Controller;
-use App\Domain\Faturamento\Models\ParcelaFatura;
 use App\Domain\Faturamento\Enums\StatusPagamentoParcela;
-use Illuminate\Http\Request;
+use App\Domain\Faturamento\Models\ParcelaFatura;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class ParcelaFaturaController extends Controller
@@ -17,7 +17,7 @@ class ParcelaFaturaController extends Controller
     public function index(Request $request): JsonResponse
     {
         $empresaId = $request->user()->empresa_id;
-        
+
         $query = ParcelaFatura::whereHas('fatura', function ($q) use ($empresaId) {
             $q->where('empresa_id', $empresaId);
         })->with(['fatura', 'fatura.cliente']);
@@ -43,7 +43,7 @@ class ParcelaFaturaController extends Controller
         if ($request->has('data_vencimento_inicio') && $request->has('data_vencimento_fim')) {
             $query->whereBetween('data_vencimento', [
                 $request->data_vencimento_inicio,
-                $request->data_vencimento_fim
+                $request->data_vencimento_fim,
             ]);
         }
 
@@ -63,7 +63,7 @@ class ParcelaFaturaController extends Controller
                 'total_vencidas' => $parcelas->where('data_vencimento', '<', now()->toDateString())
                     ->where('status_pagamento', '!=', StatusPagamentoParcela::PAGO)
                     ->count(),
-            ]
+            ],
         ]);
     }
 
@@ -85,8 +85,8 @@ class ParcelaFaturaController extends Controller
                     'juros_mora' => $parcela->calcularJurosMora(),
                     'multa' => $parcela->calcularMulta(),
                     'dias_para_vencimento' => $parcela->getDiasParaVencimento(),
-                ]
-            ]
+                ],
+            ],
         ]);
     }
 
@@ -106,17 +106,17 @@ class ParcelaFaturaController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Dados inválidos',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
         try {
             $parcela = ParcelaFatura::findOrFail($id);
 
-            if (!$parcela->status_pagamento->podeMarcarComoPago()) {
+            if (! $parcela->status_pagamento->podeMarcarComoPago()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Parcela não pode ser marcada como paga no status atual'
+                    'message' => 'Parcela não pode ser marcada como paga no status atual',
                 ], 400);
             }
 
@@ -134,13 +134,13 @@ class ParcelaFaturaController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Parcela marcada como paga',
-                'data' => $parcela->fresh()
+                'data' => $parcela->fresh(),
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 400);
         }
     }
@@ -158,7 +158,7 @@ class ParcelaFaturaController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Motivo é obrigatório',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -166,20 +166,20 @@ class ParcelaFaturaController extends Controller
             $parcela = ParcelaFatura::findOrFail($id);
             $parcela->cancelar();
 
-            $parcela->observacoes_pagamento = ($parcela->observacoes_pagamento ? $parcela->observacoes_pagamento . "\n" : '') . 
-                "[" . now()->format('d/m/Y H:i') . "] Cancelada: " . $request->motivo;
+            $parcela->observacoes_pagamento = ($parcela->observacoes_pagamento ? $parcela->observacoes_pagamento."\n" : '').
+                '['.now()->format('d/m/Y H:i').'] Cancelada: '.$request->motivo;
             $parcela->save();
 
             return response()->json([
                 'success' => true,
                 'message' => 'Parcela cancelada com sucesso',
-                'data' => $parcela
+                'data' => $parcela,
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 400);
         }
     }
@@ -191,10 +191,10 @@ class ParcelaFaturaController extends Controller
     {
         $parcela = ParcelaFatura::findOrFail($id);
 
-        if (!$parcela->isVencida()) {
+        if (! $parcela->isVencida()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Parcela não está vencida'
+                'message' => 'Parcela não está vencida',
             ], 400);
         }
 
@@ -213,7 +213,7 @@ class ParcelaFaturaController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $calculo
+            'data' => $calculo,
         ]);
     }
 
@@ -232,12 +232,12 @@ class ParcelaFaturaController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Parâmetros inválidos',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
         $empresaId = $request->user()->empresa_id;
-        
+
         $query = ParcelaFatura::whereHas('fatura', function ($q) use ($empresaId) {
             $q->where('empresa_id', $empresaId);
         })->with(['fatura', 'fatura.cliente']);
@@ -246,12 +246,12 @@ class ParcelaFaturaController extends Controller
         if ($request->tipo === 'vencimento') {
             $query->whereBetween('data_vencimento', [
                 $request->data_inicio,
-                $request->data_fim
+                $request->data_fim,
             ]);
         } else {
             $query->whereBetween('data_pagamento', [
                 $request->data_inicio,
-                $request->data_fim
+                $request->data_fim,
             ])->pagas();
         }
 
@@ -276,8 +276,8 @@ class ParcelaFaturaController extends Controller
                     'inicio' => $request->data_inicio,
                     'fim' => $request->data_fim,
                     'tipo' => $request->tipo,
-                ]
-            ]
+                ],
+            ],
         ]);
     }
 
@@ -287,7 +287,7 @@ class ParcelaFaturaController extends Controller
     public function dashboard(Request $request): JsonResponse
     {
         $empresaId = $request->user()->empresa_id;
-        
+
         $baseQuery = ParcelaFatura::whereHas('fatura', function ($q) use ($empresaId) {
             $q->where('empresa_id', $empresaId);
         });
@@ -314,12 +314,12 @@ class ParcelaFaturaController extends Controller
                 'valor_recebido' => (clone $baseQuery)->whereMonth('data_pagamento', now()->month)
                     ->whereYear('data_pagamento', now()->year)
                     ->pagas()->sum('valor_pago'),
-            ]
+            ],
         ];
 
         return response()->json([
             'success' => true,
-            'data' => $dashboard
+            'data' => $dashboard,
         ]);
     }
 }

@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::create('nfse', function (Blueprint $table) {
@@ -17,7 +18,7 @@ return new class extends Migration {
             $table->timestamp('data_autorizacao');
             $table->string('municipio_prestacao', 7);
             $table->string('url_visualizacao', 500)->nullable();
-            $table->enum('status', ['AUTORIZADA','CANCELADA','SUBSTITUIDA'])->default('AUTORIZADA');
+            $table->enum('status', ['AUTORIZADA', 'CANCELADA', 'SUBSTITUIDA'])->default('AUTORIZADA');
             $table->text('motivo_cancelamento')->nullable();
             $table->timestamp('data_cancelamento')->nullable();
             $table->text('xml_autorizacao')->nullable();

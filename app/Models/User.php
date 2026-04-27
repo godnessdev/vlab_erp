@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -11,7 +12,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, TwoFactorAuthenticatable;
 
     /**
@@ -60,5 +61,20 @@ class User extends Authenticatable
             ->take(2)
             ->map(fn ($word) => Str::substr($word, 0, 1))
             ->implode('');
+    }
+
+    /**
+     * Get the user's current company (temporary for interface testing)
+     */
+    public function company()
+    {
+        // TODO: Implementar relacionamento real quando sistema multitenancy estiver completo
+        // Por enquanto, retornar uma empresa fake para testar a interface
+        return (object) [
+            'id' => '1',
+            'nome_fantasia' => 'Empresa Teste',
+            'razao_social' => 'Empresa Teste Ltda',
+            'cnpj' => '12.345.678/0001-90',
+        ];
     }
 }

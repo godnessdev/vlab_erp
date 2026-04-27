@@ -9,7 +9,7 @@ enum AmbienteFiscalEnum: string
 
     public function getLabel(): string
     {
-        return match($this) {
+        return match ($this) {
             self::PRODUCAO => 'Produção',
             self::HOMOLOGACAO => 'Homologação',
         };
@@ -17,7 +17,7 @@ enum AmbienteFiscalEnum: string
 
     public function getDescricao(): string
     {
-        return match($this) {
+        return match ($this) {
             self::PRODUCAO => 'Ambiente de produção para emissão real de documentos fiscais',
             self::HOMOLOGACAO => 'Ambiente de testes para validação e homologação',
         };
@@ -25,7 +25,7 @@ enum AmbienteFiscalEnum: string
 
     public function getCor(): string
     {
-        return match($this) {
+        return match ($this) {
             self::PRODUCAO => 'success',
             self::HOMOLOGACAO => 'warning',
         };
@@ -33,7 +33,7 @@ enum AmbienteFiscalEnum: string
 
     public function getIcone(): string
     {
-        return match($this) {
+        return match ($this) {
             self::PRODUCAO => 'check-circle',
             self::HOMOLOGACAO => 'test-tube',
         };
@@ -42,11 +42,11 @@ enum AmbienteFiscalEnum: string
     public static function getOptions(): array
     {
         return array_map(
-            fn($case) => [
-                'value' => $case->value, 
-                'label' => $case->getLabel(), 
+            fn ($case) => [
+                'value' => $case->value,
+                'label' => $case->getLabel(),
                 'cor' => $case->getCor(),
-                'icone' => $case->getIcone()
+                'icone' => $case->getIcone(),
             ],
             self::cases()
         );

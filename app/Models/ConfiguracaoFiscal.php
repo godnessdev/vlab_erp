@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ConfiguracaoFiscal extends Model
 {
@@ -90,14 +90,14 @@ class ConfiguracaoFiscal extends Model
 
     public function getAliquotaFormatada(): string
     {
-        return number_format($this->aliquota_iss_default, 2, ',', '.') . '%';
+        return number_format($this->aliquota_iss_default, 2, ',', '.').'%';
     }
 
     public function getMunicipioNome(): ?string
     {
         // TODO: Implementar busca do nome do município pelo código IBGE
         // quando o serviço de localidades for implementado
-        return 'Município - Código IBGE: ' . $this->codigo_municipio_ibge;
+        return 'Município - Código IBGE: '.$this->codigo_municipio_ibge;
     }
 
     public function getWebserviceStatus(): string
@@ -120,12 +120,12 @@ class ConfiguracaoFiscal extends Model
             }
 
             // Validar código IBGE (7 dígitos)
-            if (!preg_match('/^\d{7}$/', $config->codigo_municipio_ibge)) {
+            if (! preg_match('/^\d{7}$/', $config->codigo_municipio_ibge)) {
                 throw new \InvalidArgumentException('Código IBGE deve ter 7 dígitos numéricos.');
             }
 
             // Validar URL do webservice
-            if (!filter_var($config->webservice_url, FILTER_VALIDATE_URL)) {
+            if (! filter_var($config->webservice_url, FILTER_VALIDATE_URL)) {
                 throw new \InvalidArgumentException('URL do webservice inválida.');
             }
         });

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Fiscal;
 
 use App\Domain\Fiscal\CertificadoDigital;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 
 class CertificadoDigitalController extends Controller
 {
@@ -32,6 +32,7 @@ class CertificadoDigitalController extends Controller
             'data_validade_fim' => 'required|date',
         ]);
         $cert = CertificadoDigital::create($data);
+
         return response()->json($cert, 201);
     }
 
@@ -40,6 +41,7 @@ class CertificadoDigitalController extends Controller
         $cert = CertificadoDigital::findOrFail($id);
         $data = $request->all();
         $cert->update($data);
+
         return $cert;
     }
 
@@ -47,6 +49,7 @@ class CertificadoDigitalController extends Controller
     {
         $cert = CertificadoDigital::findOrFail($id);
         $cert->delete();
+
         return response()->noContent();
     }
 }

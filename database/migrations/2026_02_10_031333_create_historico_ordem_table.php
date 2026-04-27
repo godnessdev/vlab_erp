@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -44,7 +44,7 @@ return new class extends Migration
         // Adicionar coluna enum apenas para PostgreSQL
         if (DB::connection()->getDriverName() === 'pgsql') {
             DB::statement('ALTER TABLE historico_ordem ADD COLUMN tipo_evento tipo_evento_historico NOT NULL');
-            
+
             // Criar índices para as colunas enum e JSON (usando jsonb para GIN)
             DB::statement('CREATE INDEX idx_historico_tipo_evento ON historico_ordem (tipo_evento)');
             DB::statement('CREATE INDEX gin_historico_campos ON historico_ordem USING GIN ((campos_alterados::jsonb))');
@@ -67,7 +67,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('historico_ordem');
-        
+
         // Remover enum apenas para PostgreSQL
         if (DB::connection()->getDriverName() === 'pgsql') {
             DB::statement('DROP TYPE IF EXISTS tipo_evento_historico');

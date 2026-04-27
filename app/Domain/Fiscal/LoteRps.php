@@ -2,11 +2,11 @@
 
 namespace App\Domain\Fiscal;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Domain\Fiscal\Enums\AmbienteLoteEnum;
+use App\Domain\Fiscal\Enums\StatusLoteEnum;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Domain\Fiscal\Enums\StatusLoteEnum;
-use App\Domain\Fiscal\Enums\AmbienteLoteEnum;
+use Illuminate\Database\Eloquent\Model;
 
 class LoteRps extends Model
 {

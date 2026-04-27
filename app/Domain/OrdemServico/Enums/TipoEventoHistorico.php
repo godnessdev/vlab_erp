@@ -13,7 +13,7 @@ enum TipoEventoHistorico: string
 
     public function getLabel(): string
     {
-        return match($this) {
+        return match ($this) {
             self::CRIACAO => 'Criação',
             self::ALTERACAO => 'Alteração',
             self::STATUS_CHANGE => 'Mudança de Status',
@@ -25,7 +25,7 @@ enum TipoEventoHistorico: string
 
     public function getDescricao(): string
     {
-        return match($this) {
+        return match ($this) {
             self::CRIACAO => 'Ordem de serviço foi criada',
             self::ALTERACAO => 'Dados da ordem foram alterados',
             self::STATUS_CHANGE => 'Status da ordem foi alterado',
@@ -37,7 +37,7 @@ enum TipoEventoHistorico: string
 
     public function getIcone(): string
     {
-        return match($this) {
+        return match ($this) {
             self::CRIACAO => 'plus-circle',
             self::ALTERACAO => 'edit',
             self::STATUS_CHANGE => 'arrow-right',
@@ -49,7 +49,7 @@ enum TipoEventoHistorico: string
 
     public function getCor(): string
     {
-        return match($this) {
+        return match ($this) {
             self::CRIACAO => 'blue',
             self::ALTERACAO => 'yellow',
             self::STATUS_CHANGE => 'purple',
@@ -62,7 +62,7 @@ enum TipoEventoHistorico: string
     public static function getOptions(): array
     {
         return array_map(
-            fn($case) => [
+            fn ($case) => [
                 'value' => $case->value,
                 'label' => $case->getLabel(),
                 'description' => $case->getDescricao(),

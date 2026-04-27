@@ -2,13 +2,13 @@
 
 namespace App\Domain\Faturamento\Services;
 
+use App\Domain\Faturamento\Enums\StatusFatura;
+use App\Domain\Faturamento\Enums\TipoParcelamento;
 use App\Domain\Faturamento\Models\Fatura;
 use App\Domain\Faturamento\Models\ItemFatura;
 use App\Domain\Faturamento\Models\ParcelaFatura;
-use App\Domain\Faturamento\Enums\StatusFatura;
-use App\Domain\Faturamento\Enums\TipoParcelamento;
-use App\Domain\OrdemServico\Models\OrdemServico;
 use App\Domain\OrdemServico\Enums\StatusOrdemServico;
+use App\Domain\OrdemServico\Models\OrdemServico;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 
@@ -37,7 +37,7 @@ class FaturaService
 
         // Criar fatura
         $fatura = new Fatura($dadosFatura);
-        
+
         // Calcular valores dos itens
         $this->calcularValoresFatura($fatura, $ordensServico);
         $fatura->save();
@@ -58,7 +58,7 @@ class FaturaService
     {
         $fatura = Fatura::findOrFail($faturaId);
 
-        if (!$fatura->isEditavel()) {
+        if (! $fatura->isEditavel()) {
             throw new InvalidArgumentException('Fatura não pode ser editada no status atual');
         }
 
@@ -69,21 +69,21 @@ class FaturaService
         return $fatura->fresh();
     }
 
-    public function alterarStatusFatura(string $faturaId, StatusFatura $novoStatus, string $observacao = null): Fatura
+    public function alterarStatusFatura(string $faturaId, StatusFatura $novoStatus, ?string $observacao = null): Fatura
     {
         $fatura = Fatura::findOrFail($faturaId);
 
-        if (!$fatura->status->podeTransicionarPara($novoStatus)) {
+        if (! $fatura->status->podeTransicionarPara($novoStatus)) {
             throw new InvalidArgumentException(
                 "Não é possível transicionar de {$fatura->status->value} para {$novoStatus->value}"
             );
         }
 
         $fatura->status = $novoStatus;
-        
+
         if ($observacao) {
-            $fatura->observacoes = ($fatura->observacoes ? $fatura->observacoes . "\n" : '') . 
-                "[" . now()->format('d/m/Y H:i') . "] " . $observacao;
+            $fatura->observacoes = ($fatura->observacoes ? $fatura->observacoes."\n" : '').
+                '['.now()->format('d/m/Y H:i').'] '.$observacao;
         }
 
         $fatura->save();
@@ -94,9 +94,9 @@ class FaturaService
     public function enviarFatura(string $faturaId, array $dadosEnvio = []): Fatura
     {
         $fatura = $this->alterarStatusFatura(
-            $faturaId, 
+            $faturaId,
             StatusFatura::ENVIADA,
-            "Fatura enviada ao cliente"
+            'Fatura enviada ao cliente'
         );
 
         // Aqui poderia integrar com serviço de e-mail ou API fiscal
@@ -120,7 +120,7 @@ class FaturaService
                 $parcela->marcarComoPaga(
                     $parcela->valor_total_parcela,
                     $dadosPagamento['forma_pagamento'] ?? null,
-                    isset($dadosPagamento['data_pagamento']) 
+                    isset($dadosPagamento['data_pagamento'])
                         ? new \DateTime($dadosPagamento['data_pagamento'])
                         : null
                 );
@@ -128,9 +128,9 @@ class FaturaService
         }
 
         return $this->alterarStatusFatura(
-            $faturaId, 
+            $faturaId,
             StatusFatura::PAGA,
-            "Pagamento confirmado - " . ($dadosPagamento['observacao'] ?? '')
+            'Pagamento confirmado - '.($dadosPagamento['observacao'] ?? '')
         );
     }
 
@@ -138,7 +138,7 @@ class FaturaService
     {
         $fatura = Fatura::findOrFail($faturaId);
 
-        if (!$fatura->podeCancelar()) {
+        if (! $fatura->podeCancelar()) {
             throw new InvalidArgumentException('Fatura não pode ser cancelada no status atual');
         }
 
@@ -150,9 +150,9 @@ class FaturaService
         }
 
         return $this->alterarStatusFatura(
-            $faturaId, 
+            $faturaId,
             StatusFatura::CANCELADA,
-            "Fatura cancelada: " . $motivo
+            'Fatura cancelada: '.$motivo
         );
     }
 
@@ -167,7 +167,7 @@ class FaturaService
         if (isset($filtros['data_inicio']) && isset($filtros['data_fim'])) {
             $query->whereBetween('data_emissao', [
                 $filtros['data_inicio'],
-                $filtros['data_fim']
+                $filtros['data_fim'],
             ]);
         }
 
@@ -197,10 +197,10 @@ class FaturaService
             ->get();
 
         $totalEmitido = $faturas->sum('valor_liquido');
-        $totalPago = $faturas->sum(fn($f) => $f->getValorPago());
+        $totalPago = $faturas->sum(fn ($f) => $f->getValorPago());
         $totalPendente = $totalEmitido - $totalPago;
         $faturasPagas = $faturas->where('status', StatusFatura::PAGA)->count();
-        $faturasVencidas = $faturas->filter(fn($f) => $f->isVencida())->count();
+        $faturasVencidas = $faturas->filter(fn ($f) => $f->isVencida())->count();
 
         return [
             'total_emitido' => $totalEmitido,
@@ -217,7 +217,7 @@ class FaturaService
     private function validarOrdensParaFaturamento(Collection $ordensServico): void
     {
         foreach ($ordensServico as $ordem) {
-            if (!$ordem instanceof OrdemServico) {
+            if (! $ordem instanceof OrdemServico) {
                 throw new InvalidArgumentException('Todas as ordens devem ser instâncias de OrdemServico');
             }
 
@@ -236,7 +236,7 @@ class FaturaService
     private function calcularValoresFatura(Fatura $fatura, Collection $ordensServico): void
     {
         $valorServicos = $ordensServico->sum('valor_total_final');
-        
+
         $fatura->valor_servicos = $valorServicos;
         $fatura->calcularTotais();
     }
@@ -270,11 +270,11 @@ class FaturaService
             case TipoParcelamento::A_VISTA:
                 $this->criarParcelaUnica($fatura);
                 break;
-                
+
             case TipoParcelamento::FIXO:
                 $this->criarParcelasFixas($fatura, $esquema);
                 break;
-                
+
             default:
                 $this->criarParcelaUnica($fatura);
         }
@@ -298,7 +298,7 @@ class FaturaService
         $valorParcela = $fatura->valor_liquido / $quantidadeParcelas;
 
         for ($i = 1; $i <= $quantidadeParcelas; $i++) {
-            $dataVencimento = $i === 1 
+            $dataVencimento = $i === 1
                 ? $fatura->data_vencimento
                 : now()->addDays($intervaloDias * ($i - 1))->toDateString();
 

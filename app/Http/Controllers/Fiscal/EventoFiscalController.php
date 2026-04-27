@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Fiscal;
 
 use App\Domain\Fiscal\EventoFiscal;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 
 class EventoFiscalController extends Controller
 {
@@ -28,6 +28,7 @@ class EventoFiscalController extends Controller
             'usuario_id' => 'required|uuid',
         ]);
         $evento = EventoFiscal::create($data);
+
         return response()->json($evento, 201);
     }
 
@@ -36,6 +37,7 @@ class EventoFiscalController extends Controller
         $evento = EventoFiscal::findOrFail($id);
         $data = $request->all();
         $evento->update($data);
+
         return $evento;
     }
 
@@ -43,6 +45,7 @@ class EventoFiscalController extends Controller
     {
         $evento = EventoFiscal::findOrFail($id);
         $evento->delete();
+
         return response()->noContent();
     }
 }

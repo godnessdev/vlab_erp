@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::create('contas_receber', function (Blueprint $table) {
@@ -23,8 +24,8 @@ return new class extends Migration {
             $table->decimal('valor_liquido_esperado', 15, 2);
             $table->date('data_vencimento');
             $table->date('data_emissao');
-            $table->enum('status', ['ABERTA','PAGA','PARCIAL','ATRASADA','CANCELADA'])->default('ABERTA');
-            $table->enum('forma_cobranca', ['BOLETO','PIX','CARTAO','DINHEIRO','TRANSFERENCIA']);
+            $table->enum('status', ['ABERTA', 'PAGA', 'PARCIAL', 'ATRASADA', 'CANCELADA'])->default('ABERTA');
+            $table->enum('forma_cobranca', ['BOLETO', 'PIX', 'CARTAO', 'DINHEIRO', 'TRANSFERENCIA']);
             $table->text('observacoes')->nullable();
             $table->timestamps();
             $table->softDeletes();

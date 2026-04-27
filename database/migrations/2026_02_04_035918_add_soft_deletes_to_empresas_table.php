@@ -14,15 +14,15 @@ return new class extends Migration
         Schema::table('empresas', function (Blueprint $table) {
             $table->softDeletes();
         });
-        
+
         Schema::table('filiais', function (Blueprint $table) {
             $table->softDeletes();
         });
-        
+
         Schema::table('usuarios', function (Blueprint $table) {
             $table->softDeletes();
         });
-        
+
         Schema::table('parametros_operacionais', function (Blueprint $table) {
             $table->softDeletes();
         });
@@ -36,15 +36,15 @@ return new class extends Migration
         Schema::table('parametros_operacionais', function (Blueprint $table) {
             $table->dropSoftDeletes();
         });
-        
+
         Schema::table('usuarios', function (Blueprint $table) {
             $table->dropSoftDeletes();
         });
-        
+
         Schema::table('filiais', function (Blueprint $table) {
             $table->dropSoftDeletes();
         });
-        
+
         Schema::table('empresas', function (Blueprint $table) {
             $table->dropSoftDeletes();
         });

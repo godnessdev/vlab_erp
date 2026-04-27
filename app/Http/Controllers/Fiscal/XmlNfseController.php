@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Fiscal;
 
 use App\Domain\Fiscal\XmlNfse;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 
 class XmlNfseController extends Controller
 {
@@ -29,6 +29,7 @@ class XmlNfseController extends Controller
             'data_armazenamento' => 'required|date',
         ]);
         $xml = XmlNfse::create($data);
+
         return response()->json($xml, 201);
     }
 
@@ -37,6 +38,7 @@ class XmlNfseController extends Controller
         $xml = XmlNfse::findOrFail($id);
         $data = $request->all();
         $xml->update($data);
+
         return $xml;
     }
 
@@ -44,6 +46,7 @@ class XmlNfseController extends Controller
     {
         $xml = XmlNfse::findOrFail($id);
         $xml->delete();
+
         return response()->noContent();
     }
 }

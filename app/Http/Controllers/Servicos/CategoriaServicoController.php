@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Servicos;
 
-use App\Http\Controllers\Controller;
 use App\Domain\Servicos\Models\CategoriaServico;
 use App\Domain\Servicos\Services\CategoriaServicoService;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class CategoriaServicoController extends Controller
@@ -24,7 +24,7 @@ class CategoriaServicoController extends Controller
     public function index(Request $request): JsonResponse
     {
         $empresaId = $request->user()->empresa_id;
-        
+
         $query = CategoriaServico::where('empresa_id', $empresaId)
             ->with(['servicosFilhos']);
 
@@ -37,7 +37,7 @@ class CategoriaServicoController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('nome', 'ilike', "%{$search}%")
-                  ->orWhere('descricao', 'ilike', "%{$search}%");
+                    ->orWhere('descricao', 'ilike', "%{$search}%");
             });
         }
 
@@ -56,7 +56,7 @@ class CategoriaServicoController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $categorias
+            'data' => $categorias,
         ]);
     }
 
@@ -66,7 +66,7 @@ class CategoriaServicoController extends Controller
     public function arvore(Request $request): JsonResponse
     {
         $empresaId = $request->user()->empresa_id;
-        
+
         $categorias = CategoriaServico::where('empresa_id', $empresaId)
             ->whereNull('categoria_pai_id')
             ->with(['subcategorias' => function ($query) {
@@ -77,7 +77,7 @@ class CategoriaServicoController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $categorias
+            'data' => $categorias,
         ]);
     }
 
@@ -91,7 +91,7 @@ class CategoriaServicoController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $categoria
+            'data' => $categoria,
         ]);
     }
 
@@ -114,13 +114,13 @@ class CategoriaServicoController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Dados inválidos',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
         try {
             $empresaId = $request->user()->empresa_id;
-            
+
             $dados = $request->validated();
             $dados['empresa_id'] = $empresaId;
 
@@ -129,13 +129,13 @@ class CategoriaServicoController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Categoria criada com sucesso',
-                'data' => $categoria->load(['categoriaPai', 'subcategorias'])
+                'data' => $categoria->load(['categoriaPai', 'subcategorias']),
             ], 201);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 400);
         }
     }
@@ -159,7 +159,7 @@ class CategoriaServicoController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Dados inválidos',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -169,13 +169,13 @@ class CategoriaServicoController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Categoria atualizada com sucesso',
-                'data' => $categoria->load(['categoriaPai', 'subcategorias'])
+                'data' => $categoria->load(['categoriaPai', 'subcategorias']),
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 400);
         }
     }
@@ -190,13 +190,13 @@ class CategoriaServicoController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Categoria excluída com sucesso'
+                'message' => 'Categoria excluída com sucesso',
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 400);
         }
     }
@@ -208,7 +208,7 @@ class CategoriaServicoController extends Controller
     {
         try {
             $categoria = CategoriaServico::findOrFail($id);
-            $categoria->ativo = !$categoria->ativo;
+            $categoria->ativo = ! $categoria->ativo;
             $categoria->save();
 
             $status = $categoria->ativo ? 'ativada' : 'desativada';
@@ -216,13 +216,13 @@ class CategoriaServicoController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => "Categoria {$status} com sucesso",
-                'data' => $categoria
+                'data' => $categoria,
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 400);
         }
     }
@@ -242,7 +242,7 @@ class CategoriaServicoController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Dados inválidos',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -254,13 +254,13 @@ class CategoriaServicoController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Ordem das categorias atualizada com sucesso'
+                'message' => 'Ordem das categorias atualizada com sucesso',
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 400);
         }
     }
@@ -271,7 +271,7 @@ class CategoriaServicoController extends Controller
     public function select(Request $request): JsonResponse
     {
         $empresaId = $request->user()->empresa_id;
-        
+
         $categorias = CategoriaServico::where('empresa_id', $empresaId)
             ->where('ativo', true)
             ->orderBy('nome')
@@ -281,17 +281,17 @@ class CategoriaServicoController extends Controller
         $options = $categorias->map(function ($categoria) use ($categorias) {
             $nivel = $this->calcularNivel($categoria, $categorias);
             $prefixo = str_repeat('— ', $nivel);
-            
+
             return [
                 'value' => $categoria->id,
-                'label' => $prefixo . $categoria->nome,
+                'label' => $prefixo.$categoria->nome,
                 'nivel' => $nivel,
             ];
         })->sortBy('label')->values();
 
         return response()->json([
             'success' => true,
-            'data' => $options
+            'data' => $options,
         ]);
     }
 
@@ -300,12 +300,12 @@ class CategoriaServicoController extends Controller
      */
     private function calcularNivel(CategoriaServico $categoria, $todasCategorias, int $nivel = 0): int
     {
-        if (!$categoria->categoria_pai_id) {
+        if (! $categoria->categoria_pai_id) {
             return $nivel;
         }
 
         $pai = $todasCategorias->firstWhere('id', $categoria->categoria_pai_id);
-        if (!$pai) {
+        if (! $pai) {
             return $nivel;
         }
 

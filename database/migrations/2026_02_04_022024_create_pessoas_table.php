@@ -20,13 +20,13 @@ return new class extends Migration
             $table->enum('status', ['ATIVO', 'INATIVO'])->default('ATIVO');
             $table->timestamp('data_criacao')->useCurrent();
             $table->timestamp('data_atualizacao')->useCurrent()->useCurrentOnUpdate();
-            
+
             // Índices
             $table->index('tipo');
             $table->index('status');
             $table->index(['tipo', 'status']);
             $table->index('nome_razao_social');
-            
+
             // RLS (Row Level Security) será implementado via SQL
             $table->comment('Entidade central para pessoa física e jurídica');
         });

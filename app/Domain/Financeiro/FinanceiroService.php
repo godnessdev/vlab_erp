@@ -2,7 +2,6 @@
 
 namespace App\Domain\Financeiro;
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
 
 class FinanceiroService
@@ -59,7 +58,7 @@ class FinanceiroService
             throw new \InvalidArgumentException('conta_receber_id é obrigatório');
         }
         $contaReceber = ContaReceber::find($dados['conta_receber_id']);
-        if (!$contaReceber) {
+        if (! $contaReceber) {
             throw new \InvalidArgumentException('ContaReceber não encontrada');
         }
         $recebimento = Recebimento::create([
@@ -70,6 +69,7 @@ class FinanceiroService
         ]);
         $this->atualizarStatusContaReceber($recebimento->conta_receber_id);
         $this->atualizarFluxoCaixaRecebimento($recebimento);
+
         return $recebimento;
     }
 
@@ -82,7 +82,7 @@ class FinanceiroService
             throw new \InvalidArgumentException('conta_pagar_id é obrigatório');
         }
         $contaPagar = ContaPagar::find($dados['conta_pagar_id']);
-        if (!$contaPagar) {
+        if (! $contaPagar) {
             throw new \InvalidArgumentException('ContaPagar não encontrada');
         }
         $pagamento = Pagamento::create([
@@ -93,6 +93,7 @@ class FinanceiroService
         ]);
         $this->atualizarStatusContaPagar($pagamento->conta_pagar_id);
         $this->atualizarFluxoCaixaPagamento($pagamento);
+
         return $pagamento;
     }
 
@@ -112,6 +113,7 @@ class FinanceiroService
         if (empty($empresaId)) {
             throw new \InvalidArgumentException('empresa_id é obrigatório');
         }
+
         return FluxoCaixa::where('empresa_id', $empresaId)
             ->where('realizado', true)
             ->orderBy('data_referencia')

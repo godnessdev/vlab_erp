@@ -105,6 +105,7 @@ class EnderecoFactory extends Factory
     private function formatarCep(int $cep): string
     {
         $cepString = str_pad($cep, 8, '0', STR_PAD_LEFT);
-        return substr($cepString, 0, 5) . '-' . substr($cepString, 5, 3);
+
+        return substr($cepString, 0, 5).'-'.substr($cepString, 5, 3);
     }
 }

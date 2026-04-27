@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -16,7 +16,7 @@ return new class extends Migration
             EXCEPTION
                 WHEN duplicate_object THEN null;
             END $$;");
-            
+
             DB::statement("DO $$ BEGIN
                 CREATE TYPE status_empresa AS ENUM ('ATIVO', 'INATIVO', 'SUSPENSO');
             EXCEPTION
@@ -34,7 +34,7 @@ return new class extends Migration
             $table->string('email_contato', 100)->nullable();
             $table->string('telefone_contato', 20)->nullable();
             $table->timestamps();
-            
+
             // Índices conforme especificação
             $table->index('cnpj', 'idx_empresa_cnpj');
         });
@@ -43,7 +43,7 @@ return new class extends Migration
         if (DB::connection()->getDriverName() === 'pgsql') {
             DB::statement('ALTER TABLE empresas ADD COLUMN regime_tributario regime_tributario DEFAULT \'SIMPLES_NACIONAL\'');
             DB::statement('ALTER TABLE empresas ADD COLUMN status status_empresa DEFAULT \'ATIVO\'');
-            
+
             // Criar índices para as colunas enum
             DB::statement('CREATE INDEX idx_empresa_status ON empresas (status)');
             DB::statement('CREATE INDEX idx_empresa_regime ON empresas (regime_tributario)');
@@ -61,7 +61,7 @@ return new class extends Migration
         if (DB::connection()->getDriverName() === 'pgsql') {
             // Habilitar RLS (Row Level Security)
             DB::statement('ALTER TABLE empresas ENABLE ROW LEVEL SECURITY');
-            
+
             // Política RLS para isolamento multitenant
             DB::statement("
                 CREATE POLICY tenant_isolation_empresa ON empresas
@@ -83,9 +83,9 @@ return new class extends Migration
         if (DB::connection()->getDriverName() === 'pgsql') {
             DB::statement('DROP POLICY IF EXISTS tenant_isolation_empresa ON empresas');
         }
-        
+
         Schema::dropIfExists('empresas');
-        
+
         // Remover enums apenas para PostgreSQL
         if (DB::connection()->getDriverName() === 'pgsql') {
             DB::statement('DROP TYPE IF EXISTS status_empresa');

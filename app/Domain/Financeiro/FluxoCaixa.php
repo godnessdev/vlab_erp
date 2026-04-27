@@ -2,10 +2,11 @@
 
 namespace App\Domain\Financeiro;
 
-use Illuminate\Database\Eloquent\Model;
+use Database\Factories\FluxoCaixaFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class FluxoCaixa extends Model
 {
@@ -14,7 +15,7 @@ class FluxoCaixa extends Model
 
     public static function newFactory()
     {
-        return \Database\Factories\FluxoCaixaFactory::new();
+        return FluxoCaixaFactory::new();
     }
 
     protected $table = 'fluxo_caixa';

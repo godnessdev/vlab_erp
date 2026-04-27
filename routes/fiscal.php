@@ -1,15 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Fiscal\RpsController;
+use App\Http\Controllers\Fiscal\CertificadoDigitalController;
+use App\Http\Controllers\Fiscal\EventoFiscalController;
+use App\Http\Controllers\Fiscal\LogIntegracaoFiscalController;
 use App\Http\Controllers\Fiscal\LoteRpsController;
 use App\Http\Controllers\Fiscal\NfseController;
-use App\Http\Controllers\Fiscal\RetencaoTributariaController;
 use App\Http\Controllers\Fiscal\ProtocoloFiscalController;
-use App\Http\Controllers\Fiscal\EventoFiscalController;
-use App\Http\Controllers\Fiscal\CertificadoDigitalController;
-use App\Http\Controllers\Fiscal\LogIntegracaoFiscalController;
+use App\Http\Controllers\Fiscal\RetencaoTributariaController;
+use App\Http\Controllers\Fiscal\RpsController;
 use App\Http\Controllers\Fiscal\XmlNfseController;
+use Illuminate\Support\Facades\Route;
 
 Route::prefix('fiscal')->group(function () {
     // RPS

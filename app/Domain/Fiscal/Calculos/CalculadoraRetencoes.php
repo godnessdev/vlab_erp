@@ -13,12 +13,12 @@ class CalculadoraRetencoes
     public function calcularRetencoes($dados)
     {
         // Stub para testes
-            return [
-                'valorDeducoes' => 0,
-                'valorPIS' => 0,
-                'valorCOFINS' => 0,
-                'valorINSS' => 0,
-                'valorIR' => 0,
-            ];
+        return [
+            'valorDeducoes' => 0,
+            'valorPIS' => 0,
+            'valorCOFINS' => 0,
+            'valorINSS' => 0,
+            'valorIR' => 0,
+        ];
     }
 }

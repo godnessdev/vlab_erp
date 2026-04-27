@@ -2,11 +2,11 @@
 
 namespace App\Domain\Fiscal;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Domain\Fiscal\Enums\ResponsavelRetencaoEnum;
+use App\Domain\Fiscal\Enums\TipoRetencaoEnum;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Domain\Fiscal\Enums\TipoRetencaoEnum;
-use App\Domain\Fiscal\Enums\ResponsavelRetencaoEnum;
+use Illuminate\Database\Eloquent\Model;
 
 class RetencaoTributaria extends Model
 {

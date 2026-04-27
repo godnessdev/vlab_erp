@@ -2,24 +2,30 @@
 
 namespace App\Domain\Fiscal\Services;
 
-use App\Domain\Fiscal\Repositories\RpsRepository;
-use App\Domain\Fiscal\Repositories\FaturaRepository;
-use App\Domain\Fiscal\Rps;
-use App\Domain\Fiscal\Exceptions\RpsInvalidoException;
 use App\Domain\Fiscal\Calculos\CalculadoraRetencoes;
-use App\Domain\Fiscal\Helpers\SequencialGenerator;
-use App\Domain\Fiscal\Helpers\DiscriminacaoMontador;
+use App\Domain\Fiscal\Exceptions\RpsInvalidoException;
 use App\Domain\Fiscal\Helpers\CodigoServicoResolver;
+use App\Domain\Fiscal\Helpers\DiscriminacaoMontador;
+use App\Domain\Fiscal\Helpers\SequencialGenerator;
+use App\Domain\Fiscal\Repositories\FaturaRepository;
+use App\Domain\Fiscal\Repositories\RpsRepository;
+use App\Domain\Fiscal\Rps;
 use Illuminate\Support\Facades\DB;
 
 class RpsService
 {
     protected $rpsRepository;
+
     protected $faturaRepository;
+
     protected $calculadoraRetencoes;
+
     protected $sequencialGenerator;
+
     protected $discriminacaoMontador;
+
     protected $codigoServicoResolver;
+
     protected $certificadoService;
 
     public function __construct(
@@ -50,7 +56,7 @@ class RpsService
         try {
             // 1. Validar fatura
             $fatura = $this->faturaRepository->findById($faturaId);
-            if (!$fatura || $fatura->status === 'CANCELADA' || $fatura->valor_servicos <= 0) {
+            if (! $fatura || $fatura->status === 'CANCELADA' || $fatura->valor_servicos <= 0) {
                 throw new RpsInvalidoException('Fatura inválida para geração de RPS.');
             }
 
@@ -109,6 +115,7 @@ class RpsService
             $this->faturaRepository->atualizarStatus($faturaId, 'ENVIADA');
 
             DB::commit();
+
             return $rps;
         } catch (\Exception $e) {
             DB::rollBack();

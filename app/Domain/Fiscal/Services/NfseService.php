@@ -2,24 +2,30 @@
 
 namespace App\Domain\Fiscal\Services;
 
+use App\Domain\Fiscal\Exceptions\NfseInvalidaException;
+use App\Domain\Fiscal\Helpers\RetencoesProcessor;
+use App\Domain\Fiscal\Helpers\XmlGenerator;
+use App\Domain\Fiscal\Integrations\AcbrLibIntegration;
+use App\Domain\Fiscal\Nfse;
 use App\Domain\Fiscal\Repositories\NfseRepository;
 use App\Domain\Fiscal\Repositories\RpsRepository;
-use App\Domain\Fiscal\Nfse;
 use App\Domain\Fiscal\Rps;
-use App\Domain\Fiscal\Exceptions\NfseInvalidaException;
-use App\Domain\Fiscal\Integrations\AcbrLibIntegration;
-use App\Domain\Fiscal\Helpers\XmlGenerator;
-use App\Domain\Fiscal\Helpers\RetencoesProcessor;
 use Illuminate\Support\Facades\DB;
 
 class NfseService
 {
     protected $nfseRepository;
+
     protected $rpsRepository;
+
     protected $acbrLibIntegration;
+
     protected $xmlGenerator;
+
     protected $retencoesProcessor;
+
     protected $financeiroIntegration;
+
     protected $eventoFiscalService;
 
     public function __construct(
@@ -49,7 +55,7 @@ class NfseService
 
         try {
             // 1. Validar RPS
-            if (!$this->podeConverterParaNfse($rps)) {
+            if (! $this->podeConverterParaNfse($rps)) {
                 throw new NfseInvalidaException('RPS inválido para conversão em NFS-e.');
             }
 
@@ -59,8 +65,8 @@ class NfseService
             // 3. Emitir via ACBrLib
             $retorno = $this->acbrLibIntegration->emitirNfse($iniOrXml, $rps->empresa_id);
 
-            if (!$retorno['sucesso']) {
-                throw new NfseInvalidaException('Erro na emissão: ' . $retorno['mensagem']);
+            if (! $retorno['sucesso']) {
+                throw new NfseInvalidaException('Erro na emissão: '.$retorno['mensagem']);
             }
 
             // 4. Extrair dados do retorno
@@ -101,6 +107,7 @@ class NfseService
             }
 
             DB::commit();
+
             return $nfse;
         } catch (\Exception $e) {
             DB::rollBack();
@@ -118,6 +125,7 @@ class NfseService
             $nfse->status = 'CANCELADA';
             $nfse->motivo_cancelamento = $motivo;
             $nfse->data_cancelamento = now();
+
             return $nfse->save();
         }
 
@@ -136,8 +144,8 @@ class NfseService
             // 2. Integrar com ACBrLib
             $retorno = $this->acbrLibIntegration->cancelarNfse($nfse->id, $motivo);
 
-            if (!$retorno['sucesso']) {
-                throw new NfseInvalidaException('Erro no cancelamento: ' . $retorno['mensagem']);
+            if (! $retorno['sucesso']) {
+                throw new NfseInvalidaException('Erro no cancelamento: '.$retorno['mensagem']);
             }
 
             // 3. Atualizar status e persistir dados
@@ -159,6 +167,7 @@ class NfseService
             }
 
             DB::commit();
+
             return true;
         } catch (\Exception $e) {
             DB::rollBack();
@@ -181,6 +190,7 @@ class NfseService
         if (empty($rps->codigo_servico) || empty($rps->descricao) || $rps->valor_servicos <= 0) {
             return false;
         }
+
         // Certificado digital ativo (pode ser injetado)
         return true;
     }

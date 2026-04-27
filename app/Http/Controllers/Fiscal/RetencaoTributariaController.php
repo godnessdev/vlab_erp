@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Fiscal;
 
 use App\Domain\Fiscal\RetencaoTributaria;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 
 class RetencaoTributariaController extends Controller
 {
@@ -29,6 +29,7 @@ class RetencaoTributariaController extends Controller
             'responsavel_retencao' => 'required|string',
         ]);
         $ret = RetencaoTributaria::create($data);
+
         return response()->json($ret, 201);
     }
 
@@ -37,6 +38,7 @@ class RetencaoTributariaController extends Controller
         $ret = RetencaoTributaria::findOrFail($id);
         $data = $request->all();
         $ret->update($data);
+
         return $ret;
     }
 
@@ -44,6 +46,7 @@ class RetencaoTributariaController extends Controller
     {
         $ret = RetencaoTributaria::findOrFail($id);
         $ret->delete();
+
         return response()->noContent();
     }
 }

@@ -11,7 +11,7 @@ enum StatusUsuarioEnum: string
 
     public function getLabel(): string
     {
-        return match($this) {
+        return match ($this) {
             self::ATIVO => 'Ativo',
             self::INATIVO => 'Inativo',
             self::BLOQUEADO => 'Bloqueado',
@@ -21,7 +21,7 @@ enum StatusUsuarioEnum: string
 
     public function getDescricao(): string
     {
-        return match($this) {
+        return match ($this) {
             self::ATIVO => 'Usuário ativo e pode acessar o sistema',
             self::INATIVO => 'Usuário inativo, sem acesso ao sistema',
             self::BLOQUEADO => 'Usuário bloqueado por segurança',
@@ -31,7 +31,7 @@ enum StatusUsuarioEnum: string
 
     public function getCor(): string
     {
-        return match($this) {
+        return match ($this) {
             self::ATIVO => 'success',
             self::INATIVO => 'secondary',
             self::BLOQUEADO => 'danger',
@@ -41,7 +41,7 @@ enum StatusUsuarioEnum: string
 
     public function getIcone(): string
     {
-        return match($this) {
+        return match ($this) {
             self::ATIVO => 'check-circle',
             self::INATIVO => 'x-circle',
             self::BLOQUEADO => 'lock',
@@ -52,11 +52,11 @@ enum StatusUsuarioEnum: string
     public static function getOptions(): array
     {
         return array_map(
-            fn($case) => [
-                'value' => $case->value, 
-                'label' => $case->getLabel(), 
+            fn ($case) => [
+                'value' => $case->value,
+                'label' => $case->getLabel(),
                 'cor' => $case->getCor(),
-                'icone' => $case->getIcone()
+                'icone' => $case->getIcone(),
             ],
             self::cases()
         );

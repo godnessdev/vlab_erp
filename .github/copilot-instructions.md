@@ -1,4 +1,192 @@
 <laravel-boost-guidelines>
+
+=== MCP GUIDELINES - ALWAYS FOLLOW ===
+
+# ⚠️ CRITICAL: Model Context Protocol (MCP) Guidelines
+
+**MANDATORY**: Before generating ANY code, you MUST read and follow these guidelines:
+
+## 📋 Core MCP Rules
+
+1. **ALWAYS** read relevant guidelines from `.ai/guidelines/` before responding
+2. **ALWAYS** follow `.ai/validation-checklist.yml` validation rules
+3. **ALWAYS** apply multitenancy patterns (RLS + global scopes)
+4. **ALWAYS** implement audit trail (LGPD compliance)
+5. **ALWAYS** include Pest tests with multitenancy scenarios
+6. **ALWAYS** validate fiscal compliance (NFS-e, IBSCBS)
+
+## 🏗️ Project Context
+
+- **Type**: ERP Multitenant Fiscal
+- **Domain**: Brazilian Tax Compliance
+- **Architecture**: DDD + Livewire + PostgreSQL RLS
+- **Framework**: Laravel 12 + PHP 8.4
+- **Frontend**: Livewire 4.x + Flux UI + Alpine.js
+- **Testing**: Pest + Architecture Tests
+- **Compliance**: LGPD, NFS-e Nacional 2026, IBSCBS 2026
+
+## 📚 Required Reading Before Code Generation
+
+### Guidelines Priority Order:
+1. `.ai/guidelines/erp-architecture.md` - Overall architecture patterns
+2. `.ai/guidelines/multitenant-patterns.md` - Tenant isolation rules
+3. `.ai/guidelines/fiscal-compliance.md` - Fiscal requirements (if applicable)
+4. `.ai/guidelines/security-standards.md` - Security patterns
+5. `.ai/guidelines/testing-standards.md` - Testing requirements
+6. `.ai/guidelines/performance-optimization.md` - Performance patterns
+7. `.ai/guidelines/api-conventions.md` - API standards (if applicable)
+
+### MCP Documentation:
+- `docs/MCP-GUIDELINES.md` - Detailed MCP patterns and templates
+- `docs/ONBOARDING-MCP.md` - Development roadmap and strategy
+- `.ai/validation-checklist.yml` - Validation rules
+- `.ai/README.md` - Complete MCP usage guide
+- `.ai/QUICK-REFERENCE.md` - Quick reference for daily use
+
+## 🔒 Mandatory Security Patterns (ALWAYS)
+
+### 1. Tenant Isolation
+```php
+// ✅ REQUIRED: Global scope on all tenant-aware models
+protected static function booted(): void
+{
+    static::addGlobalScope('company', function (Builder $builder) {
+        if ($companyId = app('current.company')?->id) {
+            $builder->where('company_id', $companyId);
+        }
+    });
+}
+```
+
+### 2. Audit Trail
+```php
+// ✅ REQUIRED: Audit log for all sensitive operations
+AuditLog::create([
+    'action' => 'action_name',
+    'user_id' => auth()->id(),
+    'company_id' => app('current.company')->id,
+    'resource_type' => get_class($resource),
+    'resource_id' => $resource->id,
+    'metadata' => ['before' => $before, 'after' => $after]
+]);
+```
+
+### 3. Authorization
+```php
+// ✅ REQUIRED: Authorization check before actions
+$this->authorize('action.name', $resource);
+```
+
+## 📋 Mandatory Fiscal Patterns (ALWAYS)
+
+### 1. IBSCBS (Reforma Tributária 2026)
+```php
+// ⚠️ CRITICAL: IBSCBS fields are INFORMATIVE ONLY
+// ❌ NEVER calculate IBS/CBS locally
+// ✅ ONLY include fields from ADN response
+$ibscbs = [
+    'finNFSe' => $adn->finNFSe,      // From ADN
+    'cst' => $adn->cst,              // From ADN
+    'cClassTrib' => $adn->cClassTrib // From ADN
+];
+```
+
+### 2. NFS-e Nacional 2026
+```php
+// ✅ REQUIRED: Follow DPS → ADN → NFS-e workflow
+// ✅ REQUIRED: XML validation against official schemas
+// ✅ REQUIRED: Digital signature with valid certificate
+// ✅ REQUIRED: Contingency protocol when SEFAZ offline
+```
+
+## 🧪 Mandatory Testing Patterns (ALWAYS)
+
+### 1. Multitenancy Tests
+```php
+test('users only see data from their company')
+    ->actingAsCompanyUser($companyA)
+    ->get('/api/resource')
+    ->each(fn($item) => expect($item['company_id'])->toBe($companyA->id));
+```
+
+### 2. Fiscal Tests with Datasets
+```php
+test('calculates tax by regime', function ($regime, $amount, $expected) {
+    $company = Company::factory()->create(['tax_regime' => $regime]);
+    $result = app(TaxCalculator::class)->calculate($amount, $company);
+    expect($result->toArray())->toMatchArray($expected);
+})->with('tax_regimes');
+```
+
+## 📁 Architecture Structure (ALWAYS FOLLOW)
+
+```
+Domain/              # Business logic, entities, value objects
+├── Identity/
+├── Company/
+├── Fiscal/
+└── [Domain]/
+
+Application/         # Use cases, services, DTOs
+├── Services/
+├── DTOs/
+└── Queries/
+
+Infrastructure/      # Technical implementations
+├── Repositories/
+├── External/
+└── Cache/
+
+Presentation/        # UI/API layer
+├── Livewire/       # Separate class + blade files
+├── API/
+└── Views/
+```
+
+## 🚫 Common Mistakes to AVOID
+
+❌ **NEVER** bypass tenant isolation
+❌ **NEVER** skip audit trail on sensitive operations
+❌ **NEVER** calculate IBS/CBS locally (informative only)
+❌ **NEVER** use SELECT * queries
+❌ **NEVER** forget authorization checks
+❌ **NEVER** skip tests (especially multitenancy)
+❌ **NEVER** ignore N+1 query problems
+❌ **NEVER** hardcode company_id (use app('current.company'))
+
+## ✅ Pre-Generation Checklist
+
+Before generating code, verify:
+- [ ] Read relevant guidelines from `.ai/guidelines/`
+- [ ] Checked `.ai/validation-checklist.yml`
+- [ ] Applied tenant isolation (RLS + global scopes)
+- [ ] Implemented audit trail (LGPD)
+- [ ] Added authorization checks
+- [ ] Included Pest tests with multitenancy scenarios
+- [ ] Followed DDD architecture structure
+- [ ] Used Livewire 4.x patterns (separate files)
+- [ ] Ensured fiscal compliance (if applicable)
+- [ ] Performance optimized (< 200ms)
+
+## 📊 Performance Requirements (ALWAYS)
+
+- ✅ Response time < 200ms (95% of requests)
+- ✅ No N+1 queries (use eager loading)
+- ✅ Proper indexing on foreign keys
+- ✅ Cache frequently accessed data
+- ✅ Pagination for large datasets
+
+---
+
+**🎯 REMEMBER: This is not optional. Every line of code must follow these guidelines. Quality, security, and compliance are non-negotiable.**
+
+For complete documentation, see:
+- `.ai/README.md` - Complete MCP usage guide
+- `docs/MCP-GUIDELINES.md` - Detailed patterns and templates
+- `docs/ONBOARDING-MCP.md` - Development roadmap
+
+=== END MCP GUIDELINES ===
+
 === .ai/api-conventions rules ===
 
 # API Conventions for AI Agents

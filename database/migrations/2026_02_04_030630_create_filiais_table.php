@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -27,19 +27,19 @@ return new class extends Migration
             $table->jsonb('endereco')->comment('Dados de endereço da filial');
             $table->jsonb('configuracao_fiscal')->comment('Configurações fiscais específicas da filial');
             $table->timestamps();
-            
+
             // Foreign keys
             $table->foreign('empresa_id')->references('id')->on('empresas')->onDelete('cascade');
-            
+
             // Índices
             $table->index(['empresa_id', 'codigo'], 'idx_filial_empresa_codigo');
             $table->index(['empresa_id', 'ativo'], 'idx_filial_empresa_ativo');
             $table->index('cnpj');
             $table->index('tipo');
-            
+
             // Constraint para garantir apenas uma matriz por empresa
             $table->unique(['empresa_id', 'tipo'], 'uk_empresa_matriz');
-            
+
             $table->comment('Filiais e matriz da empresa');
         });
 
@@ -47,7 +47,7 @@ return new class extends Migration
         if (DB::connection()->getDriverName() === 'pgsql') {
             // Habilitar RLS
             DB::statement('ALTER TABLE filiais ENABLE ROW LEVEL SECURITY');
-            
+
             // Política RLS para isolamento multitenant
             DB::statement("
                 CREATE POLICY tenant_isolation_filial ON filiais

@@ -11,7 +11,7 @@ use App\Models\Empresa;
 use Illuminate\Validation\ValidationException;
 
 beforeEach(function () {
-    $this->servicoService = new ServicoService();
+    $this->servicoService = new ServicoService;
     $this->empresa = Empresa::factory()->create();
 });
 
@@ -22,7 +22,7 @@ test('pode criar servico basico', function () {
         'preco_base' => 150.00,
         'aliquota_iss_default' => 3.00,
         'classificacao_fiscal' => '6201-5/00',
-        'observacoes' => 'Desenvolvimento web e mobile'
+        'observacoes' => 'Desenvolvimento web e mobile',
     ];
 
     $servico = $this->servicoService->criar($this->empresa->id, $dados);
@@ -51,15 +51,15 @@ test('pode criar servico com codigos municipais', function () {
                 'codigo_servico' => '01.01',
                 'descricao_municipal' => 'Análise e desenvolvimento de sistemas',
                 'aliquota_iss' => 2.00,
-                'data_vigencia_inicio' => now()->toDateString()
-            ]
-        ]
+                'data_vigencia_inicio' => now()->toDateString(),
+            ],
+        ],
     ];
 
     $servico = $this->servicoService->criar($this->empresa->id, $dados);
 
     expect($servico->codigosMunicipais)->toHaveCount(1);
-    
+
     $codigoMunicipal = $servico->codigosMunicipais->first();
     expect($codigoMunicipal)
         ->codigo_municipio_ibge->toBe('3550308')
@@ -81,15 +81,15 @@ test('pode criar servico com regras tributacao', function () {
                 'aliquota_csll' => 1.0,
                 'aliquota_pis' => 0.65,
                 'aliquota_cofins' => 3.0,
-                'retencao_inss' => false
-            ]
-        ]
+                'retencao_inss' => false,
+            ],
+        ],
     ];
 
     $servico = $this->servicoService->criar($this->empresa->id, $dados);
 
     expect($servico->regrasTributacao)->toHaveCount(1);
-    
+
     $regra = $servico->regrasTributacao->first();
     expect($regra)
         ->regime_tributario->toBe(RegimeTributario::LUCRO_PRESUMIDO)
@@ -106,7 +106,7 @@ test('pode buscar servico por id', function () {
 });
 
 test('falha ao buscar servico inexistente', function () {
-    expect(fn() => $this->servicoService->buscar($this->empresa->id, fake()->uuid()))
+    expect(fn () => $this->servicoService->buscar($this->empresa->id, fake()->uuid()))
         ->toThrow(ValidationException::class);
 });
 
@@ -115,12 +115,12 @@ test('pode atualizar servico', function () {
 
     $novosDados = [
         'descricao' => 'Nova Descrição',
-        'preco_base' => 200.00
+        'preco_base' => 200.00,
     ];
 
     $servicoAtualizado = $this->servicoService->atualizar(
-        $this->empresa->id, 
-        $servico->id, 
+        $this->empresa->id,
+        $servico->id,
         $novosDados
     );
 
@@ -132,7 +132,7 @@ test('pode atualizar servico', function () {
 test('pode inativar servico', function () {
     $servico = Servico::factory()->create([
         'empresa_id' => $this->empresa->id,
-        'status' => StatusServico::ATIVO
+        'status' => StatusServico::ATIVO,
     ]);
 
     $servicoInativado = $this->servicoService->inativar($this->empresa->id, $servico->id);
@@ -143,7 +143,7 @@ test('pode inativar servico', function () {
 test('pode ativar servico', function () {
     $servico = Servico::factory()->create([
         'empresa_id' => $this->empresa->id,
-        'status' => StatusServico::INATIVO
+        'status' => StatusServico::INATIVO,
     ]);
 
     $servicoAtivado = $this->servicoService->ativar($this->empresa->id, $servico->id);
@@ -154,7 +154,7 @@ test('pode ativar servico', function () {
 test('pode calcular tributacao basica', function () {
     $servico = Servico::factory()->create([
         'empresa_id' => $this->empresa->id,
-        'aliquota_iss_default' => 5.0
+        'aliquota_iss_default' => 5.0,
     ]);
 
     $calculo = $this->servicoService->calcularTributacao(
@@ -174,7 +174,7 @@ test('pode calcular tributacao basica', function () {
 test('pode calcular tributacao com regra especifica', function () {
     $servico = Servico::factory()->create([
         'empresa_id' => $this->empresa->id,
-        'aliquota_iss_default' => 5.0
+        'aliquota_iss_default' => 5.0,
     ]);
 
     RegraTributacao::create([
@@ -207,7 +207,7 @@ test('pode calcular tributacao com regra especifica', function () {
 test('pode obter aliquota iss municipal', function () {
     $servico = Servico::factory()->create([
         'empresa_id' => $this->empresa->id,
-        'aliquota_iss_default' => 5.0
+        'aliquota_iss_default' => 5.0,
     ]);
 
     CodigoServicoMunicipal::create([
@@ -215,7 +215,7 @@ test('pode obter aliquota iss municipal', function () {
         'codigo_municipio_ibge' => '3550308',
         'codigo_servico' => '01.01',
         'aliquota_iss' => 2.0,
-        'data_vigencia_inicio' => now()->toDateString()
+        'data_vigencia_inicio' => now()->toDateString(),
     ]);
 
     $aliquota = $servico->obterAliquotaISS('3550308');
@@ -226,7 +226,7 @@ test('pode obter aliquota iss municipal', function () {
 test('usa aliquota default quando nao tem codigo municipal', function () {
     $servico = Servico::factory()->create([
         'empresa_id' => $this->empresa->id,
-        'aliquota_iss_default' => 5.0
+        'aliquota_iss_default' => 5.0,
     ]);
 
     $aliquota = $servico->obterAliquotaISS('1234567');
@@ -242,7 +242,7 @@ test('pode adicionar codigo municipal', function () {
         'codigo_servico' => '01.01',
         'descricao_municipal' => 'Análise e desenvolvimento de sistemas',
         'aliquota_iss' => 2.0,
-        'data_vigencia_inicio' => now()->toDateString()
+        'data_vigencia_inicio' => now()->toDateString(),
     ];
 
     $codigo = $this->servicoService->adicionarCodigoMunicipal(
@@ -266,7 +266,7 @@ test('pode adicionar regra tributacao', function () {
         'aliquota_csll' => 9.0,
         'aliquota_pis' => 1.65,
         'aliquota_cofins' => 7.6,
-        'retencao_inss' => false
+        'retencao_inss' => false,
     ];
 
     $regra = $this->servicoService->adicionarRegraTributacao(
@@ -298,7 +298,7 @@ test('falha ao adicionar regra duplicada', function () {
         'aliquota_ir' => 1.0,
     ];
 
-    expect(fn() => $this->servicoService->adicionarRegraTributacao(
+    expect(fn () => $this->servicoService->adicionarRegraTributacao(
         $this->empresa->id,
         $servico->id,
         $dadosRegra
@@ -308,12 +308,12 @@ test('falha ao adicionar regra duplicada', function () {
 test('pode listar servicos com filtros', function () {
     Servico::factory()->count(5)->create([
         'empresa_id' => $this->empresa->id,
-        'status' => StatusServico::ATIVO
+        'status' => StatusServico::ATIVO,
     ]);
 
     Servico::factory()->count(2)->create([
         'empresa_id' => $this->empresa->id,
-        'status' => StatusServico::INATIVO
+        'status' => StatusServico::INATIVO,
     ]);
 
     $servicos = $this->servicoService->listar($this->empresa->id, ['status' => 'ATIVO']);
@@ -324,12 +324,12 @@ test('pode listar servicos com filtros', function () {
 test('pode obter estatisticas', function () {
     Servico::factory()->count(3)->create([
         'empresa_id' => $this->empresa->id,
-        'status' => StatusServico::ATIVO
+        'status' => StatusServico::ATIVO,
     ]);
 
     Servico::factory()->count(2)->create([
         'empresa_id' => $this->empresa->id,
-        'status' => StatusServico::INATIVO
+        'status' => StatusServico::INATIVO,
     ]);
 
     $stats = $this->servicoService->obterEstatisticas($this->empresa->id);

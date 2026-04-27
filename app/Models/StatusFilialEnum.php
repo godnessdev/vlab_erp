@@ -9,7 +9,7 @@ enum StatusFilialEnum: string
 
     public function getLabel(): string
     {
-        return match($this) {
+        return match ($this) {
             self::ATIVO => 'Ativo',
             self::INATIVO => 'Inativo',
         };
@@ -17,7 +17,7 @@ enum StatusFilialEnum: string
 
     public function getDescricao(): string
     {
-        return match($this) {
+        return match ($this) {
             self::ATIVO => 'Filial ativa e operacional',
             self::INATIVO => 'Filial inativa, sem operações',
         };
@@ -25,7 +25,7 @@ enum StatusFilialEnum: string
 
     public function getCor(): string
     {
-        return match($this) {
+        return match ($this) {
             self::ATIVO => 'success',
             self::INATIVO => 'danger',
         };
@@ -34,7 +34,7 @@ enum StatusFilialEnum: string
     public static function getOptions(): array
     {
         return array_map(
-            fn($case) => ['value' => $case->value, 'label' => $case->getLabel(), 'cor' => $case->getCor()],
+            fn ($case) => ['value' => $case->value, 'label' => $case->getLabel(), 'cor' => $case->getCor()],
             self::cases()
         );
     }

@@ -1,12 +1,13 @@
 <?php
 
-use App\Domain\Financeiro\FinanceiroService;
-use App\Domain\Financeiro\ContaReceber;
 use App\Domain\Financeiro\ContaPagar;
-use App\Domain\Financeiro\Recebimento;
-use App\Domain\Financeiro\Pagamento;
+use App\Domain\Financeiro\ContaReceber;
+use App\Domain\Financeiro\FinanceiroService;
 use App\Domain\Financeiro\FluxoCaixa;
+use App\Domain\Financeiro\Pagamento;
+use App\Domain\Financeiro\Recebimento;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 uses(RefreshDatabase::class);
@@ -19,12 +20,12 @@ class FinanceiroServiceTest extends TestCase
     /** @test */
     public function cria_conta_a_receber_via_service()
     {
-        $service = new FinanceiroService();
+        $service = new FinanceiroService;
         $conta = $service->criarContaReceber([
-            'empresa_id' => \Illuminate\Support\Str::uuid(),
-            'fatura_id' => \Illuminate\Support\Str::uuid(),
+            'empresa_id' => Str::uuid(),
+            'fatura_id' => Str::uuid(),
             'numero_conta' => 'CR123',
-            'cliente_id' => \Illuminate\Support\Str::uuid(),
+            'cliente_id' => Str::uuid(),
             'valor_original' => 100,
             'valor_liquido_esperado' => 100,
             'data_vencimento' => now(),
@@ -37,10 +38,10 @@ class FinanceiroServiceTest extends TestCase
     /** @test */
     public function cria_conta_a_pagar_via_service()
     {
-        $service = new FinanceiroService();
+        $service = new FinanceiroService;
         $conta = $service->criarContaPagar([
-            'empresa_id' => \Illuminate\Support\Str::uuid(),
-            'fornecedor_id' => \Illuminate\Support\Str::uuid(),
+            'empresa_id' => Str::uuid(),
+            'fornecedor_id' => Str::uuid(),
             'numero_conta' => 'CP123',
             'descricao' => 'Despesa',
             'categoria' => 'FORNECEDOR',
@@ -53,12 +54,12 @@ class FinanceiroServiceTest extends TestCase
     }
 }
 it('cria conta a receber via service', function () {
-    $service = new FinanceiroService();
+    $service = new FinanceiroService;
     $conta = $service->criarContaReceber([
-        'empresa_id' => \Illuminate\Support\Str::uuid()->toString(),
-        'fatura_id' => \Illuminate\Support\Str::uuid()->toString(),
+        'empresa_id' => Str::uuid()->toString(),
+        'fatura_id' => Str::uuid()->toString(),
         'numero_conta' => 'CR123',
-        'cliente_id' => \Illuminate\Support\Str::uuid()->toString(),
+        'cliente_id' => Str::uuid()->toString(),
         'valor_original' => 100,
         'valor_liquido_esperado' => 100,
         'data_vencimento' => now(),
@@ -69,10 +70,10 @@ it('cria conta a receber via service', function () {
 });
 
 it('cria conta a pagar via service', function () {
-    $service = new FinanceiroService();
+    $service = new FinanceiroService;
     $conta = $service->criarContaPagar([
-        'empresa_id' => \Illuminate\Support\Str::uuid()->toString(),
-        'fornecedor_id' => \Illuminate\Support\Str::uuid()->toString(),
+        'empresa_id' => Str::uuid()->toString(),
+        'fornecedor_id' => Str::uuid()->toString(),
         'numero_conta' => 'CP123',
         'descricao' => 'Despesa',
         'categoria' => 'FORNECEDOR',
@@ -86,7 +87,7 @@ it('cria conta a pagar via service', function () {
 
 it('registra recebimento via service', function () {
     $conta = ContaReceber::factory()->create();
-    $service = new FinanceiroService();
+    $service = new FinanceiroService;
     $rec = $service->registrarRecebimento([
         'conta_receber_id' => $conta->id,
         'data_recebimento' => now(),
@@ -98,7 +99,7 @@ it('registra recebimento via service', function () {
 
 it('registra pagamento via service', function () {
     $conta = ContaPagar::factory()->create();
-    $service = new FinanceiroService();
+    $service = new FinanceiroService;
     $pag = $service->registrarPagamento([
         'conta_pagar_id' => $conta->id,
         'data_pagamento' => now(),
@@ -109,13 +110,13 @@ it('registra pagamento via service', function () {
 });
 
 it('calcula saldo acumulado', function () {
-    $empresaId = \Illuminate\Support\Str::uuid()->toString();
+    $empresaId = Str::uuid()->toString();
     FluxoCaixa::factory()->create([
         'empresa_id' => $empresaId,
         'valor' => 100,
         'realizado' => true,
     ]);
-    $service = new FinanceiroService();
+    $service = new FinanceiroService;
     $saldo = $service->calcularSaldoAcumulado($empresaId);
     expect($saldo)->toBeFloat();
     expect($saldo)->toBe(100.0);

@@ -3,6 +3,7 @@
 namespace App\Domain\Identidade\Models;
 
 use App\Domain\Identidade\Enums\TipoDocumento;
+use App\Domain\Identidade\Factories\DocumentoFactory;
 use App\Domain\Identidade\Validators\DocumentoValidator;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -33,6 +34,7 @@ class Documento extends Model
     ];
 
     public const CREATED_AT = 'data_criacao';
+
     public const UPDATED_AT = null;
 
     /**
@@ -82,11 +84,11 @@ class Documento extends Model
     public function getValorMascaradoAttribute(): string
     {
         $valor = $this->valor;
-        
+
         return match ($this->tipo) {
-            TipoDocumento::CPF => substr($valor, 0, 3) . '.***.***-' . substr($valor, -2),
-            TipoDocumento::CNPJ => substr($valor, 0, 2) . '.***.***/****-' . substr($valor, -2),
-            TipoDocumento::RG => substr($valor, 0, 2) . '.***.***-' . substr($valor, -1),
+            TipoDocumento::CPF => substr($valor, 0, 3).'.***.***-'.substr($valor, -2),
+            TipoDocumento::CNPJ => substr($valor, 0, 2).'.***.***/****-'.substr($valor, -2),
+            TipoDocumento::RG => substr($valor, 0, 2).'.***.***-'.substr($valor, -1),
             default => '***',
         };
     }
@@ -116,11 +118,11 @@ class Documento extends Model
 
     public function validar(): bool
     {
-        $validator = new DocumentoValidator();
+        $validator = new DocumentoValidator;
         $resultado = $validator->validar($this->tipo, $this->valor);
-        
+
         $this->update(['valido' => $resultado]);
-        
+
         return $resultado;
     }
 
@@ -131,7 +133,7 @@ class Documento extends Model
         return null;
     }
 
-    public function marcarComoInvalido(string $motivo = null): void
+    public function marcarComoInvalido(?string $motivo = null): void
     {
         $this->update([
             'valido' => false,
@@ -146,7 +148,7 @@ class Documento extends Model
 
     public function isVencido(): bool
     {
-        if (!$this->data_emissao) {
+        if (! $this->data_emissao) {
             return false;
         }
 
@@ -173,7 +175,7 @@ class Documento extends Model
     private function formatarDocumento(string $documento): string
     {
         $documento = $this->limparDocumento($documento);
-        
+
         return match ($this->tipo) {
             TipoDocumento::CPF => $this->formatarCpf($documento),
             TipoDocumento::CNPJ => $this->formatarCnpj($documento),
@@ -229,7 +231,7 @@ class Documento extends Model
         $numeroFormatado = strrev(chunk_split(strrev($numero), 3, '.'));
         $numeroFormatado = rtrim($numeroFormatado, '.');
 
-        return $numeroFormatado . '-' . $digitoVerificador;
+        return $numeroFormatado.'-'.$digitoVerificador;
     }
 
     /**
@@ -237,6 +239,6 @@ class Documento extends Model
      */
     protected static function newFactory()
     {
-        return \App\Domain\Identidade\Factories\DocumentoFactory::new();
+        return DocumentoFactory::new();
     }
 }

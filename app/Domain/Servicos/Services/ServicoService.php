@@ -2,7 +2,6 @@
 
 namespace App\Domain\Servicos\Services;
 
-use App\Domain\Servicos\Enums\RegimeTributario;
 use App\Domain\Servicos\Enums\StatusServico;
 use App\Domain\Servicos\Enums\UnidadeMedida;
 use App\Domain\Servicos\Models\CodigoServicoMunicipal;
@@ -28,32 +27,32 @@ class ServicoService
             ->with(['codigosMunicipais', 'regrasTributacao']);
 
         // Aplicar filtros
-        if (!empty($filtros['status'])) {
+        if (! empty($filtros['status'])) {
             $query->where('status', $filtros['status']);
         }
 
-        if (!empty($filtros['classificacao_fiscal'])) {
+        if (! empty($filtros['classificacao_fiscal'])) {
             $query->where('classificacao_fiscal', 'LIKE', "%{$filtros['classificacao_fiscal']}%");
         }
 
-        if (!empty($filtros['descricao'])) {
+        if (! empty($filtros['descricao'])) {
             $query->where('descricao', 'ILIKE', "%{$filtros['descricao']}%");
         }
 
-        if (!empty($filtros['unidade_medida'])) {
+        if (! empty($filtros['unidade_medida'])) {
             $query->where('unidade_medida', $filtros['unidade_medida']);
         }
 
-        if (!empty($filtros['preco_min'])) {
+        if (! empty($filtros['preco_min'])) {
             $query->where('preco_base', '>=', $filtros['preco_min']);
         }
 
-        if (!empty($filtros['preco_max'])) {
+        if (! empty($filtros['preco_max'])) {
             $query->where('preco_base', '<=', $filtros['preco_max']);
         }
 
         return $query->orderBy('descricao')
-                     ->paginate($perPage);
+            ->paginate($perPage);
     }
 
     /**
@@ -76,14 +75,14 @@ class ServicoService
             ]);
 
             // Criar códigos municipais se fornecidos
-            if (!empty($dados['codigos_municipais'])) {
+            if (! empty($dados['codigos_municipais'])) {
                 foreach ($dados['codigos_municipais'] as $codigoData) {
                     $servico->codigosMunicipais()->create($codigoData);
                 }
             }
 
             // Criar regras de tributação se fornecidas
-            if (!empty($dados['regras_tributacao'])) {
+            if (! empty($dados['regras_tributacao'])) {
                 foreach ($dados['regras_tributacao'] as $regraData) {
                     $servico->regrasTributacao()->create($regraData);
                 }
@@ -103,9 +102,9 @@ class ServicoService
             ->with(['codigosMunicipais', 'regrasTributacao'])
             ->first();
 
-        if (!$servico) {
+        if (! $servico) {
             throw ValidationException::withMessages([
-                'servico' => 'Serviço não encontrado.'
+                'servico' => 'Serviço não encontrado.',
             ]);
         }
 
@@ -118,20 +117,20 @@ class ServicoService
     public function atualizar(string $empresaId, string $servicoId, array $dados): Servico
     {
         $this->validarDados($dados, true);
-        
+
         $servico = $this->buscar($empresaId, $servicoId);
 
         return DB::transaction(function () use ($servico, $dados) {
             $servico->update([
                 'descricao' => $dados['descricao'] ?? $servico->descricao,
-                'unidade_medida' => isset($dados['unidade_medida']) 
+                'unidade_medida' => isset($dados['unidade_medida'])
                     ? UnidadeMedida::from($dados['unidade_medida'])
                     : $servico->unidade_medida,
                 'preco_base' => $dados['preco_base'] ?? $servico->preco_base,
                 'aliquota_iss_default' => $dados['aliquota_iss_default'] ?? $servico->aliquota_iss_default,
                 'classificacao_fiscal' => $dados['classificacao_fiscal'] ?? $servico->classificacao_fiscal,
-                'observacoes' => array_key_exists('observacoes', $dados) 
-                    ? $dados['observacoes'] 
+                'observacoes' => array_key_exists('observacoes', $dados)
+                    ? $dados['observacoes']
                     : $servico->observacoes,
             ]);
 
@@ -146,7 +145,7 @@ class ServicoService
     {
         $servico = $this->buscar($empresaId, $servicoId);
         $servico->inativar();
-        
+
         return $servico;
     }
 
@@ -157,7 +156,7 @@ class ServicoService
     {
         $servico = $this->buscar($empresaId, $servicoId);
         $servico->ativar();
-        
+
         return $servico;
     }
 
@@ -167,10 +166,10 @@ class ServicoService
     public function excluir(string $empresaId, string $servicoId): bool
     {
         $servico = $this->buscar($empresaId, $servicoId);
-        
+
         // Verificar se pode ser excluído (não tem ordens de serviço, por exemplo)
         // Esta validação seria expandida com outros módulos
-        
+
         return $servico->delete();
     }
 
@@ -178,8 +177,8 @@ class ServicoService
      * Adicionar código municipal
      */
     public function adicionarCodigoMunicipal(
-        string $empresaId, 
-        string $servicoId, 
+        string $empresaId,
+        string $servicoId,
         array $dadosCodigo
     ): CodigoServicoMunicipal {
         $servico = $this->buscar($empresaId, $servicoId);
@@ -203,8 +202,8 @@ class ServicoService
      * Adicionar regra de tributação
      */
     public function adicionarRegraTributacao(
-        string $empresaId, 
-        string $servicoId, 
+        string $empresaId,
+        string $servicoId,
         array $dadosRegra
     ): RegraTributacao {
         $servico = $this->buscar($empresaId, $servicoId);
@@ -216,7 +215,7 @@ class ServicoService
 
         if ($regraExistente) {
             throw ValidationException::withMessages([
-                'regime_tributario' => 'Já existe uma regra para este regime tributário.'
+                'regime_tributario' => 'Já existe uma regra para este regime tributário.',
             ]);
         }
 
@@ -234,10 +233,10 @@ class ServicoService
         ?string $codigoMunicipio = null
     ): array {
         $servico = $this->buscar($empresaId, $servicoId);
-        
+
         return $servico->calcularValorComTributacao(
-            $valorBase, 
-            $regimeTributario, 
+            $valorBase,
+            $regimeTributario,
             $codigoMunicipio
         );
     }
@@ -255,9 +254,9 @@ class ServicoService
         }
 
         return $query->select(['id', 'descricao', 'unidade_medida', 'preco_base'])
-                     ->orderBy('descricao')
-                     ->limit(20)
-                     ->get();
+            ->orderBy('descricao')
+            ->limit(20)
+            ->get();
     }
 
     /**
@@ -287,7 +286,7 @@ class ServicoService
     {
         $regras = [
             'descricao' => 'required|string|max:500|min:3',
-            'unidade_medida' => 'required|in:' . implode(',', array_column(UnidadeMedida::cases(), 'value')),
+            'unidade_medida' => 'required|in:'.implode(',', array_column(UnidadeMedida::cases(), 'value')),
             'preco_base' => 'required|numeric|min:0',
             'aliquota_iss_default' => 'required|numeric|min:0|max:20',
             'classificacao_fiscal' => 'required|string|max:20',
@@ -304,11 +303,11 @@ class ServicoService
         validator($dados, $regras)->validate();
 
         // Validações específicas
-        if (!empty($dados['classificacao_fiscal'])) {
+        if (! empty($dados['classificacao_fiscal'])) {
             $this->validarClassificacaoFiscal($dados['classificacao_fiscal']);
         }
 
-        if (!empty($dados['aliquota_iss_default'])) {
+        if (! empty($dados['aliquota_iss_default'])) {
             $this->validarAliquotaISS($dados['aliquota_iss_default']);
         }
     }
@@ -319,9 +318,9 @@ class ServicoService
     private function validarClassificacaoFiscal(string $classificacao): void
     {
         // Validação básica do formato CNAE (7 dígitos + hífen + 2 dígitos)
-        if (!preg_match('/^\d{4}-?\d{1}\/?\d{2}$/', $classificacao)) {
+        if (! preg_match('/^\d{4}-?\d{1}\/?\d{2}$/', $classificacao)) {
             throw ValidationException::withMessages([
-                'classificacao_fiscal' => 'Classificação fiscal deve seguir o formato CNAE (ex: 6201-5/00)'
+                'classificacao_fiscal' => 'Classificação fiscal deve seguir o formato CNAE (ex: 6201-5/00)',
             ]);
         }
     }

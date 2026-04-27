@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Fiscal;
 
 use App\Domain\Fiscal\Rps;
 use App\Domain\Fiscal\Services\RpsService;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 
 class RpsController extends Controller
 {
@@ -32,6 +32,7 @@ class RpsController extends Controller
             'fatura_id' => 'required|uuid',
         ]);
         $rps = $this->rpsService->gerarRps($data['fatura_id']);
+
         return response()->json($rps, 201);
     }
 
@@ -40,6 +41,7 @@ class RpsController extends Controller
         $rps = Rps::findOrFail($id);
         $data = $request->all();
         $rps->update($data);
+
         return $rps;
     }
 
@@ -47,6 +49,7 @@ class RpsController extends Controller
     {
         $rps = Rps::findOrFail($id);
         $rps->delete();
+
         return response()->noContent();
     }
 }

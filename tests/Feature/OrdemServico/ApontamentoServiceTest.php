@@ -1,10 +1,10 @@
 <?php
 
-use App\Domain\OrdemServico\Enums\StatusOrdemServico;
 use App\Domain\OrdemServico\Enums\PrioridadeOrdem;
+use App\Domain\OrdemServico\Enums\StatusOrdemServico;
 use App\Domain\OrdemServico\Enums\TipoApontamento;
-use App\Domain\OrdemServico\Models\OrdemServico;
 use App\Domain\OrdemServico\Models\Apontamento;
+use App\Domain\OrdemServico\Models\OrdemServico;
 use App\Domain\OrdemServico\Services\ApontamentoService;
 use App\Models\Empresa;
 use App\Models\Usuario;
@@ -14,14 +14,14 @@ uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->artisan('migrate');
-    $this->apontamentoService = new ApontamentoService();
+    $this->apontamentoService = new ApontamentoService;
 });
 
 test('pode criar apontamento de tempo', function () {
     $empresa = Empresa::factory()->create();
     $cliente = Usuario::factory()->create();
     $usuario = Usuario::factory()->create();
-    
+
     $ordem = OrdemServico::create([
         'empresa_id' => $empresa->id,
         'cliente_id' => $cliente->id,
@@ -52,7 +52,7 @@ test('pode criar apontamento de despesa', function () {
     $empresa = Empresa::factory()->create();
     $cliente = Usuario::factory()->create();
     $usuario = Usuario::factory()->create();
-    
+
     $ordem = OrdemServico::create([
         'empresa_id' => $empresa->id,
         'cliente_id' => $cliente->id,
@@ -84,7 +84,7 @@ test('pode buscar apontamentos por ordem servico', function () {
     $cliente = Usuario::factory()->create();
     $usuario1 = Usuario::factory()->create();
     $usuario2 = Usuario::factory()->create();
-    
+
     $ordem = OrdemServico::create([
         'empresa_id' => $empresa->id,
         'cliente_id' => $cliente->id,
@@ -131,7 +131,7 @@ test('pode calcular total de horas por ordem servico', function () {
     $empresa = Empresa::factory()->create();
     $cliente = Usuario::factory()->create();
     $usuario = Usuario::factory()->create();
-    
+
     $ordem = OrdemServico::create([
         'empresa_id' => $empresa->id,
         'cliente_id' => $cliente->id,
@@ -179,7 +179,7 @@ test('pode calcular total de despesas por ordem servico', function () {
     $empresa = Empresa::factory()->create();
     $cliente = Usuario::factory()->create();
     $usuario = Usuario::factory()->create();
-    
+
     $ordem = OrdemServico::create([
         'empresa_id' => $empresa->id,
         'cliente_id' => $cliente->id,

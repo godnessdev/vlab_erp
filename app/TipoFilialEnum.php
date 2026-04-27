@@ -9,7 +9,7 @@ enum TipoFilialEnum: string
 
     public function getLabel(): string
     {
-        return match($this) {
+        return match ($this) {
             self::MATRIZ => 'Matriz',
             self::FILIAL => 'Filial',
         };
@@ -17,7 +17,7 @@ enum TipoFilialEnum: string
 
     public function getDescricao(): string
     {
-        return match($this) {
+        return match ($this) {
             self::MATRIZ => 'Filial principal da empresa',
             self::FILIAL => 'Filial secundária da empresa',
         };

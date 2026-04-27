@@ -31,6 +31,6 @@ class XmlGenerator
     public function gerarXmlOuIniLote($lote, array $rpsList, bool $isNacional = true): string
     {
         // Stub para testes
-        return '<lote numero="' . $lote->numero_lote . '">...</lote>';
+        return '<lote numero="'.$lote->numero_lote.'">...</lote>';
     }
 }

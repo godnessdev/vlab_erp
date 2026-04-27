@@ -1,11 +1,11 @@
 <?php
 
-use App\Domain\Financeiro\ContaReceber;
-use App\Domain\Financeiro\ContaPagar;
-use App\Domain\Financeiro\Recebimento;
-use App\Domain\Financeiro\Pagamento;
 use App\Domain\Financeiro\ConciliacaoFiscalFinanceiro;
+use App\Domain\Financeiro\ContaPagar;
+use App\Domain\Financeiro\ContaReceber;
 use App\Domain\Financeiro\FluxoCaixa;
+use App\Domain\Financeiro\Pagamento;
+use App\Domain\Financeiro\Recebimento;
 
 it('cria conta a receber com factory', function () {
     $conta = ContaReceber::factory()->make();

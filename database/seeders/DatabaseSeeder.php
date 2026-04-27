@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
             EmpresaSeeder::class,
             UsuarioSeeder::class,
         ]);
-        
+
         $this->command->info('Base de dados populada com sucesso!');
         $this->command->line('');
         $this->command->info('Credenciais de acesso:');

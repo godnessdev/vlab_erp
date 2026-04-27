@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\Identidade\Enums\TipoDocumento;
 use App\Domain\Identidade\Enums\TipoPessoa;
 use App\Domain\Identidade\Models\Pessoa;
 use App\Domain\Identidade\Services\PessoaService;
@@ -8,7 +9,7 @@ use Illuminate\Validation\ValidationException;
 
 beforeEach(function () {
     $this->service = app(PessoaService::class);
-    $this->validator = new DocumentoValidator();
+    $this->validator = new DocumentoValidator;
 });
 
 describe('Criação de pessoa', function () {
@@ -21,7 +22,7 @@ describe('Criação de pessoa', function () {
                 [
                     'tipo' => 'CPF',
                     'valor' => $this->validator->gerarCpfValido(),
-                ]
+                ],
             ],
             'enderecos' => [
                 [
@@ -32,14 +33,14 @@ describe('Criação de pessoa', function () {
                     'cidade' => 'São Paulo',
                     'estado' => 'SP',
                     'cep' => '01234-567',
-                ]
+                ],
             ],
             'contatos' => [
                 [
                     'tipo' => 'EMAIL',
                     'valor' => 'joao@email.com',
                     'principal' => true,
-                ]
+                ],
             ],
         ];
 
@@ -63,7 +64,7 @@ describe('Criação de pessoa', function () {
                 [
                     'tipo' => 'CNPJ',
                     'valor' => $this->validator->gerarCnpjValido(),
-                ]
+                ],
             ],
             'enderecos' => [
                 [
@@ -74,14 +75,14 @@ describe('Criação de pessoa', function () {
                     'cidade' => 'São Paulo',
                     'estado' => 'SP',
                     'cep' => '01310-100',
-                ]
+                ],
             ],
             'contatos' => [
                 [
                     'tipo' => 'EMAIL',
                     'valor' => 'contato@xyz.com.br',
                     'principal' => true,
-                ]
+                ],
             ],
         ];
 
@@ -102,7 +103,7 @@ describe('Criação de pessoa', function () {
             'nome_razao_social' => 'A', // Muito curto
         ];
 
-        expect(fn() => $this->service->criar($dados))
+        expect(fn () => $this->service->criar($dados))
             ->toThrow(ValidationException::class);
     });
 
@@ -114,11 +115,11 @@ describe('Criação de pessoa', function () {
                 [
                     'tipo' => 'CNPJ',
                     'valor' => $this->validator->gerarCnpjValido(),
-                ]
+                ],
             ],
         ];
 
-        expect(fn() => $this->service->criar($dados))
+        expect(fn () => $this->service->criar($dados))
             ->toThrow(ValidationException::class);
     });
 
@@ -130,11 +131,11 @@ describe('Criação de pessoa', function () {
                 [
                     'tipo' => 'CPF',
                     'valor' => $this->validator->gerarCpfValido(),
-                ]
+                ],
             ],
         ];
 
-        expect(fn() => $this->service->criar($dados))
+        expect(fn () => $this->service->criar($dados))
             ->toThrow(ValidationException::class);
     });
 
@@ -145,7 +146,7 @@ describe('Criação de pessoa', function () {
             'nome_fantasia' => 'João Soluções', // Não permitido para PF
         ];
 
-        expect(fn() => $this->service->criar($dados))
+        expect(fn () => $this->service->criar($dados))
             ->toThrow(ValidationException::class);
     });
 });
@@ -184,8 +185,8 @@ describe('Busca de pessoa', function () {
 
     test('busca por documento com formatação', function () {
         $cpf = $this->validator->gerarCpfValido();
-        $cpfFormatado = $this->validator->formatarDocumento(\App\Domain\Identidade\Enums\TipoDocumento::CPF, $cpf);
-        
+        $cpfFormatado = $this->validator->formatarDocumento(TipoDocumento::CPF, $cpf);
+
         $pessoa = Pessoa::factory()->fisica()->create();
         $pessoa->documentos()->create([
             'tipo' => 'CPF',
@@ -200,20 +201,20 @@ describe('Busca de pessoa', function () {
 
     test('pode buscar pessoa por nome', function () {
         $pessoa = Pessoa::factory()->create(['nome_razao_social' => 'João Silva Santos']);
-        
+
         $pessoas = $this->service->buscarPorNome('João');
-        
+
         expect($pessoas->pluck('id'))->toContain($pessoa->id);
     });
 
     test('pode buscar pessoa por nome fantasia', function () {
         $pessoa = Pessoa::factory()->juridica()->create([
             'nome_razao_social' => 'Empresa XYZ Ltda',
-            'nome_fantasia' => 'XYZ Soluções'
+            'nome_fantasia' => 'XYZ Soluções',
         ]);
-        
+
         $pessoas = $this->service->buscarPorNome('XYZ');
-        
+
         expect($pessoas->pluck('id'))->toContain($pessoa->id);
     });
 });
@@ -272,7 +273,7 @@ describe('Gerenciamento de papéis', function () {
 
         $this->service->adicionarPapel($pessoa, 'CLIENTE', $empresaId);
 
-        expect(fn() => $this->service->adicionarPapel($pessoa, 'CLIENTE', $empresaId))
+        expect(fn () => $this->service->adicionarPapel($pessoa, 'CLIENTE', $empresaId))
             ->toThrow(ValidationException::class);
     });
 
@@ -298,7 +299,7 @@ describe('Validações de exclusão', function () {
     test('não pode excluir pessoa com papéis ativos', function () {
         $pessoa = Pessoa::factory()->create();
         $empresaId = fake()->uuid();
-        
+
         $this->service->adicionarPapel($pessoa, 'CLIENTE', $empresaId);
 
         expect($this->service->podeExcluir($pessoa))->toBeFalse();
@@ -316,10 +317,10 @@ describe('Validações de exclusão', function () {
     test('falha ao excluir pessoa com papéis ativos', function () {
         $pessoa = Pessoa::factory()->create();
         $empresaId = fake()->uuid();
-        
+
         $this->service->adicionarPapel($pessoa, 'CLIENTE', $empresaId);
 
-        expect(fn() => $this->service->excluir($pessoa))
+        expect(fn () => $this->service->excluir($pessoa))
             ->toThrow(ValidationException::class);
     });
 });

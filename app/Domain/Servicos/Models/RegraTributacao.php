@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Regras tributárias específicas por regime e serviço
- * 
+ *
  * @property string $id
  * @property string $servico_id
  * @property RegimeTributario $regime_tributario
@@ -70,7 +70,7 @@ class RegraTributacao extends Model
         if (is_string($regime)) {
             $regime = RegimeTributario::from($regime);
         }
-        
+
         return $query->where('regime_tributario', $regime);
     }
 
@@ -79,16 +79,16 @@ class RegraTributacao extends Model
      */
     public function calcularTotalAliquotas(): float
     {
-        return $this->aliquota_ir + 
-               $this->aliquota_csll + 
-               $this->aliquota_pis + 
+        return $this->aliquota_ir +
+               $this->aliquota_csll +
+               $this->aliquota_pis +
                $this->aliquota_cofins;
     }
 
     public function temRetencoes(): bool
     {
-        return $this->retencao_inss || 
-               $this->aliquota_ir > 0 || 
+        return $this->retencao_inss ||
+               $this->aliquota_ir > 0 ||
                $this->aliquota_csll > 0;
     }
 

@@ -4,13 +4,13 @@ use App\Domain\Identidade\Enums\TipoDocumento;
 use App\Domain\Identidade\Validators\DocumentoValidator;
 
 beforeEach(function () {
-    $this->validator = new DocumentoValidator();
+    $this->validator = new DocumentoValidator;
 });
 
 describe('Validação CPF', function () {
     test('CPF válido é aceito', function () {
         $cpf = $this->validator->gerarCpfValido();
-        
+
         expect($this->validator->validar(TipoDocumento::CPF, $cpf))->toBeTrue();
     });
 
@@ -23,21 +23,21 @@ describe('Validação CPF', function () {
     test('CPF com formatação é validado', function () {
         $cpf = $this->validator->gerarCpfValido();
         $cpfFormatado = $this->validator->formatarDocumento(TipoDocumento::CPF, $cpf);
-        
+
         expect($this->validator->validar(TipoDocumento::CPF, $cpfFormatado))->toBeTrue();
     });
 
     test('CPF é formatado corretamente', function () {
         $cpf = '12345678900';
         $formatado = $this->validator->formatarDocumento(TipoDocumento::CPF, $cpf);
-        
+
         expect($formatado)->toBe('123.456.789-00');
     });
 
     test('gerador de CPF produz CPFs válidos', function () {
         for ($i = 0; $i < 10; $i++) {
             $cpf = $this->validator->gerarCpfValido();
-            
+
             expect($this->validator->validar(TipoDocumento::CPF, $cpf))
                 ->toBeTrue("CPF gerado {$cpf} deveria ser válido");
             expect($cpf)->toHaveLength(11);
@@ -48,7 +48,7 @@ describe('Validação CPF', function () {
 describe('Validação CNPJ', function () {
     test('CNPJ válido é aceito', function () {
         $cnpj = $this->validator->gerarCnpjValido();
-        
+
         expect($this->validator->validar(TipoDocumento::CNPJ, $cnpj))->toBeTrue();
     });
 
@@ -61,21 +61,21 @@ describe('Validação CNPJ', function () {
     test('CNPJ com formatação é validado', function () {
         $cnpj = $this->validator->gerarCnpjValido();
         $cnpjFormatado = $this->validator->formatarDocumento(TipoDocumento::CNPJ, $cnpj);
-        
+
         expect($this->validator->validar(TipoDocumento::CNPJ, $cnpjFormatado))->toBeTrue();
     });
 
     test('CNPJ é formatado corretamente', function () {
         $cnpj = '12345678000195';
         $formatado = $this->validator->formatarDocumento(TipoDocumento::CNPJ, $cnpj);
-        
+
         expect($formatado)->toBe('12.345.678/0001-95');
     });
 
     test('gerador de CNPJ produz CNPJs válidos', function () {
         for ($i = 0; $i < 10; $i++) {
             $cnpj = $this->validator->gerarCnpjValido();
-            
+
             expect($this->validator->validar(TipoDocumento::CNPJ, $cnpj))
                 ->toBeTrue("CNPJ gerado {$cnpj} deveria ser válido");
             expect($cnpj)->toHaveLength(14);
@@ -151,7 +151,7 @@ describe('Validações múltiplas', function () {
         ];
 
         $erros = $this->validator->validarDocumentosPessoa($documentos);
-        
+
         expect($erros)->toBeEmpty();
     });
 
@@ -162,7 +162,7 @@ describe('Validações múltiplas', function () {
         ];
 
         $erros = $this->validator->validarDocumentosPessoa($documentos);
-        
+
         expect($erros)->toHaveCount(2);
     });
 });
@@ -176,7 +176,7 @@ describe('Formatação de documentos', function () {
     test('documento inválido retorna sem formatação', function () {
         expect($this->validator->formatarDocumento(TipoDocumento::CPF, '123'))
             ->toBe('123');
-        
+
         expect($this->validator->formatarDocumento(TipoDocumento::CNPJ, '123'))
             ->toBe('123');
     });

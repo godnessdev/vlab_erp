@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use App\Domain\Identidade\Models\Pessoa;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -41,11 +41,16 @@ class Usuario extends Authenticatable
     ];
 
     /**
+     * Relacionamentos que devem ser carregados automaticamente
+     */
+    protected $with = ['pessoa'];
+
+    /**
      * Relacionamentos
      */
     public function pessoa(): BelongsTo
     {
-        return $this->belongsTo(Pessoa::class);
+        return $this->belongsTo(Pessoa::class, 'pessoa_id');
     }
 
     public function empresas(): BelongsToMany
@@ -108,7 +113,7 @@ class Usuario extends Authenticatable
     public function incrementarTentativasFalhadas(): void
     {
         $this->increment('tentativas_login_falhadas');
-        
+
         // Bloquear após 5 tentativas falhadas
         if ($this->tentativas_login_falhadas >= 5) {
             $this->status = StatusUsuarioEnum::BLOQUEADO;
@@ -142,7 +147,38 @@ class Usuario extends Authenticatable
 
     public function getNomeCompleto(): string
     {
-        return $this->pessoa->nome ?? $this->email;
+        return $this->pessoa->nome_razao_social ?? $this->email;
+    }
+
+    /**
+     * Accessor para o atributo 'name' (usado pelo Flux UI)
+     */
+    public function getNameAttribute(): string
+    {
+        return $this->getNomeCompleto();
+    }
+
+    /**
+     * Método para obter as iniciais do nome (usado pelo Flux UI)
+     */
+    public function initials(): string
+    {
+        $name = $this->getNomeCompleto();
+
+        // Se for email, pegar as duas primeiras letras
+        if (strpos($name, '@') !== false) {
+            return strtoupper(substr($name, 0, 2));
+        }
+
+        // Pegar as iniciais do nome completo
+        $words = explode(' ', $name);
+
+        if (count($words) === 1) {
+            return strtoupper(substr($words[0], 0, 2));
+        }
+
+        // Primeira letra do primeiro nome + primeira letra do último nome
+        return strtoupper(substr($words[0], 0, 1).substr(end($words), 0, 1));
     }
 
     /**

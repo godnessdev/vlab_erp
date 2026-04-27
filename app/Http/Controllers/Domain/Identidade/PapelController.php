@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Domain\Identidade;
 
-use App\Http\Controllers\Controller;
-use App\Domain\Identidade\Models\Pessoa;
-use App\Domain\Identidade\Models\Papel;
-use App\Domain\Identidade\Services\PessoaService;
 use App\Domain\Identidade\Enums\TipoPapel;
-use Illuminate\Http\Request;
+use App\Domain\Identidade\Models\Papel;
+use App\Domain\Identidade\Models\Pessoa;
+use App\Domain\Identidade\Services\PessoaService;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
+use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 
 class PapelController extends Controller
 {
@@ -34,7 +34,7 @@ class PapelController extends Controller
     {
         try {
             $validated = $this->validatePapel($request);
-            
+
             $this->pessoaService->adicionarPapel(
                 $pessoa,
                 $validated['tipo'],
@@ -59,9 +59,9 @@ class PapelController extends Controller
     public function edit(Pessoa $pessoa, Papel $papel): View
     {
         abort_if($papel->pessoa_id !== $pessoa->id, 404);
-        
+
         $papel->load('dadosEspecificos');
-        
+
         return view('domain.identidade.papeis.edit', compact('pessoa', 'papel'));
     }
 
@@ -71,19 +71,19 @@ class PapelController extends Controller
     public function update(Request $request, Pessoa $pessoa, Papel $papel): RedirectResponse
     {
         abort_if($papel->pessoa_id !== $pessoa->id, 404);
-        
+
         $validated = $this->validatePapel($request, $papel);
-        
+
         $papel->update([
             'data_fim' => $validated['data_fim'] ?? null,
             'observacoes' => $validated['observacoes'] ?? null,
         ]);
 
         // Atualizar dados específicos se fornecidos
-        if (!empty($validated['dados_especificos'])) {
+        if (! empty($validated['dados_especificos'])) {
             // Remover dados antigos e adicionar novos
             $papel->dadosEspecificos()->delete();
-            
+
             foreach ($validated['dados_especificos'] as $chave => $valor) {
                 $papel->dadosEspecificos()->create([
                     'chave' => $chave,
@@ -103,7 +103,7 @@ class PapelController extends Controller
     public function destroy(Pessoa $pessoa, Papel $papel): RedirectResponse
     {
         abort_if($papel->pessoa_id !== $pessoa->id, 404);
-        
+
         try {
             $this->pessoaService->removerPapel($papel);
 

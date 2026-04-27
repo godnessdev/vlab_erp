@@ -20,20 +20,20 @@ class ServicoController extends Controller
     public function index(Request $request): JsonResponse
     {
         $empresaId = $request->user()->empresa_atual_id ?? $request->header('X-Empresa-ID');
-        
-        if (!$empresaId) {
+
+        if (! $empresaId) {
             return response()->json([
-                'error' => 'Empresa não especificada'
+                'error' => 'Empresa não especificada',
             ], 400);
         }
 
         $filtros = $request->only([
-            'status', 
-            'classificacao_fiscal', 
-            'descricao', 
+            'status',
+            'classificacao_fiscal',
+            'descricao',
             'unidade_medida',
             'preco_min',
-            'preco_max'
+            'preco_max',
         ]);
 
         $perPage = $request->get('per_page', 15);
@@ -49,7 +49,7 @@ class ServicoController extends Controller
                 'per_page' => $servicos->perPage(),
                 'to' => $servicos->lastItem(),
                 'total' => $servicos->total(),
-            ]
+            ],
         ]);
     }
 
@@ -59,10 +59,10 @@ class ServicoController extends Controller
     public function store(Request $request): JsonResponse
     {
         $empresaId = $request->user()->empresa_atual_id ?? $request->header('X-Empresa-ID');
-        
-        if (!$empresaId) {
+
+        if (! $empresaId) {
             return response()->json([
-                'error' => 'Empresa não especificada'
+                'error' => 'Empresa não especificada',
             ], 400);
         }
 
@@ -72,19 +72,19 @@ class ServicoController extends Controller
 
             return response()->json([
                 'message' => 'Serviço criado com sucesso',
-                'data' => $servico->load(['codigosMunicipais', 'regrasTributacao'])
+                'data' => $servico->load(['codigosMunicipais', 'regrasTributacao']),
             ], 201);
 
         } catch (ValidationException $e) {
             return response()->json([
                 'error' => 'Dados inválidos',
-                'messages' => $e->errors()
+                'messages' => $e->errors(),
             ], 422);
 
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Erro interno do servidor',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -95,10 +95,10 @@ class ServicoController extends Controller
     public function show(Request $request, string $id): JsonResponse
     {
         $empresaId = $request->user()->empresa_atual_id ?? $request->header('X-Empresa-ID');
-        
-        if (!$empresaId) {
+
+        if (! $empresaId) {
             return response()->json([
-                'error' => 'Empresa não especificada'
+                'error' => 'Empresa não especificada',
             ], 400);
         }
 
@@ -106,19 +106,19 @@ class ServicoController extends Controller
             $servico = $this->servicoService->buscar($empresaId, $id);
 
             return response()->json([
-                'data' => $servico
+                'data' => $servico,
             ]);
 
         } catch (ValidationException $e) {
             return response()->json([
                 'error' => 'Serviço não encontrado',
-                'messages' => $e->errors()
+                'messages' => $e->errors(),
             ], 404);
 
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Erro interno do servidor',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -129,10 +129,10 @@ class ServicoController extends Controller
     public function update(Request $request, string $id): JsonResponse
     {
         $empresaId = $request->user()->empresa_atual_id ?? $request->header('X-Empresa-ID');
-        
-        if (!$empresaId) {
+
+        if (! $empresaId) {
             return response()->json([
-                'error' => 'Empresa não especificada'
+                'error' => 'Empresa não especificada',
             ], 400);
         }
 
@@ -142,19 +142,19 @@ class ServicoController extends Controller
 
             return response()->json([
                 'message' => 'Serviço atualizado com sucesso',
-                'data' => $servico->load(['codigosMunicipais', 'regrasTributacao'])
+                'data' => $servico->load(['codigosMunicipais', 'regrasTributacao']),
             ]);
 
         } catch (ValidationException $e) {
             return response()->json([
                 'error' => 'Dados inválidos',
-                'messages' => $e->errors()
+                'messages' => $e->errors(),
             ], 422);
 
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Erro interno do servidor',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -165,10 +165,10 @@ class ServicoController extends Controller
     public function destroy(Request $request, string $id): JsonResponse
     {
         $empresaId = $request->user()->empresa_atual_id ?? $request->header('X-Empresa-ID');
-        
-        if (!$empresaId) {
+
+        if (! $empresaId) {
             return response()->json([
-                'error' => 'Empresa não especificada'
+                'error' => 'Empresa não especificada',
             ], 400);
         }
 
@@ -176,19 +176,19 @@ class ServicoController extends Controller
             $this->servicoService->excluir($empresaId, $id);
 
             return response()->json([
-                'message' => 'Serviço excluído com sucesso'
+                'message' => 'Serviço excluído com sucesso',
             ]);
 
         } catch (ValidationException $e) {
             return response()->json([
                 'error' => 'Serviço não encontrado',
-                'messages' => $e->errors()
+                'messages' => $e->errors(),
             ], 404);
 
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Erro interno do servidor',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -199,19 +199,19 @@ class ServicoController extends Controller
     public function ativar(Request $request, string $id): JsonResponse
     {
         $empresaId = $request->user()->empresa_atual_id ?? $request->header('X-Empresa-ID');
-        
+
         try {
             $servico = $this->servicoService->ativar($empresaId, $id);
 
             return response()->json([
                 'message' => 'Serviço ativado com sucesso',
-                'data' => $servico
+                'data' => $servico,
             ]);
 
         } catch (ValidationException $e) {
             return response()->json([
                 'error' => 'Serviço não encontrado',
-                'messages' => $e->errors()
+                'messages' => $e->errors(),
             ], 404);
         }
     }
@@ -222,19 +222,19 @@ class ServicoController extends Controller
     public function inativar(Request $request, string $id): JsonResponse
     {
         $empresaId = $request->user()->empresa_atual_id ?? $request->header('X-Empresa-ID');
-        
+
         try {
             $servico = $this->servicoService->inativar($empresaId, $id);
 
             return response()->json([
                 'message' => 'Serviço inativado com sucesso',
-                'data' => $servico
+                'data' => $servico,
             ]);
 
         } catch (ValidationException $e) {
             return response()->json([
                 'error' => 'Serviço não encontrado',
-                'messages' => $e->errors()
+                'messages' => $e->errors(),
             ], 404);
         }
     }
@@ -246,11 +246,11 @@ class ServicoController extends Controller
     {
         $empresaId = $request->user()->empresa_atual_id ?? $request->header('X-Empresa-ID');
         $termo = $request->get('q');
-        
+
         $servicos = $this->servicoService->buscarParaSelecao($empresaId, $termo);
 
         return response()->json([
-            'data' => $servicos
+            'data' => $servicos,
         ]);
     }
 
@@ -260,11 +260,11 @@ class ServicoController extends Controller
     public function calcularTributacao(Request $request, string $id): JsonResponse
     {
         $empresaId = $request->user()->empresa_atual_id ?? $request->header('X-Empresa-ID');
-        
+
         $request->validate([
             'valor_base' => 'required|numeric|min:0',
             'regime_tributario' => 'required|string|in:SIMPLES_NACIONAL,LUCRO_PRESUMIDO,LUCRO_REAL,LUCRO_ARBITRADO',
-            'codigo_municipio' => 'nullable|string|size:7'
+            'codigo_municipio' => 'nullable|string|size:7',
         ]);
 
         try {
@@ -277,13 +277,13 @@ class ServicoController extends Controller
             );
 
             return response()->json([
-                'data' => $calculo
+                'data' => $calculo,
             ]);
 
         } catch (ValidationException $e) {
             return response()->json([
                 'error' => 'Serviço não encontrado',
-                'messages' => $e->errors()
+                'messages' => $e->errors(),
             ], 404);
         }
     }
@@ -294,32 +294,32 @@ class ServicoController extends Controller
     public function adicionarCodigoMunicipal(Request $request, string $id): JsonResponse
     {
         $empresaId = $request->user()->empresa_atual_id ?? $request->header('X-Empresa-ID');
-        
+
         $request->validate([
             'codigo_municipio_ibge' => 'required|string|size:7',
             'codigo_servico' => 'required|string|max:20',
             'descricao_municipal' => 'nullable|string|max:255',
             'aliquota_iss' => 'required|numeric|min:0|max:20',
             'data_vigencia_inicio' => 'required|date',
-            'data_vigencia_fim' => 'nullable|date|after:data_vigencia_inicio'
+            'data_vigencia_fim' => 'nullable|date|after:data_vigencia_inicio',
         ]);
 
         try {
             $codigo = $this->servicoService->adicionarCodigoMunicipal(
-                $empresaId, 
-                $id, 
+                $empresaId,
+                $id,
                 $request->all()
             );
 
             return response()->json([
                 'message' => 'Código municipal adicionado com sucesso',
-                'data' => $codigo
+                'data' => $codigo,
             ], 201);
 
         } catch (ValidationException $e) {
             return response()->json([
                 'error' => 'Dados inválidos',
-                'messages' => $e->errors()
+                'messages' => $e->errors(),
             ], 422);
         }
     }
@@ -330,7 +330,7 @@ class ServicoController extends Controller
     public function adicionarRegraTributacao(Request $request, string $id): JsonResponse
     {
         $empresaId = $request->user()->empresa_atual_id ?? $request->header('X-Empresa-ID');
-        
+
         $request->validate([
             'regime_tributario' => 'required|string|in:SIMPLES_NACIONAL,LUCRO_PRESUMIDO,LUCRO_REAL,LUCRO_ARBITRADO',
             'aliquota_ir' => 'nullable|numeric|min:0|max:27.5',
@@ -339,25 +339,25 @@ class ServicoController extends Controller
             'aliquota_cofins' => 'nullable|numeric|min:0|max:10',
             'retencao_inss' => 'boolean',
             'base_calculo_diferenciada' => 'nullable|array',
-            'regras_adicionais' => 'nullable|array'
+            'regras_adicionais' => 'nullable|array',
         ]);
 
         try {
             $regra = $this->servicoService->adicionarRegraTributacao(
-                $empresaId, 
-                $id, 
+                $empresaId,
+                $id,
                 $request->all()
             );
 
             return response()->json([
                 'message' => 'Regra de tributação adicionada com sucesso',
-                'data' => $regra
+                'data' => $regra,
             ], 201);
 
         } catch (ValidationException $e) {
             return response()->json([
                 'error' => 'Dados inválidos',
-                'messages' => $e->errors()
+                'messages' => $e->errors(),
             ], 422);
         }
     }
@@ -368,11 +368,11 @@ class ServicoController extends Controller
     public function estatisticas(Request $request): JsonResponse
     {
         $empresaId = $request->user()->empresa_atual_id ?? $request->header('X-Empresa-ID');
-        
+
         $estatisticas = $this->servicoService->obterEstatisticas($empresaId);
 
         return response()->json([
-            'data' => $estatisticas
+            'data' => $estatisticas,
         ]);
     }
 }

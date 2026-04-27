@@ -10,7 +10,7 @@ enum StatusServico: string
 
     public function label(): string
     {
-        return match($this) {
+        return match ($this) {
             self::ATIVO => 'Ativo',
             self::INATIVO => 'Inativo',
             self::DESCONTINUADO => 'Descontinuado',
@@ -20,7 +20,7 @@ enum StatusServico: string
     public static function options(): array
     {
         return array_map(
-            fn($case) => ['value' => $case->value, 'label' => $case->label()],
+            fn ($case) => ['value' => $case->value, 'label' => $case->label()],
             self::cases()
         );
     }

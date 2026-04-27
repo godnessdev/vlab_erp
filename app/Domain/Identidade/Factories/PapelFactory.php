@@ -15,7 +15,7 @@ class PapelFactory extends Factory
     public function definition(): array
     {
         $dataInicio = $this->faker->dateTimeBetween('-2 years', 'now');
-        
+
         return [
             'pessoa_id' => Pessoa::factory(),
             'empresa_id' => $this->faker->uuid(), // Será substituído quando implementarmos Empresa
@@ -95,7 +95,7 @@ class PapelFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             $dataInicio = $attributes['data_inicio'] ?? $this->faker->dateTimeBetween('-2 years', '-1 year');
-            
+
             return [
                 'data_inicio' => $dataInicio,
                 'data_fim' => $this->faker->dateTimeBetween($dataInicio, 'now'),

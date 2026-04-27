@@ -2,30 +2,31 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\Empresa;
-use App\Models\Usuario;
-use App\Models\Papel;
-use App\Enums\StatusEmpresa;
 use App\Enums\RegimeTributario;
+use App\Enums\StatusEmpresa;
+use App\Models\Empresa;
+use App\Models\Papel;
+use App\Models\Usuario;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Tests\TestCase;
 
 class EmpresaControllerTest extends TestCase
 {
     use RefreshDatabase;
 
     protected Usuario $usuario;
+
     protected Papel $papel;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Executar migrations e seeders necessários
         $this->artisan('migrate:fresh');
         $this->seed(['PermissoesSeeder', 'PapeisSeeder']);
-        
+
         // Criar usuário de teste
         $this->usuario = Usuario::create([
             'nome' => 'Usuário Teste',
@@ -34,7 +35,7 @@ class EmpresaControllerTest extends TestCase
             'password' => Hash::make('senha123'),
             'ativo' => true,
         ]);
-        
+
         $this->papel = Papel::where('nome', 'super_admin')->first();
     }
 
@@ -42,7 +43,7 @@ class EmpresaControllerTest extends TestCase
     public function pode_listar_empresas_como_admin()
     {
         $this->criarEmpresaTeste();
-        
+
         $response = $this->actingAs($this->usuario)
             ->getJson('/api/empresas');
 
@@ -55,10 +56,10 @@ class EmpresaControllerTest extends TestCase
                         'nome_fantasia',
                         'cnpj',
                         'status',
-                        'created_at'
-                    ]
+                        'created_at',
+                    ],
                 ],
-                'meta' => ['total', 'per_page', 'current_page']
+                'meta' => ['total', 'per_page', 'current_page'],
             ]);
     }
 
@@ -98,16 +99,16 @@ class EmpresaControllerTest extends TestCase
                         'id',
                         'codigo',
                         'nome',
-                        'tipo'
-                    ]
-                ]
+                        'tipo',
+                    ],
+                ],
             ])
             ->assertJson([
                 'data' => [
                     'razao_social' => $dadosEmpresa['razao_social'],
                     'cnpj' => $dadosEmpresa['cnpj'],
                     'status' => StatusEmpresa::ATIVA->value,
-                ]
+                ],
             ]);
     }
 
@@ -167,12 +168,12 @@ class EmpresaControllerTest extends TestCase
                     'status',
                     'dados_endereco',
                     'filiais' => [
-                        '*' => ['id', 'codigo', 'nome', 'tipo']
+                        '*' => ['id', 'codigo', 'nome', 'tipo'],
                     ],
                     'parametros_operacionais' => [
-                        '*' => ['chave', 'valor', 'tipo']
-                    ]
-                ]
+                        '*' => ['chave', 'valor', 'tipo'],
+                    ],
+                ],
             ]);
     }
 
@@ -196,7 +197,7 @@ class EmpresaControllerTest extends TestCase
                     'nome_fantasia' => $novosDados['nome_fantasia'],
                     'telefone' => $novosDados['telefone'],
                     'email' => $novosDados['email'],
-                ]
+                ],
             ]);
     }
 
@@ -211,8 +212,8 @@ class EmpresaControllerTest extends TestCase
         $response->assertStatus(200)
             ->assertJson([
                 'data' => [
-                    'status' => StatusEmpresa::ATIVA->value
-                ]
+                    'status' => StatusEmpresa::ATIVA->value,
+                ],
             ]);
     }
 
@@ -227,8 +228,8 @@ class EmpresaControllerTest extends TestCase
         $response->assertStatus(200)
             ->assertJson([
                 'data' => [
-                    'status' => StatusEmpresa::INATIVA->value
-                ]
+                    'status' => StatusEmpresa::INATIVA->value,
+                ],
             ]);
     }
 
@@ -247,8 +248,8 @@ class EmpresaControllerTest extends TestCase
                     'filiais_ativas',
                     'total_usuarios',
                     'usuarios_ativos',
-                    'parametros_configurados'
-                ]
+                    'parametros_configurados',
+                ],
             ]);
     }
 
@@ -264,8 +265,8 @@ class EmpresaControllerTest extends TestCase
             ->assertJson([
                 'data' => [
                     'id' => $empresa->id,
-                    'cnpj' => $empresa->cnpj
-                ]
+                    'cnpj' => $empresa->cnpj,
+                ],
             ]);
     }
 

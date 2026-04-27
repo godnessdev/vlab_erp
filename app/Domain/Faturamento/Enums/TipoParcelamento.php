@@ -11,7 +11,7 @@ enum TipoParcelamento: string
 
     public function getLabel(): string
     {
-        return match($this) {
+        return match ($this) {
             self::A_VISTA => 'À Vista',
             self::FIXO => 'Parcelamento Fixo',
             self::VARIAVEL => 'Parcelamento Variável',
@@ -21,7 +21,7 @@ enum TipoParcelamento: string
 
     public function getDescricao(): string
     {
-        return match($this) {
+        return match ($this) {
             self::A_VISTA => 'Pagamento único, sem parcelamento',
             self::FIXO => 'Parcelas iguais com intervalo fixo',
             self::VARIAVEL => 'Parcelas com valores e datas variáveis',
@@ -31,7 +31,7 @@ enum TipoParcelamento: string
 
     public function getQuantidadeParcelas(): int
     {
-        return match($this) {
+        return match ($this) {
             self::A_VISTA => 1,
             self::FIXO => 0, // Será definido nas regras
             self::VARIAVEL => 0, // Será definido nas regras
@@ -41,7 +41,7 @@ enum TipoParcelamento: string
 
     public function permiteJuros(): bool
     {
-        return match($this) {
+        return match ($this) {
             self::A_VISTA => false,
             default => true,
         };
@@ -49,7 +49,7 @@ enum TipoParcelamento: string
 
     public function permiteEntrada(): bool
     {
-        return match($this) {
+        return match ($this) {
             self::A_VISTA => false,
             default => true,
         };
@@ -58,7 +58,7 @@ enum TipoParcelamento: string
     public function getIntervaloPatrao(): int
     {
         // Intervalo padrão em dias
-        return match($this) {
+        return match ($this) {
             self::A_VISTA => 0,
             self::FIXO => 30, // Mensal
             self::VARIAVEL => 30, // Base mensal
@@ -68,26 +68,26 @@ enum TipoParcelamento: string
 
     public static function getEsquemaParcelamento(self $tipo, array $parametros = []): array
     {
-        return match($tipo) {
+        return match ($tipo) {
             self::A_VISTA => [
                 'quantidade_parcelas' => 1,
                 'intervalo_dias' => 0,
                 'juros_parcelamento' => 0,
                 'entrada_percentual' => 0,
             ],
-            
+
             self::FIXO => [
                 'quantidade_parcelas' => $parametros['quantidade_parcelas'] ?? 2,
                 'intervalo_dias' => $parametros['intervalo_dias'] ?? 30,
                 'juros_parcelamento' => $parametros['juros_parcelamento'] ?? 0,
                 'entrada_percentual' => $parametros['entrada_percentual'] ?? 0,
             ],
-            
+
             self::VARIAVEL => [
                 'parcelas' => $parametros['parcelas'] ?? [],
                 'juros_parcelamento' => $parametros['juros_parcelamento'] ?? 0,
             ],
-            
+
             self::PERSONALIZADO => $parametros,
         };
     }
@@ -95,7 +95,7 @@ enum TipoParcelamento: string
     public static function getOptions(): array
     {
         return array_map(
-            fn($case) => [
+            fn ($case) => [
                 'value' => $case->value,
                 'label' => $case->getLabel(),
                 'description' => $case->getDescricao(),

@@ -2,10 +2,11 @@
 
 namespace App\Domain\Financeiro;
 
-use Illuminate\Database\Eloquent\Model;
+use Database\Factories\ConciliacaoFiscalFinanceiroFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ConciliacaoFiscalFinanceiro extends Model
 {
@@ -14,7 +15,7 @@ class ConciliacaoFiscalFinanceiro extends Model
 
     public static function newFactory()
     {
-        return \Database\Factories\ConciliacaoFiscalFinanceiroFactory::new();
+        return ConciliacaoFiscalFinanceiroFactory::new();
     }
 
     protected $table = 'conciliacoes_fiscal_financeiro';

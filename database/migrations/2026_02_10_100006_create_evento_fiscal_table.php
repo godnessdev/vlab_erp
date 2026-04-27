@@ -4,13 +4,14 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::create('evento_fiscal', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('nfse_id');
-            $table->enum('tipo_evento', ['CANCELAMENTO','SUBSTITUICAO']);
+            $table->enum('tipo_evento', ['CANCELAMENTO', 'SUBSTITUICAO']);
             $table->timestamp('data_evento');
             $table->text('motivo');
             $table->uuid('usuario_id');

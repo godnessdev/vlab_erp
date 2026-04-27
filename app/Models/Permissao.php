@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Permissao extends Model
 {
@@ -88,7 +88,7 @@ class Permissao extends Model
     public static function buscarPorIdentificacao(string $identificacao): ?self
     {
         [$modulo, $acao, $recurso] = explode('.', $identificacao);
-        
+
         return static::where('modulo', $modulo)
             ->where('acao', $acao)
             ->where('recurso', $recurso)
@@ -98,15 +98,15 @@ class Permissao extends Model
     /**
      * Métodos para criação em lote de permissões CRUD
      */
-    public static function criarPermissoesCrud(string $modulo, string $recurso, array $acoes = null): array
+    public static function criarPermissoesCrud(string $modulo, string $recurso, ?array $acoes = null): array
     {
         $acoes = $acoes ?? ['criar', 'visualizar', 'editar', 'excluir'];
         $permissoes = [];
 
         foreach ($acoes as $acao) {
             $nome = "{$modulo}.{$acao}";
-            $descricao = ucfirst($acao) . " " . ucfirst($recurso);
-            
+            $descricao = ucfirst($acao).' '.ucfirst($recurso);
+
             $permissoes[] = static::criarPermissao($nome, $descricao, $modulo, $acao, $recurso);
         }
 

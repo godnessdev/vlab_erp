@@ -10,7 +10,7 @@ use App\Models\Papel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Domain\OrdemServico\Models\OrdemServico>
+ * @extends Factory<OrdemServico>
  */
 class OrdemServicoFactory extends Factory
 {
@@ -34,7 +34,7 @@ class OrdemServicoFactory extends Factory
         return [
             'empresa_id' => Empresa::factory(),
             'cliente_id' => Papel::factory(),
-            'titulo' => 'OS - ' . $this->faker->sentence(4),
+            'titulo' => 'OS - '.$this->faker->sentence(4),
             'descricao' => $this->faker->paragraph(3),
             'data_abertura' => $this->faker->dateTimeBetween('-30 days', 'now'),
             'data_prevista_inicio' => $dataInicio,
@@ -101,7 +101,7 @@ class OrdemServicoFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'prioridade' => PrioridadeOrdem::URGENTE,
-            'titulo' => '[URGENTE] ' . $attributes['titulo'],
+            'titulo' => '[URGENTE] '.$attributes['titulo'],
         ]);
     }
 

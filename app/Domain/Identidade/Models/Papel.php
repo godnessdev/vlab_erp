@@ -4,6 +4,7 @@ namespace App\Domain\Identidade\Models;
 
 use App\Domain\Identidade\Enums\StatusPapel;
 use App\Domain\Identidade\Enums\TipoPapel;
+use App\Domain\Identidade\Factories\PapelFactory;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -49,7 +50,7 @@ class Papel extends Model
 
     public function dadosEspecificos(): HasMany
     {
-        return $this->hasMany(\App\Domain\Identidade\Models\DadosEspecificosPapel::class, 'papel_id');
+        return $this->hasMany(DadosEspecificosPapel::class, 'papel_id');
     }
 
     /**
@@ -78,12 +79,12 @@ class Papel extends Model
     public function scopeVigentes($query, ?Carbon $data = null)
     {
         $data = $data ?? now();
-        
+
         return $query->where('data_inicio', '<=', $data)
-                    ->where(function ($q) use ($data) {
-                        $q->whereNull('data_fim')
-                          ->orWhere('data_fim', '>=', $data);
-                    });
+            ->where(function ($q) use ($data) {
+                $q->whereNull('data_fim')
+                    ->orWhere('data_fim', '>=', $data);
+            });
     }
 
     public function scopeHistorico($query)
@@ -101,34 +102,34 @@ class Papel extends Model
 
     public function isInativo(): bool
     {
-        return $this->status === StatusPapel::INATIVO || !is_null($this->data_fim);
+        return $this->status === StatusPapel::INATIVO || ! is_null($this->data_fim);
     }
 
     public function isVigente(?Carbon $data = null): bool
     {
         $data = $data ?? now();
-        
+
         $iniciouVigencia = $this->data_inicio <= $data;
         $naoExpirou = is_null($this->data_fim) || $this->data_fim >= $data;
-        
+
         return $iniciouVigencia && $naoExpirou && $this->isAtivo();
     }
 
     public function getDuracaoEmDias(): ?int
     {
-        if (!$this->data_fim) {
+        if (! $this->data_fim) {
             return $this->data_inicio->diffInDays(now());
         }
-        
+
         return $this->data_inicio->diffInDays($this->data_fim);
     }
 
     public function getDuracaoEmMeses(): ?int
     {
-        if (!$this->data_fim) {
+        if (! $this->data_fim) {
             return $this->data_inicio->diffInMonths(now());
         }
-        
+
         return $this->data_inicio->diffInMonths($this->data_fim);
     }
 
@@ -179,13 +180,13 @@ class Papel extends Model
     public function obterDado(string $chave, $default = null)
     {
         $dado = $this->dadosEspecificos()->where('chave', $chave)->first();
-        
-        if (!$dado) {
+
+        if (! $dado) {
             return $default;
         }
 
         $valor = $dado->valor;
-        
+
         // Tentar converter para número se for numérico
         if (is_numeric($valor)) {
             if (strpos($valor, '.') !== false) {
@@ -194,7 +195,7 @@ class Papel extends Model
                 return (int) $valor;
             }
         }
-        
+
         return $valor;
     }
 
@@ -206,8 +207,8 @@ class Papel extends Model
     public function getDadosArray(): array
     {
         return $this->dadosEspecificos()
-                   ->pluck('valor', 'chave')
-                   ->toArray();
+            ->pluck('valor', 'chave')
+            ->toArray();
     }
 
     /**
@@ -239,24 +240,24 @@ class Papel extends Model
     public function getDescricaoCompletaAttribute(): string
     {
         $descricao = $this->tipo_papel->label();
-        
+
         if ($this->data_fim) {
             $descricao .= " (Encerrado em {$this->data_fim->format('d/m/Y')})";
         } elseif ($this->isInativo()) {
-            $descricao .= " (Inativo)";
+            $descricao .= ' (Inativo)';
         }
-        
+
         return $descricao;
     }
 
     public function getPeriodoVigenciaAttribute(): string
     {
         $inicio = $this->data_inicio->format('d/m/Y');
-        
+
         if ($this->data_fim) {
             return "{$inicio} até {$this->data_fim->format('d/m/Y')}";
         }
-        
+
         return "Desde {$inicio}";
     }
 
@@ -265,6 +266,6 @@ class Papel extends Model
      */
     protected static function newFactory()
     {
-        return \App\Domain\Identidade\Factories\PapelFactory::new();
+        return PapelFactory::new();
     }
 }

@@ -2,16 +2,15 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use App\Services\EmpresaService;
+use App\Enums\RegimeTributario;
+use App\Enums\StatusEmpresa;
+use App\Enums\TipoFilial;
 use App\Models\Empresa;
 use App\Models\Filial;
-use App\Models\ParametroOperacional;
-use App\Enums\StatusEmpresa;
-use App\Enums\RegimeTributario;
-use App\Enums\TipoFilial;
+use App\Services\EmpresaService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
+use Tests\TestCase;
 
 class EmpresaServiceTest extends TestCase
 {
@@ -22,7 +21,7 @@ class EmpresaServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->empresaService = new EmpresaService();
+        $this->empresaService = new EmpresaService;
     }
 
     /** @test */
@@ -52,12 +51,12 @@ class EmpresaServiceTest extends TestCase
         $this->assertEquals($dados['razao_social'], $empresa->razao_social);
         $this->assertEquals($dados['cnpj'], $empresa->cnpj);
         $this->assertEquals(StatusEmpresa::ATIVA, $empresa->status);
-        
+
         // Verificar se matriz foi criada
         $matriz = $empresa->filiais()->where('tipo', TipoFilial::MATRIZ)->first();
         $this->assertNotNull($matriz);
         $this->assertEquals('001', $matriz->codigo);
-        
+
         // Verificar se parâmetros operacionais foram criados
         $this->assertGreaterThan(0, $empresa->parametrosOperacionais()->count());
     }
@@ -67,10 +66,10 @@ class EmpresaServiceTest extends TestCase
     {
         // CNPJ inválido
         $this->assertFalse($this->empresaService->validarCnpjMatematico('12.345.678/0001-99'));
-        
+
         // CNPJ válido
         $this->assertTrue($this->empresaService->validarCnpjMatematico('12.345.678/0001-95'));
-        
+
         // CNPJ com formato incorreto
         $this->assertFalse($this->empresaService->validarCnpjMatematico('123.456.789-01'));
     }
@@ -139,7 +138,7 @@ class EmpresaServiceTest extends TestCase
     public function obtem_estatisticas_empresa()
     {
         $empresa = $this->criarEmpresaExemplo();
-        
+
         // Criar filiais adicionais
         Filial::create([
             'empresa_id' => $empresa->id,
@@ -181,12 +180,12 @@ class EmpresaServiceTest extends TestCase
         $empresa = $this->criarEmpresaExemplo();
 
         $parametros = $empresa->parametrosOperacionais;
-        
+
         $this->assertGreaterThan(0, $parametros->count());
-        
+
         // Verificar se parâmetros essenciais foram criados
         $parametrosChaves = $parametros->pluck('chave')->toArray();
-        
+
         $this->assertContains('timezone', $parametrosChaves);
         $this->assertContains('moeda_padrao', $parametrosChaves);
         $this->assertContains('backup_automatico', $parametrosChaves);

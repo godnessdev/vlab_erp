@@ -2,16 +2,16 @@
 
 namespace App\Console\Commands;
 
-use App\Domain\OrdemServico\Enums\StatusOrdemServico;
 use App\Domain\OrdemServico\Enums\PrioridadeOrdem;
 use App\Domain\OrdemServico\Enums\StatusItemOrdem;
+use App\Domain\OrdemServico\Enums\StatusOrdemServico;
 use App\Domain\OrdemServico\Enums\TipoEventoHistorico;
-use App\Domain\OrdemServico\Models\OrdemServico;
-use App\Domain\OrdemServico\Models\ItemOrdemServico;
 use App\Domain\OrdemServico\Models\ApontamentoExecucao;
 use App\Domain\OrdemServico\Models\HistoricoOrdem;
-use App\Domain\OrdemServico\Services\OrdemServicoService;
+use App\Domain\OrdemServico\Models\ItemOrdemServico;
+use App\Domain\OrdemServico\Models\OrdemServico;
 use App\Domain\OrdemServico\Services\ApontamentoService;
+use App\Domain\OrdemServico\Services\OrdemServicoService;
 use Illuminate\Console\Command;
 
 class TestarOrdemServico extends Command
@@ -64,19 +64,19 @@ class TestarOrdemServico extends Command
     private function testModels()
     {
         try {
-            $ordem = new OrdemServico();
+            $ordem = new OrdemServico;
             $this->line("   ✓ OrdemServico - Tabela: {$ordem->getTable()}");
 
-            $item = new ItemOrdemServico();
+            $item = new ItemOrdemServico;
             $this->line("   ✓ ItemOrdemServico - Tabela: {$item->getTable()}");
 
-            $apontamento = new ApontamentoExecucao();
+            $apontamento = new ApontamentoExecucao;
             $this->line("   ✓ ApontamentoExecucao - Tabela: {$apontamento->getTable()}");
 
-            $historico = new HistoricoOrdem();
+            $historico = new HistoricoOrdem;
             $this->line("   ✓ HistoricoOrdem - Tabela: {$historico->getTable()}");
         } catch (\Exception $e) {
-            $this->error("   ❌ Erro ao testar models: " . $e->getMessage());
+            $this->error('   ❌ Erro ao testar models: '.$e->getMessage());
         }
     }
 
@@ -98,9 +98,9 @@ class TestarOrdemServico extends Command
 
             // Testar transições
             $transicao = StatusOrdemServico::ABERTA->podeTransicionarPara(StatusOrdemServico::EM_ANDAMENTO);
-            $this->line("   ✓ Transição ABERTA -> EM_ANDAMENTO: " . ($transicao ? 'Permitido' : 'Negado'));
+            $this->line('   ✓ Transição ABERTA -> EM_ANDAMENTO: '.($transicao ? 'Permitido' : 'Negado'));
         } catch (\Exception $e) {
-            $this->error("   ❌ Erro ao testar enums: " . $e->getMessage());
+            $this->error('   ❌ Erro ao testar enums: '.$e->getMessage());
         }
     }
 
@@ -111,7 +111,7 @@ class TestarOrdemServico extends Command
                 'ordens_servico',
                 'itens_ordem_servico',
                 'apontamentos_execucao',
-                'historico_ordem'
+                'historico_ordem',
             ];
 
             foreach ($tables as $table) {
@@ -124,24 +124,24 @@ class TestarOrdemServico extends Command
                 }
             }
         } catch (\Exception $e) {
-            $this->error("   ❌ Erro ao testar tabelas: " . $e->getMessage());
+            $this->error('   ❌ Erro ao testar tabelas: '.$e->getMessage());
         }
     }
 
     private function testServices()
     {
         try {
-            $ordemService = new OrdemServicoService();
-            $this->line("   ✓ OrdemServicoService instanciado");
+            $ordemService = new OrdemServicoService;
+            $this->line('   ✓ OrdemServicoService instanciado');
 
-            $apontamentoService = new ApontamentoService();
-            $this->line("   ✓ ApontamentoService instanciado");
+            $apontamentoService = new ApontamentoService;
+            $this->line('   ✓ ApontamentoService instanciado');
 
             // Testar método de busca sem parâmetros
             $result = $ordemService->buscar();
             $this->line("   ✓ Busca de ordens - Total: {$result->total()} registros");
         } catch (\Exception $e) {
-            $this->error("   ❌ Erro ao testar services: " . $e->getMessage());
+            $this->error('   ❌ Erro ao testar services: '.$e->getMessage());
         }
     }
 }

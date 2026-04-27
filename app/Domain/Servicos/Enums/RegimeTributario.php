@@ -11,7 +11,7 @@ enum RegimeTributario: string
 
     public function label(): string
     {
-        return match($this) {
+        return match ($this) {
             self::SIMPLES_NACIONAL => 'Simples Nacional',
             self::LUCRO_PRESUMIDO => 'Lucro Presumido',
             self::LUCRO_REAL => 'Lucro Real',
@@ -22,14 +22,14 @@ enum RegimeTributario: string
     public static function options(): array
     {
         return array_map(
-            fn($case) => ['value' => $case->value, 'label' => $case->label()],
+            fn ($case) => ['value' => $case->value, 'label' => $case->label()],
             self::cases()
         );
     }
 
     public function aliquotaISSSimplificada(): float
     {
-        return match($this) {
+        return match ($this) {
             self::SIMPLES_NACIONAL => 2.0, // Varia conforme anexo
             self::LUCRO_PRESUMIDO => 5.0, // Padrão geral
             self::LUCRO_REAL => 5.0,      // Padrão geral

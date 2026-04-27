@@ -28,6 +28,9 @@
         "pestphp/pest-plugin-laravel": "^4.0"
     },
     "autoload": {
+        "files": [
+            "app/Helpers/tenant.php"
+        ],
         "psr-4": {
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
@@ -62,6 +65,15 @@
             "@php artisan config:clear --ansi",
             "@test:lint",
             "@php artisan test"
+        ],
+        "optimize:production": [
+            "@php artisan config:cache --ansi",
+            "@php artisan route:cache --ansi",
+            "@php artisan view:cache --ansi",
+            "@php artisan event:cache --ansi"
+        ],
+        "optimize:clear": [
+            "@php artisan optimize:clear --ansi"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",

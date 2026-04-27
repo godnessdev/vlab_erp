@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -27,12 +27,12 @@ return new class extends Migration
             $table->uuid('certificado_digital_id')->nullable();
             $table->string('webservice_url', 255)->notNullable();
             $table->timestamps();
-            
+
             // Chaves estrangeiras
             $table->foreign('empresa_id')->references('id')->on('empresas')->onDelete('cascade');
             $table->foreign('filial_id')->references('id')->on('filiais')->onDelete('cascade');
             // TODO: certificado_digital_id será criado no domínio fiscal
-            
+
             // Índices conforme especificação
             $table->index('empresa_id', 'idx_config_fiscal_empresa_id');
             $table->index('codigo_municipio_ibge', 'idx_config_fiscal_municipio');
@@ -50,26 +50,32 @@ return new class extends Migration
             });
         }
 
-        // Habilitar RLS
-        DB::statement('ALTER TABLE configuracoes_fiscais ENABLE ROW LEVEL SECURITY');
-        
-        // Política RLS
-        DB::statement("
-            CREATE POLICY tenant_isolation_config_fiscal ON configuracoes_fiscais
-            FOR ALL TO app_role
-            USING (empresa_id = current_setting('app.tenant_id', true)::uuid)
-        ");
+        // Habilitar RLS (somente PostgreSQL)
+        if (config('database.default') === 'pgsql') {
+            DB::statement('ALTER TABLE configuracoes_fiscais ENABLE ROW LEVEL SECURITY');
 
-        // Comentários
-        DB::statement("COMMENT ON TABLE configuracoes_fiscais IS 'Configurações fiscais por empresa/filial para múltiplas prefeituras'");
-        DB::statement("COMMENT ON COLUMN configuracoes_fiscais.codigo_municipio_ibge IS 'Código IBGE do município para configuração fiscal'");
-        DB::statement("COMMENT ON COLUMN configuracoes_fiscais.ambiente IS 'PRODUCAO para emissão real, HOMOLOGACAO para testes'");
+            // Política RLS
+            DB::statement("
+                CREATE POLICY tenant_isolation_config_fiscal ON configuracoes_fiscais
+                FOR ALL TO app_role
+                USING (empresa_id = current_setting('app.tenant_id', true)::uuid)
+            ");
+        }
+
+        // Comentários (somente PostgreSQL)
+        if (config('database.default') === 'pgsql') {
+            DB::statement("COMMENT ON TABLE configuracoes_fiscais IS 'Configurações fiscais por empresa/filial para múltiplas prefeituras'");
+            DB::statement("COMMENT ON COLUMN configuracoes_fiscais.codigo_municipio_ibge IS 'Código IBGE do município para configuração fiscal'");
+            DB::statement("COMMENT ON COLUMN configuracoes_fiscais.ambiente IS 'PRODUCAO para emissão real, HOMOLOGACAO para testes'");
+        }
     }
 
     public function down(): void
     {
-        DB::statement('DROP POLICY IF EXISTS tenant_isolation_config_fiscal ON configuracoes_fiscais');
+        if (config('database.default') === 'pgsql') {
+            DB::statement('DROP POLICY IF EXISTS tenant_isolation_config_fiscal ON configuracoes_fiscais');
+            DB::statement('DROP TYPE IF EXISTS ambiente_fiscal');
+        }
         Schema::dropIfExists('configuracoes_fiscais');
-        DB::statement('DROP TYPE IF EXISTS ambiente_fiscal');
     }
 };

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Pessoa;
 use App\Models\Usuario;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -14,7 +15,7 @@ class UsuarioFactory extends Factory
     {
         return [
             'id' => $this->faker->uuid(),
-            'pessoa_id' => \App\Models\Pessoa::factory(),
+            'pessoa_id' => Pessoa::factory(),
             'email' => $this->faker->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => bcrypt('password'),

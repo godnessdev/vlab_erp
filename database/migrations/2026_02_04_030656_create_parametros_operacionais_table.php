@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -16,13 +16,13 @@ return new class extends Migration
             $table->jsonb('valor')->notNullable();
             $table->timestamp('data_atualizacao')->useCurrent()->useCurrentOnUpdate();
             $table->timestamps();
-            
+
             // Chave estrangeira
             $table->foreign('empresa_id')->references('id')->on('empresas')->onDelete('cascade');
-            
+
             // Constraint único - uma chave por empresa
             $table->unique(['empresa_id', 'chave'], 'uk_parametro_empresa_chave');
-            
+
             // Índices conforme especificação
             $table->index('empresa_id', 'idx_parametro_empresa_id');
             $table->index('chave', 'idx_parametro_chave');
@@ -39,7 +39,7 @@ return new class extends Migration
         // Habilitar RLS (somente PostgreSQL)
         if (config('database.default') === 'pgsql') {
             DB::statement('ALTER TABLE parametros_operacionais ENABLE ROW LEVEL SECURITY');
-            
+
             // Política RLS
             DB::statement("
                 CREATE POLICY tenant_isolation_parametro ON parametros_operacionais
@@ -48,14 +48,18 @@ return new class extends Migration
             ");
         }
 
-        // Comentários
-        DB::statement("COMMENT ON TABLE parametros_operacionais IS 'Configurações extensíveis via EAV por empresa'");
-        DB::statement("COMMENT ON COLUMN parametros_operacionais.valor IS 'Valor flexível em JSONB para diferentes tipos de configuração'");
+        // Comentários (somente PostgreSQL)
+        if (config('database.default') === 'pgsql') {
+            DB::statement("COMMENT ON TABLE parametros_operacionais IS 'Configurações extensíveis via EAV por empresa'");
+            DB::statement("COMMENT ON COLUMN parametros_operacionais.valor IS 'Valor flexível em JSONB para diferentes tipos de configuração'");
+        }
     }
 
     public function down(): void
     {
-        DB::statement('DROP POLICY IF EXISTS tenant_isolation_parametro ON parametros_operacionais');
+        if (config('database.default') === 'pgsql') {
+            DB::statement('DROP POLICY IF EXISTS tenant_isolation_parametro ON parametros_operacionais');
+        }
         Schema::dropIfExists('parametros_operacionais');
     }
 };

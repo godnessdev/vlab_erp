@@ -18,13 +18,13 @@ class PessoaFactory extends Factory
 
         return [
             'tipo' => $tipo,
-            'nome_razao_social' => $tipo === TipoPessoa::FISICA 
+            'nome_razao_social' => $tipo === TipoPessoa::FISICA
                 ? $this->faker->name()
                 : $this->faker->company(),
-            'nome_fantasia' => $tipo === TipoPessoa::JURIDICA 
+            'nome_fantasia' => $tipo === TipoPessoa::JURIDICA
                 ? $this->faker->optional()->companySuffix()
                 : null,
-            'data_nascimento_constituicao' => $tipo === TipoPessoa::FISICA 
+            'data_nascimento_constituicao' => $tipo === TipoPessoa::FISICA
                 ? $this->faker->dateTimeBetween('-80 years', '-18 years')
                 : $this->faker->dateTimeBetween('-50 years', '-1 year'),
             'status' => StatusPessoa::ATIVO,
@@ -67,27 +67,27 @@ class PessoaFactory extends Factory
     public function comCpf(): static
     {
         return $this->fisica()
-                   ->afterCreating(function (Pessoa $pessoa) {
-                       $validator = new DocumentoValidator();
-                       $pessoa->documentos()->create([
-                           'tipo' => 'CPF',
-                           'valor' => $validator->gerarCpfValido(),
-                           'valido' => true,
-                       ]);
-                   });
+            ->afterCreating(function (Pessoa $pessoa) {
+                $validator = new DocumentoValidator;
+                $pessoa->documentos()->create([
+                    'tipo' => 'CPF',
+                    'valor' => $validator->gerarCpfValido(),
+                    'valido' => true,
+                ]);
+            });
     }
 
     public function comCnpj(): static
     {
         return $this->juridica()
-                   ->afterCreating(function (Pessoa $pessoa) {
-                       $validator = new DocumentoValidator();
-                       $pessoa->documentos()->create([
-                           'tipo' => 'CNPJ',
-                           'valor' => $validator->gerarCnpjValido(),
-                           'valido' => true,
-                       ]);
-                   });
+            ->afterCreating(function (Pessoa $pessoa) {
+                $validator = new DocumentoValidator;
+                $pessoa->documentos()->create([
+                    'tipo' => 'CNPJ',
+                    'valor' => $validator->gerarCnpjValido(),
+                    'valido' => true,
+                ]);
+            });
     }
 
     public function comEndereco(): static
@@ -132,10 +132,10 @@ class PessoaFactory extends Factory
     {
         return $this->when(
             $this->faker->boolean(),
-            fn($factory) => $factory->comCpf(),
-            fn($factory) => $factory->comCnpj()
+            fn ($factory) => $factory->comCpf(),
+            fn ($factory) => $factory->comCnpj()
         )
-        ->comEndereco()
-        ->comContatos();
+            ->comEndereco()
+            ->comContatos();
     }
 }

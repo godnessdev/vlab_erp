@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Empresa extends Model
@@ -89,13 +89,14 @@ class Empresa extends Model
 
     public function podeSerExcluida(): bool
     {
-        return $this->filiais()->count() === 0 
+        return $this->filiais()->count() === 0
             && $this->usuarios()->count() === 0;
     }
 
     public function formatarCnpj(): string
     {
         $cnpj = preg_replace('/\D/', '', $this->cnpj);
+
         return preg_replace('/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/', '$1.$2.$3/$4-$5', $cnpj);
     }
 

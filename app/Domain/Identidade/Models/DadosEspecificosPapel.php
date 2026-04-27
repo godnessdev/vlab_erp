@@ -2,17 +2,17 @@
 
 namespace App\Domain\Identidade\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Models\UsuarioEmpresaPapel;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Model para dados específicos de papéis
- * 
+ *
  * Permite extensibilidade EAV (Entity-Attribute-Value) para papéis específicos
  * Exemplo: Clientes podem ter limite_credito, categoria, etc.
- * 
+ *
  * @property string $id
  * @property string $papel_id
  * @property string $chave

@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Services\FilialService;
 use App\Models\StatusFilialEnum;
-use Illuminate\Http\Request;
+use App\Services\FilialService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Validation\Rules\Enum;
+use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
 class FilialController extends Controller
@@ -22,9 +21,9 @@ class FilialController extends Controller
     public function index(Request $request, string $empresaId): JsonResponse
     {
         $filtros = $request->only(['status', 'busca']);
-        
+
         $filiais = $this->filialService->listarFiliais($empresaId, $filtros);
-        
+
         return response()->json([
             'data' => $filiais->map(function ($filial) {
                 return [
@@ -44,7 +43,7 @@ class FilialController extends Controller
             'meta' => [
                 'total' => $filiais->count(),
                 'empresa_id' => $empresaId,
-            ]
+            ],
         ]);
     }
 
@@ -61,7 +60,7 @@ class FilialController extends Controller
 
         try {
             $filial = $this->filialService->criarFilial($empresaId, $validated);
-            
+
             return response()->json([
                 'message' => 'Filial criada com sucesso.',
                 'data' => [
@@ -69,13 +68,13 @@ class FilialController extends Controller
                     'nome' => $filial->nome,
                     'cnpj_filial' => $filial->formatarCnpj(),
                     'status' => $filial->status->getLabel(),
-                ]
+                ],
             ], 201);
-            
+
         } catch (ValidationException $e) {
             return response()->json([
                 'message' => 'Dados inválidos.',
-                'errors' => $e->errors()
+                'errors' => $e->errors(),
             ], 422);
         }
     }
@@ -86,8 +85,8 @@ class FilialController extends Controller
     public function show(string $empresaId, string $id): JsonResponse
     {
         $filial = $this->filialService->buscarFilialPorId($id);
-        
-        if (!$filial || $filial->empresa_id !== $empresaId) {
+
+        if (! $filial || $filial->empresa_id !== $empresaId) {
             return response()->json(['message' => 'Filial não encontrada.'], 404);
         }
 
@@ -120,7 +119,7 @@ class FilialController extends Controller
                 }),
                 'created_at' => $filial->created_at->format('d/m/Y H:i'),
                 'updated_at' => $filial->updated_at->format('d/m/Y H:i'),
-            ]
+            ],
         ]);
     }
 
@@ -137,11 +136,11 @@ class FilialController extends Controller
 
         try {
             $filial = $this->filialService->atualizarFilial($id, $validated);
-            
+
             if ($filial->empresa_id !== $empresaId) {
                 return response()->json(['message' => 'Filial não pertence à empresa informada.'], 422);
             }
-            
+
             return response()->json([
                 'message' => 'Filial atualizada com sucesso.',
                 'data' => [
@@ -149,13 +148,13 @@ class FilialController extends Controller
                     'nome' => $filial->nome,
                     'cnpj_filial' => $filial->formatarCnpj(),
                     'status' => $filial->status->getLabel(),
-                ]
+                ],
             ]);
-            
+
         } catch (ValidationException $e) {
             return response()->json([
                 'message' => 'Dados inválidos.',
-                'errors' => $e->errors()
+                'errors' => $e->errors(),
             ], 422);
         }
     }
@@ -167,20 +166,20 @@ class FilialController extends Controller
     {
         try {
             $filial = $this->filialService->buscarFilialPorId($id);
-            
-            if (!$filial || $filial->empresa_id !== $empresaId) {
+
+            if (! $filial || $filial->empresa_id !== $empresaId) {
                 return response()->json(['message' => 'Filial não encontrada.'], 404);
             }
-            
+
             $this->filialService->excluirFilial($id);
-            
+
             return response()->json([
-                'message' => 'Filial excluída com sucesso.'
+                'message' => 'Filial excluída com sucesso.',
             ]);
-            
+
         } catch (ValidationException $e) {
             return response()->json([
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 422);
         }
     }
@@ -191,17 +190,17 @@ class FilialController extends Controller
     public function ativar(string $empresaId, string $id): JsonResponse
     {
         $filial = $this->filialService->ativarFilial($id);
-        
+
         if ($filial->empresa_id !== $empresaId) {
             return response()->json(['message' => 'Filial não pertence à empresa informada.'], 422);
         }
-        
+
         return response()->json([
             'message' => 'Filial ativada com sucesso.',
             'data' => [
                 'id' => $filial->id,
                 'status' => $filial->status->getLabel(),
-            ]
+            ],
         ]);
     }
 
@@ -212,22 +211,22 @@ class FilialController extends Controller
     {
         try {
             $filial = $this->filialService->inativarFilial($id);
-            
+
             if ($filial->empresa_id !== $empresaId) {
                 return response()->json(['message' => 'Filial não pertence à empresa informada.'], 422);
             }
-            
+
             return response()->json([
                 'message' => 'Filial inativada com sucesso.',
                 'data' => [
                     'id' => $filial->id,
                     'status' => $filial->status->getLabel(),
-                ]
+                ],
             ]);
-            
+
         } catch (ValidationException $e) {
             return response()->json([
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 422);
         }
     }
@@ -238,8 +237,8 @@ class FilialController extends Controller
     public function matriz(string $empresaId): JsonResponse
     {
         $matriz = $this->filialService->obterFilialMatriz($empresaId);
-        
-        if (!$matriz) {
+
+        if (! $matriz) {
             return response()->json(['message' => 'Filial matriz não encontrada.'], 404);
         }
 
@@ -250,7 +249,7 @@ class FilialController extends Controller
                 'cnpj_filial' => $matriz->formatarCnpj(),
                 'status' => $matriz->status->getLabel(),
                 'endereco_id' => $matriz->endereco_id,
-            ]
+            ],
         ]);
     }
 
@@ -260,9 +259,9 @@ class FilialController extends Controller
     public function estatisticas(string $empresaId): JsonResponse
     {
         $stats = $this->filialService->obterEstatisticas($empresaId);
-        
+
         return response()->json([
-            'data' => $stats
+            'data' => $stats,
         ]);
     }
 
@@ -274,7 +273,7 @@ class FilialController extends Controller
         return response()->json([
             'data' => [
                 'status' => StatusFilialEnum::getOptions(),
-            ]
+            ],
         ]);
     }
 }

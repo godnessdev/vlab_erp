@@ -3,6 +3,7 @@
 namespace App\Domain\Identidade\Models;
 
 use App\Domain\Identidade\Enums\TipoEndereco;
+use App\Domain\Identidade\Factories\EnderecoFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -37,6 +38,7 @@ class Endereco extends Model
     ];
 
     public const CREATED_AT = 'data_criacao';
+
     public const UPDATED_AT = null;
 
     /**
@@ -73,11 +75,11 @@ class Endereco extends Model
     public function scopePorCidade($query, string $cidade, ?string $estado = null)
     {
         $query->where('cidade', 'like', "%{$cidade}%");
-        
+
         if ($estado) {
             $query->where('estado', strtoupper($estado));
         }
-        
+
         return $query;
     }
 
@@ -92,14 +94,14 @@ class Endereco extends Model
     public function getEnderecoCompletoAttribute(): string
     {
         $endereco = "{$this->logradouro}, {$this->numero}";
-        
+
         if ($this->complemento) {
             $endereco .= ", {$this->complemento}";
         }
-        
+
         $endereco .= " - {$this->bairro}, {$this->cidade}/{$this->estado}";
         $endereco .= " - CEP: {$this->cep_formatado}";
-        
+
         return $endereco;
     }
 
@@ -148,12 +150,12 @@ class Endereco extends Model
 
     public function temCoordenadas(): bool
     {
-        return !is_null($this->latitude) && !is_null($this->longitude);
+        return ! is_null($this->latitude) && ! is_null($this->longitude);
     }
 
     public function calcularDistancia(float $latitude, float $longitude): ?float
     {
-        if (!$this->temCoordenadas()) {
+        if (! $this->temCoordenadas()) {
             return null;
         }
 
@@ -181,6 +183,7 @@ class Endereco extends Model
     public function validarCep(): bool
     {
         $cep = preg_replace('/[^0-9]/', '', $this->cep);
+
         return strlen($cep) === 8 && ctype_digit($cep);
     }
 
@@ -190,12 +193,12 @@ class Endereco extends Model
     private function formatarCep(string $cep): string
     {
         $cep = preg_replace('/[^0-9]/', '', $cep);
-        
+
         if (strlen($cep) !== 8) {
             return $cep;
         }
-        
-        return substr($cep, 0, 5) . '-' . substr($cep, 5, 3);
+
+        return substr($cep, 0, 5).'-'.substr($cep, 5, 3);
     }
 
     /**
@@ -203,6 +206,6 @@ class Endereco extends Model
      */
     protected static function newFactory()
     {
-        return \App\Domain\Identidade\Factories\EnderecoFactory::new();
+        return EnderecoFactory::new();
     }
 }

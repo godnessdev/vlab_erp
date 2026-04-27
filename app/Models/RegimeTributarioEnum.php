@@ -10,7 +10,7 @@ enum RegimeTributarioEnum: string
 
     public function getLabel(): string
     {
-        return match($this) {
+        return match ($this) {
             self::SIMPLES_NACIONAL => 'Simples Nacional',
             self::LUCRO_PRESUMIDO => 'Lucro Presumido',
             self::LUCRO_REAL => 'Lucro Real',
@@ -19,7 +19,7 @@ enum RegimeTributarioEnum: string
 
     public function getDescricao(): string
     {
-        return match($this) {
+        return match ($this) {
             self::SIMPLES_NACIONAL => 'Regime tributário simplificado para micro e pequenas empresas',
             self::LUCRO_PRESUMIDO => 'Regime baseado em presunção de lucro sobre receita bruta',
             self::LUCRO_REAL => 'Regime baseado no lucro líquido efetivo apurado',
@@ -29,7 +29,7 @@ enum RegimeTributarioEnum: string
     public static function getOptions(): array
     {
         return array_map(
-            fn($case) => ['value' => $case->value, 'label' => $case->getLabel()],
+            fn ($case) => ['value' => $case->value, 'label' => $case->getLabel()],
             self::cases()
         );
     }

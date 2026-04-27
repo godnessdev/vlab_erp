@@ -2,21 +2,26 @@
 
 namespace App\Domain\Fiscal\Services;
 
+use App\Domain\Fiscal\Exceptions\LoteInvalidoException;
+use App\Domain\Fiscal\Helpers\XmlGenerator;
+use App\Domain\Fiscal\Integrations\AcbrLibIntegration;
+use App\Domain\Fiscal\LoteRps;
 use App\Domain\Fiscal\Repositories\LoteRpsRepository;
 use App\Domain\Fiscal\Repositories\RpsRepository;
-use App\Domain\Fiscal\LoteRps;
-use App\Domain\Fiscal\Exceptions\LoteInvalidoException;
-use App\Domain\Fiscal\Integrations\AcbrLibIntegration;
-use App\Domain\Fiscal\Helpers\XmlGenerator;
 use Illuminate\Support\Facades\DB;
 
 class LoteRpsService
 {
     protected $loteRpsRepository;
+
     protected $rpsRepository;
+
     protected $acbrLibIntegration;
+
     protected $xmlGenerator;
+
     protected $sequencialGenerator;
+
     protected $empresaRepository;
 
     public function __construct(
@@ -87,6 +92,7 @@ class LoteRpsService
             }
 
             DB::commit();
+
             return $lote;
         } catch (\Exception $e) {
             DB::rollBack();
@@ -123,13 +129,13 @@ class LoteRpsService
             // 4. Enviar via ACBrLib
             $retorno = $this->acbrLibIntegration->enviarLote($iniOrXml, $lote->empresa_id);
 
-            if (!$retorno['sucesso']) {
+            if (! $retorno['sucesso']) {
                 // Tratar retry se timeout
                 if (strpos($retorno['mensagem'], 'TIMEOUT') !== false) {
                     // Agendar retry (ex: queue job)
                     return false;
                 }
-                throw new LoteInvalidoException('Erro no envio: ' . $retorno['mensagem']);
+                throw new LoteInvalidoException('Erro no envio: '.$retorno['mensagem']);
             }
 
             // 5. Atualizar status
@@ -143,6 +149,7 @@ class LoteRpsService
             // ConsultaStatusLoteJob::dispatch($lote->id)->delay(30); // 30s
 
             DB::commit();
+
             return true;
         } catch (\Exception $e) {
             DB::rollBack();

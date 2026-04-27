@@ -5,6 +5,8 @@ namespace App\Domain\Servicos\Models;
 use App\Domain\Servicos\Enums\StatusServico;
 use App\Domain\Servicos\Enums\UnidadeMedida;
 use App\Models\Empresa;
+use Database\Factories\ServicoFactory;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Serviço prestado pela empresa
- * 
+ *
  * @property string $id
  * @property string $empresa_id
  * @property string $descricao
@@ -27,8 +29,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \DateTime $created_at
  * @property \DateTime $updated_at
  * @property-read Empresa $empresa
- * @property-read \Illuminate\Database\Eloquent\Collection<CodigoServicoMunicipal> $codigosMunicipais
- * @property-read \Illuminate\Database\Eloquent\Collection<RegraTributacao> $regrasTributacao
+ * @property-read Collection<CodigoServicoMunicipal> $codigosMunicipais
+ * @property-read Collection<RegraTributacao> $regrasTributacao
  */
 class Servico extends Model
 {
@@ -59,7 +61,7 @@ class Servico extends Model
      */
     protected static function newFactory()
     {
-        return \Database\Factories\ServicoFactory::new();
+        return ServicoFactory::new();
     }
 
     /**
@@ -131,7 +133,7 @@ class Servico extends Model
             ->where('data_vigencia_inicio', '<=', now()->toDateString())
             ->where(function ($query) {
                 $query->whereNull('data_vigencia_fim')
-                      ->orWhere('data_vigencia_fim', '>=', now()->toDateString());
+                    ->orWhere('data_vigencia_fim', '>=', now()->toDateString());
             })
             ->orderBy('data_vigencia_inicio', 'desc')
             ->first();
@@ -149,7 +151,7 @@ class Servico extends Model
             ->where('data_vigencia_inicio', '<=', now()->toDateString())
             ->where(function ($query) {
                 $query->whereNull('data_vigencia_fim')
-                      ->orWhere('data_vigencia_fim', '>=', now()->toDateString());
+                    ->orWhere('data_vigencia_fim', '>=', now()->toDateString());
             })
             ->orderBy('data_vigencia_inicio', 'desc')
             ->first();
@@ -161,9 +163,9 @@ class Servico extends Model
      * Calcular valor com tributação
      */
     public function calcularValorComTributacao(
-        float $valorBase, 
-        string $regimeTributario, 
-        string $codigoMunicipio = null
+        float $valorBase,
+        string $regimeTributario,
+        ?string $codigoMunicipio = null
     ): array {
         $resultado = [
             'valor_base' => $valorBase,
@@ -173,10 +175,10 @@ class Servico extends Model
         ];
 
         // ISS
-        $aliquotaISS = $codigoMunicipio ? 
-            $this->obterAliquotaISS($codigoMunicipio) : 
+        $aliquotaISS = $codigoMunicipio ?
+            $this->obterAliquotaISS($codigoMunicipio) :
             $this->aliquota_iss_default;
-        
+
         $valorISS = ($valorBase * $aliquotaISS) / 100;
         $resultado['impostos']['iss'] = [
             'aliquota' => $aliquotaISS,

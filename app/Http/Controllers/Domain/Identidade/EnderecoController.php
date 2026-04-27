@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Domain\Identidade;
 
-use App\Http\Controllers\Controller;
-use App\Domain\Identidade\Models\Pessoa;
-use App\Domain\Identidade\Models\Endereco;
 use App\Domain\Identidade\Enums\TipoEndereco;
-use Illuminate\Http\Request;
+use App\Domain\Identidade\Models\Endereco;
+use App\Domain\Identidade\Models\Pessoa;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
+use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 
 class EnderecoController extends Controller
 {
@@ -27,7 +27,7 @@ class EnderecoController extends Controller
     public function store(Request $request, Pessoa $pessoa): RedirectResponse
     {
         $validated = $this->validateEndereco($request);
-        
+
         $pessoa->enderecos()->create($validated);
 
         return redirect()
@@ -41,7 +41,7 @@ class EnderecoController extends Controller
     public function edit(Pessoa $pessoa, Endereco $endereco): View
     {
         abort_if($endereco->pessoa_id !== $pessoa->id, 404);
-        
+
         return view('domain.identidade.enderecos.edit', compact('pessoa', 'endereco'));
     }
 
@@ -51,7 +51,7 @@ class EnderecoController extends Controller
     public function update(Request $request, Pessoa $pessoa, Endereco $endereco): RedirectResponse
     {
         abort_if($endereco->pessoa_id !== $pessoa->id, 404);
-        
+
         $validated = $this->validateEndereco($request);
         $endereco->update($validated);
 
@@ -66,7 +66,7 @@ class EnderecoController extends Controller
     public function destroy(Pessoa $pessoa, Endereco $endereco): RedirectResponse
     {
         abort_if($endereco->pessoa_id !== $pessoa->id, 404);
-        
+
         $endereco->delete();
 
         return redirect()

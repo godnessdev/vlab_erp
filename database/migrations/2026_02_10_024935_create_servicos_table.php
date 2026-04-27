@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -60,9 +60,9 @@ return new class extends Migration
 
         // Aplicar tipos ENUM no PostgreSQL após criação
         if (DB::connection()->getDriverName() === 'pgsql') {
-            DB::statement("ALTER TABLE servicos ALTER COLUMN unidade_medida TYPE unidade_medida_enum USING unidade_medida::unidade_medida_enum");
-            DB::statement("ALTER TABLE servicos ALTER COLUMN status TYPE status_servico_enum USING status::status_servico_enum");
-            
+            DB::statement('ALTER TABLE servicos ALTER COLUMN unidade_medida TYPE unidade_medida_enum USING unidade_medida::unidade_medida_enum');
+            DB::statement('ALTER TABLE servicos ALTER COLUMN status TYPE status_servico_enum USING status::status_servico_enum');
+
             // Definir valor padrão após conversão
             DB::statement("ALTER TABLE servicos ALTER COLUMN status SET DEFAULT 'ATIVO'::status_servico_enum");
         }
@@ -77,8 +77,8 @@ return new class extends Migration
 
         // Remover ENUMs se PostgreSQL
         if (DB::connection()->getDriverName() === 'pgsql') {
-            DB::statement("DROP TYPE IF EXISTS unidade_medida_enum CASCADE");
-            DB::statement("DROP TYPE IF EXISTS status_servico_enum CASCADE");
+            DB::statement('DROP TYPE IF EXISTS unidade_medida_enum CASCADE');
+            DB::statement('DROP TYPE IF EXISTS status_servico_enum CASCADE');
         }
     }
 };

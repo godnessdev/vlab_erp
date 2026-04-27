@@ -1,11 +1,11 @@
 <?php
 
-use App\Domain\Financeiro\StatusContaReceberEnum;
-use App\Domain\Financeiro\StatusContaPagarEnum;
-use App\Domain\Financeiro\FormaCobrancaEnum;
 use App\Domain\Financeiro\CategoriaContaPagarEnum;
-use App\Domain\Financeiro\TipoMovimentoEnum;
+use App\Domain\Financeiro\FormaCobrancaEnum;
 use App\Domain\Financeiro\StatusConciliacaoEnum;
+use App\Domain\Financeiro\StatusContaPagarEnum;
+use App\Domain\Financeiro\StatusContaReceberEnum;
+use App\Domain\Financeiro\TipoMovimentoEnum;
 
 it('valida enums de status de conta a receber', function () {
     expect(StatusContaReceberEnum::ABERTA->value)->toBe('ABERTA');

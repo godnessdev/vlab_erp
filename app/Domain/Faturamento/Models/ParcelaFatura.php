@@ -3,10 +3,9 @@
 namespace App\Domain\Faturamento\Models;
 
 use App\Domain\Faturamento\Enums\StatusPagamentoParcela;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Carbon\Carbon;
 
 class ParcelaFatura extends Model
 {
@@ -43,7 +42,7 @@ class ParcelaFatura extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($parcela) {
             if (empty($parcela->numero_parcela)) {
                 $parcela->numero_parcela = static::proximoNumero($parcela->fatura_id);
@@ -96,16 +95,16 @@ class ParcelaFatura extends Model
 
     public function isVencida(): bool
     {
-        return $this->data_vencimento < now()->toDateString() 
+        return $this->data_vencimento < now()->toDateString()
             && $this->status_pagamento !== StatusPagamentoParcela::PAGO;
     }
 
     public function getDiasAtraso(): int
     {
-        if (!$this->isVencida()) {
+        if (! $this->isVencida()) {
             return 0;
         }
-        
+
         return now()->diffInDays($this->data_vencimento);
     }
 
@@ -117,24 +116,25 @@ class ParcelaFatura extends Model
     public function isPendente(): bool
     {
         return in_array($this->status_pagamento, [
-            StatusPagamentoParcela::PENDENTE, 
-            StatusPagamentoParcela::ATRASADO
+            StatusPagamentoParcela::PENDENTE,
+            StatusPagamentoParcela::ATRASADO,
         ]);
     }
 
     public function calcularJurosMora(float $percentualJurosDia = 0.03): float
     {
-        if (!$this->isVencida()) {
+        if (! $this->isVencida()) {
             return 0;
         }
 
         $diasAtraso = $this->getDiasAtraso();
+
         return $this->valor_parcela * ($percentualJurosDia / 100) * $diasAtraso;
     }
 
     public function calcularMulta(float $percentualMulta = 2.0): float
     {
-        if (!$this->isVencida()) {
+        if (! $this->isVencida()) {
             return 0;
         }
 
@@ -146,7 +146,7 @@ class ParcelaFatura extends Model
         $valorBase = $this->valor_total_parcela;
         $juros = $this->calcularJurosMora($percentualJurosDia);
         $multa = $this->calcularMulta($percentualMulta);
-        
+
         return $valorBase + $juros + $multa;
     }
 
@@ -158,6 +158,7 @@ class ParcelaFatura extends Model
     public function isProximaAoVencimento(int $diasAntecedencia = 3): bool
     {
         $diasParaVencer = $this->getDiasParaVencimento();
+
         return $diasParaVencer >= 0 && $diasParaVencer <= $diasAntecedencia;
     }
 
@@ -182,7 +183,7 @@ class ParcelaFatura extends Model
     {
         return $query->whereIn('status_pagamento', [
             StatusPagamentoParcela::PENDENTE,
-            StatusPagamentoParcela::ATRASADO
+            StatusPagamentoParcela::ATRASADO,
         ]);
     }
 
@@ -195,7 +196,7 @@ class ParcelaFatura extends Model
     {
         return $query->whereBetween('data_vencimento', [
             now()->toDateString(),
-            now()->addDays($dias)->toDateString()
+            now()->addDays($dias)->toDateString(),
         ])->where('status_pagamento', StatusPagamentoParcela::PENDENTE);
     }
 
@@ -203,7 +204,7 @@ class ParcelaFatura extends Model
     {
         return $query->whereBetween('data_vencimento', [
             $inicio->format('Y-m-d'),
-            $fim->format('Y-m-d')
+            $fim->format('Y-m-d'),
         ]);
     }
 
@@ -215,7 +216,7 @@ class ParcelaFatura extends Model
 
     public function getValorTotalFormatadoAttribute(): string
     {
-        return 'R$ ' . number_format($this->valor_total_parcela, 2, ',', '.');
+        return 'R$ '.number_format($this->valor_total_parcela, 2, ',', '.');
     }
 
     public function getDataVencimentoFormatadaAttribute(): string

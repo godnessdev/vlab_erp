@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Filial extends Model
@@ -90,22 +90,23 @@ class Filial extends Model
 
     public function podeSerExcluida(): bool
     {
-        return !$this->isMatriz() && $this->configuracoesFiscais()->count() === 0;
+        return ! $this->isMatriz() && $this->configuracoesFiscais()->count() === 0;
     }
 
     public function formatarCnpj(): ?string
     {
-        if (!$this->cnpj_filial) {
+        if (! $this->cnpj_filial) {
             return null;
         }
 
         $cnpj = preg_replace('/\D/', '', $this->cnpj_filial);
+
         return preg_replace('/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/', '$1.$2.$3/$4-$5', $cnpj);
     }
 
     public function getNomeCompleto(): string
     {
-        return $this->empresa->nome . ' - ' . $this->nome;
+        return $this->empresa->nome.' - '.$this->nome;
     }
 
     /**

@@ -5,12 +5,11 @@ use App\Domain\OrdemServico\Enums\PrioridadeOrdem;
 /**
  * Testes para o enum PrioridadeOrdem
  */
-
 test('pode obter todas as prioridades disponíveis', function () {
     $prioridades = PrioridadeOrdem::cases();
-    
+
     expect($prioridades)->toHaveCount(5);
-    
+
     $expectedPrioridades = [
         PrioridadeOrdem::MUITO_BAIXA,
         PrioridadeOrdem::BAIXA,
@@ -18,7 +17,7 @@ test('pode obter todas as prioridades disponíveis', function () {
         PrioridadeOrdem::ALTA,
         PrioridadeOrdem::URGENTE,
     ];
-    
+
     foreach ($expectedPrioridades as $expected) {
         expect($prioridades)->toContain($expected);
     }
@@ -51,7 +50,7 @@ test('pode obter cores das prioridades', function () {
 test('identifica prioridades críticas', function () {
     expect(PrioridadeOrdem::URGENTE->isCritica())->toBeTrue();
     expect(PrioridadeOrdem::ALTA->isCritica())->toBeTrue();
-    
+
     expect(PrioridadeOrdem::NORMAL->isCritica())->toBeFalse();
     expect(PrioridadeOrdem::BAIXA->isCritica())->toBeFalse();
     expect(PrioridadeOrdem::MUITO_BAIXA->isCritica())->toBeFalse();

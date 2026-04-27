@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Permissao;
+use Illuminate\Database\Seeder;
 
 class PermissoesSeeder extends Seeder
 {
@@ -14,13 +14,13 @@ class PermissoesSeeder extends Seeder
 
         // Permissões do módulo Empresa
         $this->criarPermissoesEmpresa();
-        
+
         // Permissões do módulo Filial
         $this->criarPermissoesFilial();
-        
+
         // Permissões do módulo Usuário
         $this->criarPermissoesUsuario();
-        
+
         // Permissões do módulo Sistema
         $this->criarPermissoesSistema();
     }

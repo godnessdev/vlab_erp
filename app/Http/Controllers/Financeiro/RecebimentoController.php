@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Financeiro;
 
-use App\Domain\Financeiro\Recebimento;
 use App\Domain\Financeiro\FinanceiroService;
-use Illuminate\Http\Request;
+use App\Domain\Financeiro\Recebimento;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class RecebimentoController
@@ -15,6 +15,7 @@ class RecebimentoController
         $recebimentos = Recebimento::query()
             ->orderBy('data_recebimento', 'desc')
             ->paginate($request->get('per_page', 15));
+
         return response()->json($recebimentos);
     }
 
@@ -27,6 +28,7 @@ class RecebimentoController
             'forma_recebimento' => 'required|string',
         ]);
         $recebimento = $service->registrarRecebimento($validated);
+
         return response()->json($recebimento, Response::HTTP_CREATED);
     }
 
@@ -38,12 +40,14 @@ class RecebimentoController
     public function update(Request $request, Recebimento $recebimento): JsonResponse
     {
         $recebimento->update($request->all());
+
         return response()->json($recebimento);
     }
 
     public function destroy(Recebimento $recebimento): JsonResponse
     {
         $recebimento->delete();
+
         return response()->json(['message' => 'Recebimento excluído.']);
     }
 }

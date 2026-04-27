@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Domain\Identidade;
 
-use App\Http\Controllers\Controller;
-use App\Domain\Identidade\Models\Pessoa;
-use App\Domain\Identidade\Models\Contato;
 use App\Domain\Identidade\Enums\TipoContato;
-use Illuminate\Http\Request;
+use App\Domain\Identidade\Models\Contato;
+use App\Domain\Identidade\Models\Pessoa;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
+use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 
 class ContatoController extends Controller
 {
@@ -27,7 +27,7 @@ class ContatoController extends Controller
     public function store(Request $request, Pessoa $pessoa): RedirectResponse
     {
         $validated = $this->validateContato($request);
-        
+
         $pessoa->contatos()->create($validated);
 
         return redirect()
@@ -41,7 +41,7 @@ class ContatoController extends Controller
     public function edit(Pessoa $pessoa, Contato $contato): View
     {
         abort_if($contato->pessoa_id !== $pessoa->id, 404);
-        
+
         return view('domain.identidade.contatos.edit', compact('pessoa', 'contato'));
     }
 
@@ -51,7 +51,7 @@ class ContatoController extends Controller
     public function update(Request $request, Pessoa $pessoa, Contato $contato): RedirectResponse
     {
         abort_if($contato->pessoa_id !== $pessoa->id, 404);
-        
+
         $validated = $this->validateContato($request);
         $contato->update($validated);
 
@@ -66,7 +66,7 @@ class ContatoController extends Controller
     public function destroy(Pessoa $pessoa, Contato $contato): RedirectResponse
     {
         abort_if($contato->pessoa_id !== $pessoa->id, 404);
-        
+
         $contato->delete();
 
         return redirect()
@@ -88,7 +88,7 @@ class ContatoController extends Controller
 
         // Validações específicas por tipo
         $tipo = $request->get('tipo');
-        
+
         if ($tipo === 'EMAIL') {
             $rules['valor'] = 'required|email|max:255';
         } elseif (in_array($tipo, ['TELEFONE', 'CELULAR', 'WHATSAPP'])) {

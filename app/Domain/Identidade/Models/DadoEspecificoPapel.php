@@ -2,6 +2,7 @@
 
 namespace App\Domain\Identidade\Models;
 
+use App\Domain\Identidade\Factories\DadoEspecificoPapelFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -70,7 +71,7 @@ class DadoEspecificoPapel extends Model
     /**
      * Business Methods
      */
-    public function getValue(string $key = null, $default = null)
+    public function getValue(?string $key = null, $default = null)
     {
         if (is_null($key)) {
             return $this->valor;
@@ -87,21 +88,21 @@ class DadoEspecificoPapel extends Model
     {
         $valores = is_array($this->valor) ? $this->valor : [];
         $valores[$key] = $value;
-        
+
         $this->update(['valor' => $valores]);
     }
 
     public function removeValue(string $key): bool
     {
-        if (!is_array($this->valor) || !array_key_exists($key, $this->valor)) {
+        if (! is_array($this->valor) || ! array_key_exists($key, $this->valor)) {
             return false;
         }
 
         $valores = $this->valor;
         unset($valores[$key]);
-        
+
         $this->update(['valor' => $valores]);
-        
+
         return true;
     }
 
@@ -135,26 +136,27 @@ class DadoEspecificoPapel extends Model
         if (is_array($this->valor)) {
             return empty($this->valor);
         }
-        
+
         return empty($this->valor);
     }
 
     public function getKeys(): array
     {
-        if (!is_array($this->valor)) {
+        if (! is_array($this->valor)) {
             return [];
         }
-        
+
         return array_keys($this->valor);
     }
 
     public function merge(array $data): void
     {
-        if (!is_array($this->valor)) {
+        if (! is_array($this->valor)) {
             $this->update(['valor' => $data]);
+
             return;
         }
-        
+
         $valores = array_merge($this->valor, $data);
         $this->update(['valor' => $valores]);
     }
@@ -198,6 +200,7 @@ class DadoEspecificoPapel extends Model
     private function isJson(string $string): bool
     {
         json_decode($string);
+
         return json_last_error() === JSON_ERROR_NONE;
     }
 
@@ -206,6 +209,6 @@ class DadoEspecificoPapel extends Model
      */
     protected static function newFactory()
     {
-        return \App\Domain\Identidade\Factories\DadoEspecificoPapelFactory::new();
+        return DadoEspecificoPapelFactory::new();
     }
 }

@@ -20,20 +20,20 @@ return new class extends Migration
             $table->string('orgao_emissor', 100)->nullable()->comment('Órgão emissor');
             $table->boolean('valido')->default(true)->comment('Se documento é válido');
             $table->timestamp('data_criacao')->useCurrent();
-            
+
             // Foreign Keys
             $table->foreign('pessoa_id')->references('id')->on('pessoas')->onDelete('cascade');
-            
+
             // Constraints únicos
             $table->unique(['pessoa_id', 'tipo'], 'uk_documento_pessoa_tipo');
             $table->unique(['tipo', 'valor'], 'uk_documento_tipo_valor');
-            
+
             // Índices
             $table->index('pessoa_id', 'idx_documento_pessoa_id');
             $table->index(['tipo', 'valor'], 'idx_documento_tipo_valor');
             $table->index('tipo');
             $table->index('valido');
-            
+
             $table->comment('Múltiplos documentos por pessoa com validação');
         });
     }

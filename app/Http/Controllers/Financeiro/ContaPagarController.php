@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Financeiro;
 
 use App\Domain\Financeiro\ContaPagar;
 use App\Domain\Financeiro\FinanceiroService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class ContaPagarController
@@ -16,6 +16,7 @@ class ContaPagarController
             ->with(['fornecedor'])
             ->orderBy('data_vencimento', 'desc')
             ->paginate($request->get('per_page', 15));
+
         return response()->json($contas);
     }
 
@@ -33,6 +34,7 @@ class ContaPagarController
             'data_emissao' => 'required|date',
         ]);
         $conta = $service->criarContaPagar($validated);
+
         return response()->json($conta, Response::HTTP_CREATED);
     }
 
@@ -44,12 +46,14 @@ class ContaPagarController
     public function update(Request $request, ContaPagar $conta): JsonResponse
     {
         $conta->update($request->all());
+
         return response()->json($conta);
     }
 
     public function destroy(ContaPagar $conta): JsonResponse
     {
         $conta->delete();
+
         return response()->json(['message' => 'Conta a pagar excluída.']);
     }
 
@@ -61,6 +65,7 @@ class ContaPagarController
         $contas = ContaPagar::where('empresa_id', $empresaId)
             ->whereBetween('data_vencimento', [$dataInicio, $dataFim])
             ->get();
+
         return response()->json($contas);
     }
 }

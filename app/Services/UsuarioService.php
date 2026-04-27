@@ -2,16 +2,17 @@
 
 namespace App\Services;
 
-use App\Models\Usuario;
 use App\Models\Empresa;
-use App\Models\Pessoa;
 use App\Models\Papel;
+use App\Models\Pessoa;
 use App\Models\StatusUsuarioEnum;
+use App\Models\Usuario;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Carbon\Carbon;
 
 class UsuarioService
 {
@@ -32,9 +33,9 @@ class UsuarioService
         if (isset($filtros['busca'])) {
             $query->where(function ($q) use ($filtros) {
                 $q->where('email', 'ILIKE', "%{$filtros['busca']}%")
-                  ->orWhereHas('pessoa', function ($q2) use ($filtros) {
-                      $q2->where('nome', 'ILIKE', "%{$filtros['busca']}%");
-                  });
+                    ->orWhereHas('pessoa', function ($q2) use ($filtros) {
+                        $q2->where('nome', 'ILIKE', "%{$filtros['busca']}%");
+                    });
             });
         }
 
@@ -54,11 +55,11 @@ class UsuarioService
     public function criarUsuario(array $dados): Usuario
     {
         DB::beginTransaction();
-        
+
         try {
             // Verificar se pessoa existe
             $pessoa = Pessoa::findOrFail($dados['pessoa_id']);
-            
+
             // Verificar se pessoa já tem usuário
             if (Usuario::where('pessoa_id', $dados['pessoa_id'])->exists()) {
                 throw new ValidationException('Esta pessoa já possui um usuário cadastrado.');
@@ -77,8 +78,9 @@ class UsuarioService
             ]);
 
             DB::commit();
+
             return $usuario->load(['pessoa']);
-            
+
         } catch (\Exception $e) {
             DB::rollback();
             throw $e;
@@ -88,7 +90,7 @@ class UsuarioService
     public function atualizarUsuario(string $id, array $dados): Usuario
     {
         $usuario = Usuario::findOrFail($id);
-        
+
         // Validar email único se foi alterado
         if (isset($dados['email']) && $dados['email'] !== $usuario->email) {
             if (Usuario::where('email', $dados['email'])->exists()) {
@@ -102,14 +104,14 @@ class UsuarioService
         }
 
         $usuario->update($dados);
-        
+
         return $usuario->load(['pessoa']);
     }
 
     public function vincularUsuarioEmpresa(string $usuarioId, string $empresaId, string $papelId, array $opcoes = []): void
     {
         DB::beginTransaction();
-        
+
         try {
             $usuario = Usuario::findOrFail($usuarioId);
             $empresa = Empresa::findOrFail($empresaId);
@@ -128,7 +130,7 @@ class UsuarioService
 
             // Criar vínculo
             DB::table('usuario_empresa_papel')->insert([
-                'id' => \Illuminate\Support\Str::uuid(),
+                'id' => Str::uuid(),
                 'usuario_id' => $usuarioId,
                 'empresa_id' => $empresaId,
                 'papel_id' => $papelId,
@@ -140,7 +142,7 @@ class UsuarioService
             ]);
 
             DB::commit();
-            
+
         } catch (\Exception $e) {
             DB::rollback();
             throw $e;
@@ -167,6 +169,7 @@ class UsuarioService
             'status' => StatusUsuarioEnum::ATIVO,
             'email_verified_at' => now(),
         ]);
+
         return $usuario;
     }
 
@@ -174,6 +177,7 @@ class UsuarioService
     {
         $usuario = Usuario::findOrFail($id);
         $usuario->update(['status' => StatusUsuarioEnum::BLOQUEADO]);
+
         return $usuario;
     }
 
@@ -184,19 +188,20 @@ class UsuarioService
             'status' => StatusUsuarioEnum::ATIVO,
             'tentativas_login_falhadas' => 0,
         ]);
+
         return $usuario;
     }
 
     public function alterarSenha(string $id, string $senhaAtual, string $novaSenha): Usuario
     {
         $usuario = Usuario::findOrFail($id);
-        
-        if (!Hash::check($senhaAtual, $usuario->password)) {
+
+        if (! Hash::check($senhaAtual, $usuario->password)) {
             throw new ValidationException('Senha atual incorreta.');
         }
 
         $usuario->update(['password' => Hash::make($novaSenha)]);
-        
+
         return $usuario;
     }
 
@@ -204,25 +209,25 @@ class UsuarioService
     {
         $usuario = Usuario::findOrFail($id);
         $novaSenha = $this->gerarSenhaTemporaria();
-        
+
         $usuario->update([
             'password' => Hash::make($novaSenha),
             'status' => StatusUsuarioEnum::PENDENTE, // Forçar troca de senha no próximo login
         ]);
-        
+
         return $novaSenha;
     }
 
     public function obterPermissoesUsuario(string $usuarioId, string $empresaId): array
     {
         $usuario = Usuario::with(['papeis.permissoes'])->find($usuarioId);
-        
-        if (!$usuario) {
+
+        if (! $usuario) {
             return [];
         }
 
         $permissoes = [];
-        
+
         // Buscar permissões através dos papéis na empresa específica
         $vinculos = DB::table('usuario_empresa_papel')
             ->where('usuario_id', $usuarioId)
@@ -230,7 +235,7 @@ class UsuarioService
             ->where('status', 'ATIVO')
             ->where(function ($query) {
                 $query->whereNull('data_fim')
-                      ->orWhere('data_fim', '>=', now());
+                    ->orWhere('data_fim', '>=', now());
             })
             ->pluck('papel_id');
 
@@ -254,9 +259,9 @@ class UsuarioService
     public function verificarPermissao(string $usuarioId, string $empresaId, string $permissao): bool
     {
         $permissoes = $this->obterPermissoesUsuario($usuarioId, $empresaId);
-        
+
         return collect($permissoes)->contains(function ($p) use ($permissao) {
-            return $p['modulo'] . '.' . $p['acao'] . '.' . $p['recurso'] === $permissao;
+            return $permissao === $p['modulo'].'.'.$p['acao'].'.'.$p['recurso'];
         });
     }
 
@@ -276,11 +281,11 @@ class UsuarioService
     {
         $caracteres = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%';
         $senha = '';
-        
+
         for ($i = 0; $i < 12; $i++) {
             $senha .= $caracteres[rand(0, strlen($caracteres) - 1)];
         }
-        
+
         return $senha;
     }
 }

@@ -27,7 +27,7 @@ return new class extends Migration
 
             // Constraint único
             $table->unique(
-                ['servico_id', 'codigo_municipio_ibge', 'data_vigencia_inicio'], 
+                ['servico_id', 'codigo_municipio_ibge', 'data_vigencia_inicio'],
                 'uk_codigo_servico_municipio_vigencia'
             );
 

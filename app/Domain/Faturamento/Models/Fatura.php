@@ -5,19 +5,20 @@ namespace App\Domain\Faturamento\Models;
 use App\Domain\Faturamento\Enums\StatusFatura;
 use App\Models\Empresa;
 use App\Models\Usuario;
+use Database\Factories\FaturaFactory;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Support\Str;
 
 class Fatura extends Model
 {
     protected static function newFactory()
     {
-        return \Database\Factories\FaturaFactory::new();
+        return FaturaFactory::new();
     }
+
     use HasFactory, HasUuids;
 
     protected $table = 'faturas';
@@ -65,7 +66,7 @@ class Fatura extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($fatura) {
             if (empty($fatura->numero_fatura)) {
                 $fatura->numero_fatura = static::gerarProximoNumero($fatura->empresa_id);
@@ -107,16 +108,16 @@ class Fatura extends Model
 
     public function isVencida(): bool
     {
-        return $this->data_vencimento < now()->toDateString() 
+        return $this->data_vencimento < now()->toDateString()
             && $this->status !== StatusFatura::PAGA;
     }
 
     public function getDiasAtraso(): int
     {
-        if (!$this->isVencida()) {
+        if (! $this->isVencida()) {
             return 0;
         }
-        
+
         return now()->diffInDays($this->data_vencimento);
     }
 
@@ -125,7 +126,7 @@ class Fatura extends Model
         if ($this->valor_servicos == 0) {
             return 0;
         }
-        
+
         return ($this->valor_descontos / $this->valor_servicos) * 100;
     }
 
@@ -134,7 +135,7 @@ class Fatura extends Model
         if ($this->base_calculo_iss == 0) {
             return 0;
         }
-        
+
         return ($this->valor_iss / $this->base_calculo_iss) * 100;
     }
 
@@ -176,7 +177,7 @@ class Fatura extends Model
         if ($this->valor_liquido == 0) {
             return 0;
         }
-        
+
         return ($this->getValorPago() / $this->valor_liquido) * 100;
     }
 
@@ -187,11 +188,12 @@ class Fatura extends Model
             ->orderByDesc('numero_fatura')
             ->first();
 
-        if (!$ultimaFatura) {
+        if (! $ultimaFatura) {
             return str_pad('1', 6, '0', STR_PAD_LEFT);
         }
 
         $ultimoNumero = intval($ultimaFatura->numero_fatura);
+
         return str_pad($ultimoNumero + 1, 6, '0', STR_PAD_LEFT);
     }
 
@@ -227,6 +229,6 @@ class Fatura extends Model
     // Accessors
     public function getNumeroFaturaFormatadoAttribute(): string
     {
-        return 'FAT-' . $this->numero_fatura;
+        return 'FAT-'.$this->numero_fatura;
     }
 }

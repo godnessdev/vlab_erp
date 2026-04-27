@@ -1,0 +1,269 @@
+# MCP Validation Checklist
+# Automated validation rules for AI-generated code
+
+version: "1.0"
+project: "ERP Multitenant Fiscal"
+updated: "2026-02-03"
+
+# Security Validation Rules
+security:
+  tenant_isolation:
+    enabled: true
+    description: "Verify Row Level Security and global scopes are applied"
+    checks:
+      - "Global scope applied to all tenant-aware models"
+      - "RLS policies configured in migrations"
+      - "Company context middleware in place"
+      - "No direct queries bypassing tenant isolation"
+    
+  audit_trail:
+    enabled: true
+    description: "LGPD compliance - all operations must be audited"
+    checks:
+      - "AuditLog::create() called for sensitive operations"
+      - "User ID, Company ID, and action recorded"
+      - "Metadata includes before/after states"
+      - "Audit logs are immutable"
+    
+  input_validation:
+    enabled: true
+    description: "All user inputs must be validated"
+    checks:
+      - "Form requests or validation rules defined"
+      - "SQL injection prevention (parameterized queries)"
+      - "XSS prevention (escaped outputs)"
+      - "CSRF tokens on all forms"
+    
+  authorization_check:
+    enabled: true
+    description: "Authorization required for all protected actions"
+    checks:
+      - "$this->authorize() called before sensitive operations"
+      - "Policies defined for all resources"
+      - "Gate checks for admin-only features"
+      - "Tenant-scoped authorization rules"
+
+# Fiscal Compliance Rules
+fiscal:
+  nfse_compliance:
+    enabled: true
+    description: "NFS-e Nacional 2026 standard compliance"
+    checks:
+      - "DPS → ADN → NFS-e workflow implemented"
+      - "XML validation against official schemas"
+      - "Required fields per municipal configuration"
+      - "Digital signature with valid certificate"
+    
+  ibscbs_fields:
+    enabled: true
+    description: "IBSCBS informative fields (Reforma Tributária 2026)"
+    checks:
+      - "finNFSe field present (informativo)"
+      - "cst field present (informativo)"
+      - "cClassTrib field present (informativo)"
+      - "⚠️ NO local calculation - values from ADN only"
+    
+  tax_calculation:
+    enabled: true
+    description: "Tax calculation accuracy by regime"
+    checks:
+      - "ISS calculation per municipal rate"
+      - "PIS/COFINS by tax regime (Simples/Real/Presumido)"
+      - "Retention calculations (INSS, IR, CSLL, PIS, COFINS)"
+      - "CFOP determination logic"
+    
+  contingency_protocol:
+    enabled: true
+    description: "Offline protocols when SEFAZ unavailable"
+    checks:
+      - "Retry logic with exponential backoff"
+      - "Contingency mode activation"
+      - "Queue jobs for async processing"
+      - "User notification of contingency status"
+
+# Performance Requirements
+performance:
+  response_time:
+    enabled: true
+    target_ms: 200
+    description: "95% of requests must respond under 200ms"
+    checks:
+      - "Database queries optimized (EXPLAIN ANALYZE)"
+      - "Eager loading to prevent N+1 queries"
+      - "Indexes on foreign keys and search fields"
+      - "Cache strategy for frequently accessed data"
+    
+  query_optimization:
+    enabled: true
+    description: "Database query efficiency"
+    checks:
+      - "No SELECT * queries"
+      - "Proper use of select(), with(), whereHas()"
+      - "Pagination for large datasets"
+      - "Chunk processing for bulk operations"
+    
+  cache_strategy:
+    enabled: true
+    description: "Caching for performance"
+    checks:
+      - "Tenant-aware cache keys"
+      - "Cache invalidation on updates"
+      - "Redis for session and cache"
+      - "Query result caching where appropriate"
+    
+  n_plus_one_prevention:
+    enabled: true
+    description: "Prevent N+1 query problems"
+    checks:
+      - "Eager loading relationships in controllers"
+      - "Laravel Debugbar or Telescope monitoring"
+      - "with() clauses on all relationship queries"
+      - "Architecture tests for N+1 detection"
+
+# Testing Requirements
+testing:
+  unit_coverage:
+    enabled: true
+    minimum_percentage: 80
+    target_percentage: 90
+    description: "Code coverage requirements"
+    checks:
+      - "All services have unit tests"
+      - "All calculators have unit tests"
+      - "Value objects tested"
+      - "Edge cases covered"
+    
+  integration_tests:
+    enabled: true
+    description: "Integration testing requirements"
+    checks:
+      - "API endpoints tested"
+      - "Livewire components tested"
+      - "Database transactions tested"
+      - "External integrations mocked"
+    
+  multitenancy_tests:
+    enabled: true
+    description: "Tenant isolation testing"
+    checks:
+      - "Users only see their company data"
+      - "Cross-tenant access blocked"
+      - "RLS policies enforced"
+      - "Global scopes working correctly"
+    
+  fiscal_scenarios:
+    enabled: true
+    description: "Fiscal calculation testing"
+    checks:
+      - "Tax calculations by regime (datasets)"
+      - "NFS-e emission scenarios"
+      - "Contingency mode testing"
+      - "SPED export validation"
+
+# Code Quality Standards
+code_quality:
+  php_standards:
+    enabled: true
+    description: "PHP coding standards"
+    checks:
+      - "PHP 8.4 syntax with strict types"
+      - "PSR-12 coding style"
+      - "Type hints on all parameters and returns"
+      - "No unused imports or variables"
+    
+  architecture:
+    enabled: true
+    description: "DDD architecture compliance"
+    checks:
+      - "Domain models in Domain/ namespace"
+      - "Services in Application/Services/"
+      - "Repositories in Infrastructure/Repositories/"
+      - "Livewire components in Presentation/"
+    
+  documentation:
+    enabled: true
+    description: "Code documentation requirements"
+    checks:
+      - "PHPDoc blocks on all public methods"
+      - "Complex logic explained with comments"
+      - "README for each domain"
+      - "API documentation (OpenAPI/Swagger)"
+
+# Livewire Specific Rules
+livewire:
+  component_structure:
+    enabled: true
+    description: "Livewire 4.x component standards"
+    checks:
+      - "Separate class and Blade files"
+      - "Use of Flux UI components"
+      - "Proper wire:model.live usage"
+      - "Form validation with attributes"
+    
+  performance:
+    enabled: true
+    description: "Livewire performance optimization"
+    checks:
+      - "Lazy loading for heavy components"
+      - "Debounce on search inputs"
+      - "Pagination for large lists"
+      - "Avoid unnecessary re-renders"
+
+# Pre-commit Checklist
+pre_commit:
+  required_checks:
+    - "All tests passing (Pest)"
+    - "No PHPStan/Larastan errors"
+    - "Code formatted (Laravel Pint)"
+    - "No security vulnerabilities (composer audit)"
+    - "Migrations tested (fresh + seed)"
+    - "Guidelines followed (manual review)"
+    - "Documentation updated"
+
+# Code Review Checklist
+code_review:
+  functional:
+    - "Feature works as specified"
+    - "Edge cases handled"
+    - "Error messages user-friendly"
+    - "Success feedback provided"
+  
+  security:
+    - "Tenant isolation verified"
+    - "Authorization checks present"
+    - "Input validation complete"
+    - "Audit trail implemented"
+  
+  performance:
+    - "No N+1 queries"
+    - "Response time acceptable"
+    - "Caching strategy appropriate"
+    - "Database indexes present"
+  
+  testing:
+    - "Tests cover main scenarios"
+    - "Multitenancy tested"
+    - "Fiscal scenarios validated"
+    - "Coverage meets minimum"
+  
+  documentation:
+    - "Code comments adequate"
+    - "API documented"
+    - "README updated"
+    - "ADR created if needed"
+
+# Deployment Checklist
+deployment:
+  pre_deployment:
+    - "All tests passing in CI/CD"
+    - "Database migrations reviewed"
+    - "Environment variables configured"
+    - "Backup strategy confirmed"
+    - "Rollback plan documented"
+  
+  post_deployment:
+    - "Health checks passing"
+    - "Monitoring alerts configured"
+    - "Performance metrics baseline"
+    - "User acceptance testing"
+    - "Documentation updated"

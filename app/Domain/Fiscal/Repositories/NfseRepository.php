@@ -31,12 +31,14 @@ class NfseRepository
     public function update(string $id, array $data): bool
     {
         $nfse = $this->findOrFail($id);
+
         return $nfse->update($data);
     }
 
     public function atualizarCancelamento(string $id, array $data): bool
     {
         $nfse = $this->findOrFail($id);
+
         return $nfse->update($data);
     }
 }
