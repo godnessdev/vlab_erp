@@ -32,11 +32,11 @@ class ServicoService
         }
 
         if (! empty($filtros['classificacao_fiscal'])) {
-            $query->where('classificacao_fiscal', 'LIKE', "%{$filtros['classificacao_fiscal']}%");
+            $query->where('classificacao_fiscal', $this->likeOperator(), "%{$filtros['classificacao_fiscal']}%");
         }
 
         if (! empty($filtros['descricao'])) {
-            $query->where('descricao', 'ILIKE', "%{$filtros['descricao']}%");
+            $query->where('descricao', $this->likeOperator(), "%{$filtros['descricao']}%");
         }
 
         if (! empty($filtros['unidade_medida'])) {
@@ -250,7 +250,7 @@ class ServicoService
             ->where('status', StatusServico::ATIVO);
 
         if ($termo) {
-            $query->where('descricao', 'ILIKE', "%{$termo}%");
+            $query->where('descricao', $this->likeOperator(), "%{$termo}%");
         }
 
         return $query->select(['id', 'descricao', 'unidade_medida', 'preco_base'])
@@ -310,6 +310,11 @@ class ServicoService
         if (! empty($dados['aliquota_iss_default'])) {
             $this->validarAliquotaISS($dados['aliquota_iss_default']);
         }
+    }
+
+    private function likeOperator(): string
+    {
+        return DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
     }
 
     /**

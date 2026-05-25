@@ -19,7 +19,7 @@ class OrdemServicoController extends Controller
     /**
      * Display a listing of service orders.
      */
-    public function index(Request $request): JsonResponse
+    public function index(Request $request)
     {
         $perPage = $request->get('per_page', 15);
         $status = $request->get('status');
@@ -30,6 +30,22 @@ class OrdemServicoController extends Controller
             'cliente_id' => $clienteId,
             'empresa_id' => tenant_id(),
         ]), (int) $perPage);
+
+        if (! $request->expectsJson()) {
+            return view('modules.list', [
+                'title' => 'Ordens de Servico',
+                'description' => 'Ordens operacionais vinculadas a clientes, servicos e faturamento.',
+                'records' => $ordens,
+                'columns' => [
+                    ['label' => 'Numero', 'key' => 'numero_ordem'],
+                    ['label' => 'Titulo', 'key' => 'titulo'],
+                    ['label' => 'Cliente', 'key' => 'cliente.nome_razao_social'],
+                    ['label' => 'Abertura', 'key' => 'data_abertura'],
+                    ['label' => 'Status', 'key' => 'status'],
+                    ['label' => 'Prioridade', 'key' => 'prioridade'],
+                ],
+            ]);
+        }
 
         return response()->json($ordens);
     }

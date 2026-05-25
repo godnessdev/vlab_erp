@@ -10,12 +10,27 @@ use Illuminate\Http\Response;
 
 class ContaPagarController
 {
-    public function index(Request $request): JsonResponse
+    public function index(Request $request)
     {
         $contas = ContaPagar::query()
             ->with(['fornecedor'])
             ->orderBy('data_vencimento', 'desc')
             ->paginate($request->get('per_page', 15));
+
+        if (! $request->expectsJson()) {
+            return view('modules.list', [
+                'title' => 'Contas a Pagar',
+                'description' => 'Obrigacoes e pagamentos previstos pelo financeiro.',
+                'records' => $contas,
+                'columns' => [
+                    ['label' => 'Numero', 'key' => 'numero_conta'],
+                    ['label' => 'Fornecedor', 'key' => 'fornecedor.nome_razao_social'],
+                    ['label' => 'Vencimento', 'key' => 'data_vencimento'],
+                    ['label' => 'Valor total', 'key' => 'valor_total', 'type' => 'money'],
+                    ['label' => 'Status', 'key' => 'status'],
+                ],
+            ]);
+        }
 
         return response()->json($contas);
     }

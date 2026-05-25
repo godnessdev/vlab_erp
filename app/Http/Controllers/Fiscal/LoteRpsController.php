@@ -8,9 +8,28 @@ use Illuminate\Http\Request;
 
 class LoteRpsController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return LoteRps::paginate();
+        $lotes = LoteRps::query()
+            ->orderByDesc('data_geracao')
+            ->paginate($request->integer('per_page', 15));
+
+        if ($request->expectsJson()) {
+            return $lotes;
+        }
+
+        return view('modules.list', [
+            'title' => 'Lotes RPS',
+            'description' => 'Lotes de RPS preparados para integracao fiscal.',
+            'records' => $lotes,
+            'columns' => [
+                ['label' => 'Numero lote', 'key' => 'numero_lote'],
+                ['label' => 'Geracao', 'key' => 'data_geracao'],
+                ['label' => 'Quantidade', 'key' => 'quantidade_rps'],
+                ['label' => 'Valor servicos', 'key' => 'valor_total_servicos', 'type' => 'money'],
+                ['label' => 'Status', 'key' => 'status'],
+            ],
+        ]);
     }
 
     public function show($id)

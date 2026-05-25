@@ -4,7 +4,7 @@
     
     <!-- Profile Button -->
     <button @click="open = !open"
-            class="flex items-center gap-2 rounded-lg p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 transition-colors"
+            class="flex min-h-11 items-center gap-2 rounded-lg p-2 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
             :aria-expanded="open"
             aria-haspopup="true"
             aria-label="Menu do usuário">
@@ -54,7 +54,7 @@
         
         <!-- Menu Items -->
         <div class="p-2">
-            <a href="#"
+            <a href="{{ route('profile.edit') }}"
                class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors"
                role="menuitem">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -63,7 +63,7 @@
                 Meu Perfil
             </a>
             
-            <a href="#"
+            <a href="{{ route('appearance.edit') }}"
                class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors"
                role="menuitem">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">

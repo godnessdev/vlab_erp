@@ -2,7 +2,8 @@
 
 namespace App\Livewire\Layout;
 
-use App\Models\Empresa;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -13,53 +14,56 @@ class CompanySelector extends Component
     #[Computed]
     public function currentCompany()
     {
-        return auth()->user()->company ?? null;
+        return tenant();
     }
 
     #[Computed]
     public function availableCompanies()
     {
-        // Por enquanto, retornar apenas a empresa atual do usuário
-        // TODO: Implementar quando sistema de múltiplas empresas estiver pronto
-        $currentCompany = $this->currentCompany;
+        $user = auth()->user();
 
-        return $currentCompany ? collect([$currentCompany]) : collect([]);
+        if (! $user) {
+            return collect();
+        }
+
+        return $user->empresas()
+            ->wherePivot('status', 'ATIVO')
+            ->orderBy('nome')
+            ->get();
     }
 
     #[Computed]
-    public function hasMultipleCompanies()
+    public function hasMultipleCompanies(): bool
     {
         return $this->availableCompanies->count() > 1;
     }
 
-    public function selectCompany($companyId)
+    public function selectCompany(string $companyId)
     {
-        $company = $this->availableCompanies->find($companyId);
+        $company = $this->availableCompanies->firstWhere('id', $companyId);
 
         if (! $company) {
             $this->dispatch('notify', [
                 'type' => 'error',
-                'message' => 'Empresa não encontrada ou sem permissão de acesso.',
+                'message' => 'Empresa nao encontrada ou sem permissao de acesso.',
             ]);
 
-            return;
+            return null;
         }
 
-        // TODO: Implementar troca de empresa quando sistema multitenancy estiver completo
-        // Por enquanto, apenas fechar o dropdown
-        $this->open = false;
+        switch_tenant($company->id);
 
-        $this->dispatch('notify', [
-            'type' => 'info',
-            'message' => 'Troca de empresa será implementada em breve.',
+        Cache::forget('dashboard.'.$company->id);
+
+        Log::info('Usuario trocou de empresa no seletor da topbar.', [
+            'usuario_id' => auth()->id(),
+            'empresa_id' => $company->id,
         ]);
 
-        // Futuro código:
-        // auth()->user()->update(['company_id' => $companyId]);
-        // cache()->tags(['company:' . auth()->user()->id])->flush();
-        // activity()->causedBy(auth()->user())->performedOn($company)->event('company_switched')->log('Usuário trocou para empresa: ' . $company->nome_fantasia);
-        // $this->dispatch('company-changed', companyId: $companyId);
-        // return redirect()->route('dashboard');
+        $this->open = false;
+        $this->dispatch('company-changed', companyId: $company->id);
+
+        return redirect()->route('dashboard');
     }
 
     public function render()

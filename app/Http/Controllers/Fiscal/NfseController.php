@@ -17,9 +17,28 @@ class NfseController extends Controller
         $this->nfseService = $nfseService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        return Nfse::paginate();
+        $nfse = Nfse::query()
+            ->orderByDesc('data_emissao')
+            ->paginate($request->integer('per_page', 15));
+
+        if ($request->expectsJson()) {
+            return $nfse;
+        }
+
+        return view('modules.list', [
+            'title' => 'NFS-e',
+            'description' => 'Notas fiscais de servico eletronicas geradas pelo modulo fiscal.',
+            'records' => $nfse,
+            'columns' => [
+                ['label' => 'Numero', 'key' => 'numero_nfse'],
+                ['label' => 'Codigo verificacao', 'key' => 'codigo_verificacao'],
+                ['label' => 'Emissao', 'key' => 'data_emissao'],
+                ['label' => 'Municipio', 'key' => 'municipio_prestacao'],
+                ['label' => 'Status', 'key' => 'status'],
+            ],
+        ]);
     }
 
     public function show($id)

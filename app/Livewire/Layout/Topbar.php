@@ -10,16 +10,15 @@ class Topbar extends Component
     #[Computed]
     public function currentCompany()
     {
-        return auth()->user()->company ?? null;
+        return tenant();
     }
 
     #[Computed]
-    public function breadcrumbs()
+    public function breadcrumbs(): array
     {
         $route = request()->route();
         $routeName = $route ? $route->getName() : null;
 
-        // Mapear rotas para breadcrumbs
         $breadcrumbMap = [
             'dashboard' => [
                 ['label' => 'Dashboard', 'route' => null],
@@ -46,7 +45,22 @@ class Topbar extends Component
                 ['label' => 'Pessoas', 'route' => 'pessoas.index'],
                 ['label' => 'Nova Pessoa', 'route' => null],
             ],
-            // Adicionar mais rotas conforme necessário
+            'servicos.index' => [
+                ['label' => 'Cadastros', 'route' => null],
+                ['label' => 'Servicos', 'route' => null],
+            ],
+            'ordens-servico.index' => [
+                ['label' => 'Vendas', 'route' => null],
+                ['label' => 'Ordens de Servico', 'route' => null],
+            ],
+            'profile.edit' => [
+                ['label' => 'Configuracoes', 'route' => null],
+                ['label' => 'Perfil', 'route' => null],
+            ],
+            'appearance.edit' => [
+                ['label' => 'Configuracoes', 'route' => null],
+                ['label' => 'Aparencia', 'route' => null],
+            ],
         ];
 
         return $breadcrumbMap[$routeName] ?? [

@@ -4,7 +4,7 @@ use App\Http\Controllers\Servicos\ServicoController;
 use Illuminate\Support\Facades\Route;
 
 // Rotas para serviços (requer autenticação)
-Route::middleware(['auth:sanctum'])->prefix('servicos')->group(function () {
+Route::middleware(['auth', 'verified'])->prefix('servicos')->group(function () {
 
     // CRUD básico
     Route::get('/', [ServicoController::class, 'index'])->name('servicos.index');

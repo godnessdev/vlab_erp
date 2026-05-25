@@ -16,12 +16,19 @@ class ServicoController extends Controller
         private ServicoService $servicoService
     ) {}
 
+    private function empresaId(Request $request): ?string
+    {
+        return tenant_id()
+            ?? $request->user()?->empresa_atual_id
+            ?? $request->header('X-Empresa-ID');
+    }
+
     /**
      * Listar serviços da empresa
      */
-    public function index(Request $request): JsonResponse
+    public function index(Request $request)
     {
-        $empresaId = $request->user()->empresa_atual_id ?? $request->header('X-Empresa-ID');
+        $empresaId = $this->empresaId($request);
 
         if (! $empresaId) {
             return response()->json([
@@ -42,6 +49,21 @@ class ServicoController extends Controller
 
         $servicos = $this->servicoService->listar($empresaId, $filtros, $perPage);
 
+        if (! $request->expectsJson()) {
+            return view('modules.list', [
+                'title' => 'Servicos',
+                'description' => 'Catalogo de servicos usados em ordens, faturamento e fiscal.',
+                'records' => $servicos,
+                'columns' => [
+                    ['label' => 'Descricao', 'key' => 'descricao'],
+                    ['label' => 'Unidade', 'key' => 'unidade_medida'],
+                    ['label' => 'Preco base', 'key' => 'preco_base', 'type' => 'money'],
+                    ['label' => 'ISS padrao', 'key' => 'aliquota_iss_default'],
+                    ['label' => 'Status', 'key' => 'status'],
+                ],
+            ]);
+        }
+
         return response()->json([
             'success' => true,
             'data' => $servicos->items(),
@@ -61,7 +83,7 @@ class ServicoController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $empresaId = $request->user()->empresa_atual_id ?? $request->header('X-Empresa-ID');
+        $empresaId = $this->empresaId($request);
 
         if (! $empresaId) {
             return response()->json([
@@ -101,7 +123,7 @@ class ServicoController extends Controller
      */
     public function show(Request $request, string $id): JsonResponse
     {
-        $empresaId = $request->user()->empresa_atual_id ?? $request->header('X-Empresa-ID');
+        $empresaId = $this->empresaId($request);
 
         if (! $empresaId) {
             return response()->json([
@@ -139,7 +161,7 @@ class ServicoController extends Controller
      */
     public function update(Request $request, string $id): JsonResponse
     {
-        $empresaId = $request->user()->empresa_atual_id ?? $request->header('X-Empresa-ID');
+        $empresaId = $this->empresaId($request);
 
         if (! $empresaId) {
             return response()->json([
@@ -179,7 +201,7 @@ class ServicoController extends Controller
      */
     public function destroy(Request $request, string $id): JsonResponse
     {
-        $empresaId = $request->user()->empresa_atual_id ?? $request->header('X-Empresa-ID');
+        $empresaId = $this->empresaId($request);
 
         if (! $empresaId) {
             return response()->json([
@@ -217,7 +239,7 @@ class ServicoController extends Controller
      */
     public function ativar(Request $request, string $id): JsonResponse
     {
-        $empresaId = $request->user()->empresa_atual_id ?? $request->header('X-Empresa-ID');
+        $empresaId = $this->empresaId($request);
 
         try {
             $servico = $this->servicoService->ativar($empresaId, $id);
@@ -242,7 +264,7 @@ class ServicoController extends Controller
      */
     public function inativar(Request $request, string $id): JsonResponse
     {
-        $empresaId = $request->user()->empresa_atual_id ?? $request->header('X-Empresa-ID');
+        $empresaId = $this->empresaId($request);
 
         try {
             $servico = $this->servicoService->inativar($empresaId, $id);
@@ -267,7 +289,7 @@ class ServicoController extends Controller
      */
     public function selecao(Request $request): JsonResponse
     {
-        $empresaId = $request->user()->empresa_atual_id ?? $request->header('X-Empresa-ID');
+        $empresaId = $this->empresaId($request);
         $termo = $request->get('q');
 
         $servicos = $this->servicoService->buscarParaSelecao($empresaId, $termo);
@@ -283,7 +305,7 @@ class ServicoController extends Controller
      */
     public function calcularTributacao(Request $request, string $id): JsonResponse
     {
-        $empresaId = $request->user()->empresa_atual_id ?? $request->header('X-Empresa-ID');
+        $empresaId = $this->empresaId($request);
 
         $request->validate([
             'valor_base' => 'required|numeric|min:0',
@@ -340,7 +362,7 @@ class ServicoController extends Controller
      */
     public function estatisticas(Request $request): JsonResponse
     {
-        $empresaId = $request->user()->empresa_atual_id ?? $request->header('X-Empresa-ID');
+        $empresaId = $this->empresaId($request);
 
         $estatisticas = $this->servicoService->obterEstatisticas($empresaId);
 

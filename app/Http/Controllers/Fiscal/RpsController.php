@@ -16,9 +16,28 @@ class RpsController extends Controller
         $this->rpsService = $rpsService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        return Rps::paginate();
+        $rps = Rps::query()
+            ->orderByDesc('data_emissao')
+            ->paginate($request->integer('per_page', 15));
+
+        if ($request->expectsJson()) {
+            return $rps;
+        }
+
+        return view('modules.list', [
+            'title' => 'RPS',
+            'description' => 'Recibos provisorios de servico gerados pelo faturamento.',
+            'records' => $rps,
+            'columns' => [
+                ['label' => 'Numero', 'key' => 'numero_rps'],
+                ['label' => 'Serie', 'key' => 'serie'],
+                ['label' => 'Emissao', 'key' => 'data_emissao'],
+                ['label' => 'Valor servicos', 'key' => 'valor_servicos', 'type' => 'money'],
+                ['label' => 'Situacao', 'key' => 'situacao'],
+            ],
+        ]);
     }
 
     public function show($id)

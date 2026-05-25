@@ -1,5 +1,5 @@
 <button @click="darkMode = !darkMode"
-        class="rounded-lg p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 transition-colors"
+        class="flex min-h-11 min-w-11 items-center justify-center rounded-lg p-2 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
         :aria-label="darkMode ? 'Ativar modo claro' : 'Ativar modo escuro'"
         :title="darkMode ? 'Ativar modo claro' : 'Ativar modo escuro'">
     <!-- Sun Icon (shown in dark mode) -->
